@@ -1,0 +1,9 @@
+schema_version: 1
+
+name: jboss.eap.cd.base.installer
+execute:
+    - script: install_eap.sh
+artifacts:
+    - path: jboss-eap-7.2.0.CD12.CR1.zip
+      sha256:  472a64c1b5f40cbb78d9da4d91487f0c296e732521729ae4a41f036111ff5e85
+
