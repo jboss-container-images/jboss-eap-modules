@@ -597,7 +597,6 @@
         <outbound-socket-binding name="http-messaging">
             <remote-destination host="${jboss.messaging.host:localhost}" port="${jboss.http.port:8080}"/>
         </outbound-socket-binding>
-
         <!-- ##MESSAGING_PORTS## -->
         <socket-binding name="txn-recovery-environment" port="4712"/>
         <socket-binding name="txn-status-manager" port="4713"/>
