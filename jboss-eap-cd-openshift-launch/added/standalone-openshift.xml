@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<server xmlns="urn:jboss:domain:6.0">
+<server xmlns="urn:jboss:domain:7.0">
     <extensions>
         <extension module="org.jboss.as.clustering.infinispan"/>
         <extension module="org.jboss.as.clustering.jgroups"/>
@@ -221,7 +221,7 @@
             <log-system-exceptions value="true"/>
             <!-- ##EJB_APPLICATION_SECURITY_DOMAINS## -->
         </subsystem>
-        <subsystem xmlns="urn:wildfly:elytron:2.0" final-providers="combined-providers" disallowed-providers="OracleUcrypto">
+        <subsystem xmlns="urn:wildfly:elytron:3.0" final-providers="combined-providers" disallowed-providers="OracleUcrypto">
             <providers>
                 <aggregate-providers name="combined-providers">
                     <providers name="elytron"/>
@@ -532,7 +532,7 @@
             <recovery-environment socket-binding="txn-recovery-environment" status-socket-binding="txn-status-manager" recovery-listener="true"/>
             <!-- ##JDBC_STORE## -->
         </subsystem>
-        <subsystem xmlns="urn:jboss:domain:undertow:5.0">
+        <subsystem xmlns="urn:jboss:domain:undertow:6.0">
             <buffer-cache name="default"/>
             <server name="default-server">
                 <ajp-listener name="ajp" socket-binding="ajp"/>
