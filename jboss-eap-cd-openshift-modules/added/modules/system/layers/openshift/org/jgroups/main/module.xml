@@ -30,7 +30,8 @@
 
     <dependencies>
         <module name="javax.api"/>
-        <!--<module name="org.jboss.as.clustering.jgroups"/>-->
+        <module name="org.jgroups.kubernetes"/>
         <module name="org.openshift.ping"/>
     </dependencies>
+
 </module>
