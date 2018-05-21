@@ -457,7 +457,7 @@
                 <smtp-server outbound-socket-binding-ref="mail-smtp"/>
             </mail-session>
         </subsystem>
-        <subsystem xmlns="urn:jboss:domain:messaging-activemq:3.1">
+        <subsystem xmlns="urn:jboss:domain:messaging-activemq:3.0">
             <!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:modcluster:3.0">
