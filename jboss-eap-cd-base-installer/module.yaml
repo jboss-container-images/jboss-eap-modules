@@ -5,6 +5,6 @@ execute:
     - script: install_eap.sh
 artifacts:
     - name: jboss-eap-cd.zip
-      path: jboss-eap-7.2.0.CD13-20180601.zip
-      sha256: 7f37aee3109722d707b00806cf88d37e71e2dd721aa1d75a9d096fc5abe84c2f
+      path: jboss-eap-7.2.0.CD13-20180606.zip
+      sha256: 5fc5b11498212292ffb09b79779df1fa38b570a549752162535fe5c1447caf8d 
 
