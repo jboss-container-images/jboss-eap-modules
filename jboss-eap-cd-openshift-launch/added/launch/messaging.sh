@@ -456,22 +456,27 @@ function inject_brokers() {
          cnx_factory=$(generate_remote_artemis_connection_factory ${cnx_factory_name} ${username} ${password} ${default_connection_factory})
          sed -i "s|<!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->|${cnx_factory%$'\n'}<!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->|" $CONFIG_FILE
 
-         for q in ${queues}; do
-            prop=$(generate_remote_artemis_property "queue" ${q})
-            sed -i "s|<!-- ##AMQ7_CONFIG_PROPERTIES## -->|${prop%$'\n'}<!-- ##AMQ7_CONFIG_PROPERTIES## -->|" $CONFIG_FILE
+         IFS=',' read -a queues <<< ${MQ_QUEUES}
+         if [ "${#queues[@]}" -ne "0" ]; then
+            for q in ${queues[@]}; do
+                prop=$(generate_remote_artemis_property "queue" ${q})
+                sed -i "s|<!-- ##AMQ7_CONFIG_PROPERTIES## -->|${prop%$'\n'}<!-- ##AMQ7_CONFIG_PROPERTIES## -->|" $CONFIG_FILE
 
-            lookup=$(generate_remote_artemis_lookup "remoteContext" ${q})
-            sed -i "s|<!-- ##AMQ_LOOKUP_OBJECTS## -->|${lookup%$'\n'}<!-- ##AMQ_LOOKUP_OBJECTS## -->|" $CONFIG_FILE
-         done
+                lookup=$(generate_remote_artemis_lookup "remoteContext" ${q})
+                sed -i "s|<!-- ##AMQ_LOOKUP_OBJECTS## -->|${lookup%$'\n'}<!-- ##AMQ_LOOKUP_OBJECTS## -->|" $CONFIG_FILE
+            done
+         fi
 
-         for t in ${topics}; do
-            prop=$(generate_remote_artemis_property "topic" ${t})
-            sed -i "s|<!-- ##AMQ7_CONFIG_PROPERTIES## -->|${prop%$'\n'}<!-- ##AMQ7_CONFIG_PROPERTIES## -->|" $CONFIG_FILE
+         IFS=',' read -a topics <<< ${MQ_TOPICS}
+         if [ "${#topics[@]}" -ne "0" ]; then
+            for t in ${topics[@]}; do
+                prop=$(generate_remote_artemis_property "topic" ${t})
+                sed -i "s|<!-- ##AMQ7_CONFIG_PROPERTIES## -->|${prop%$'\n'}<!-- ##AMQ7_CONFIG_PROPERTIES## -->|" $CONFIG_FILE
 
-            lookup=$(generate_remote_artemis_lookup "remoteContext" ${t})
-            sed -i "s|<!-- ##AMQ_LOOKUP_OBJECTS## -->|${lookup%$'\n'}<!-- ##AMQ_LOOKUP_OBJECTS## -->|" $CONFIG_FILE
-         done
-
+                lookup=$(generate_remote_artemis_lookup "remoteContext" ${t})
+                sed -i "s|<!-- ##AMQ_LOOKUP_OBJECTS## -->|${lookup%$'\n'}<!-- ##AMQ_LOOKUP_OBJECTS## -->|" $CONFIG_FILE
+            done
+         fi
          ;;
       esac
 
