@@ -158,7 +158,7 @@ function generate_remote_artemis_naming() {
 # $4 - default connection factory - java:jboss/DefaultJMSConnectionFactory
 # <!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->
 function generate_remote_artemis_connection_factory() {
-    echo "<pooled-connection-factory user=\"${2}\" password=\"${3}\" name=\"${1}\" entries=\"java:/RemoteJmsXA java:jboss/RemoteJmsXA ${4}\" connectors=\"netty-remote-throughput\" transaction=\"xa\"/>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
+    echo "<pooled-connection-factory user=\"${2}\" password=\"${3}\" name=\"${1}\" entries=\"java:/JmsXA java:/RemoteJmsXA java:jboss/RemoteJmsXA ${4}\" connectors=\"netty-remote-throughput\" transaction=\"xa\"/>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
 }
 
 # $1 object type - queue / topic
@@ -428,7 +428,9 @@ function inject_brokers() {
              sed -i "s|<!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->|${activemq_subsystem%$'\n'}<!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->|" $CONFIG_FILE
              subsystem_added=true
              # make sure the default connection factory isn't set on another cnx factory
-            sed -i "s|java:jboss/DefaultJMSConnectionFactory||g" $CONFIG_FILE
+             sed -i "s|java:jboss/DefaultJMSConnectionFactory||g" $CONFIG_FILE
+             # this will be on the remote ConnectionFactory, so rename the local one until the embedded broker is dropped.
+             sed -i "s|java:/JmsXA|java:/JmsXALocal|" $CONFIG_FILE
          fi
 
          # XXX this should be configurable
