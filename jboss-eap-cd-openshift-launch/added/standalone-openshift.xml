@@ -607,9 +607,6 @@
         </outbound-socket-binding>
         <!-- ##MESSAGING_PORTS## -->
         <!-- ##AMQ_MESSAGING_SOCKET_BINDING## -->
-        <!-- <outbound-socket-binding name="messaging-remote-throughput">
-              <remote-destination host="localhost" port="61616"/>
-            </outbound-socket-binding> -->
         <socket-binding name="txn-recovery-environment" port="4712"/>
         <socket-binding name="txn-status-manager" port="4713"/>
         <outbound-socket-binding name="mail-smtp">

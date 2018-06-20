@@ -26,5 +26,4 @@
         <connection-factory name="RemoteConnectionFactory" connectors="http-connector" entries="java:jboss/exported/jms/RemoteConnectionFactory" reconnect-attempts="-1" />
         <pooled-connection-factory name="activemq-ra" transaction="xa" connectors="in-vm" entries="java:/JmsXA java:jboss/DefaultJMSConnectionFactory"/>
         <!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->
-        <!-- <pooled-connection-factory name="activemq-ra-remote" entries="java:/RemoteJmsXA java:jboss/RemoteJmsXA" connectors="netty-remote-throughput" transaction="xa"/> -->
     </server>
