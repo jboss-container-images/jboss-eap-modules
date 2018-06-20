@@ -1,15 +1,10 @@
-#!/bin/sh -x
+#!/bin/sh
 # Openshift EAP CD launch script routines for configuring messaging
 
 
 ACTIVEMQ_SUBSYSTEM_FILE=$JBOSS_HOME/bin/launch/activemq-subsystem.xml
 source $JBOSS_HOME/bin/launch/launch-common.sh
 source $JBOSS_HOME/bin/launch/logging.sh
-
-# XXX
-#ACTIVEMQ_SUBSYSTEM_FILE=activemq-subsystem.xml
-#source /home/kwills/os/git/cct_module/./os-logging/added/launch/logging.sh
-#source /home/kwills/os/git/cct_module/os-eap7-launch/added/launch/launch-common.sh
 
 # Messaging doesn't currently support configuration using env files, but this is
 # a start at what it would need to do to clear the env.  The reason for this is
@@ -163,7 +158,6 @@ function generate_remote_artemis_connection_factory() {
 
 # $1 object type - queue / topic
 # $2 object name - MyQueue / MyTopic
-# XXX configurable seperator?
 # <!-- ##AMQ7_CONFIG_PROPERTIES## -->
 function generate_remote_artemis_property() {
     echo "<property name=\"${1}.${2}\" value=\"${2}\"/>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
@@ -448,14 +442,7 @@ function inject_brokers() {
          cnx_factory_name="activemq-ra-remote"
          EJB_RESOURCE_ADAPTER_NAME=${cnx_factory_name}.rar
 
-         if [ "$has_default_cnx_factory" = "false" ]; then
-            default_connection_factory="java:jboss/DefaultJMSConnectionFactory"
-            has_default_connection_factory=true
-         else
-            default_connection_factory=""
-         fi
-
-         cnx_factory=$(generate_remote_artemis_connection_factory ${cnx_factory_name} ${username} ${password} ${default_connection_factory})
+         cnx_factory=$(generate_remote_artemis_connection_factory ${cnx_factory_name} ${username} ${password} ${jndi})
          sed -i "s|<!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->|${cnx_factory%$'\n'}<!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->|" $CONFIG_FILE
 
          if [ "${#queues[@]}" -ne "0" ]; then
@@ -480,12 +467,11 @@ function inject_brokers() {
          ;;
       esac
 
-      # default to AMQ7 if it is present
-      if [ -z "$defaultJmsConnectionFactoryJndi" ] && [ "$REMOTE_AMQ7" = "true" ]; then
-        defaultJmsConnectionFactoryJndi="java:jboss/DefaultJMSConnectionFactory"
-      elif [ -z "$defaultJmsConnectionFactoryJndi" ] && [ "$REMOTE_AMQ6" = "true" ]; then
-        defaultJmsConnectionFactoryJndi="$jndi"
+      # first defined broker is the default.
+      if [ -z "$defaultJmsConnectionFactoryJndi" ] ; then
+        defaultJmsConnectionFactoryJndi="${jndi}"
       fi
+
       # increment RA counter
       counter=$((counter+1))
     done
