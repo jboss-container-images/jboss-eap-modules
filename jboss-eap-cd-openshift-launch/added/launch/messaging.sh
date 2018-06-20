@@ -370,7 +370,7 @@ function inject_brokers() {
 
       if [ -z $host ] || [ -z $port ]; then
         log_warning "There is a problem with your service configuration!"
-        log_warning "You provided following MQ mapping (via MQ_SERVICE_PREFIX_MAPPING environment variable): $brokers. To configure resource adapters we expect ${service}_SERVICE_HOST and ${service}_SERVICE_PORT to be set."
+        log_warning "You provided following MQ mapping (via MQ_SERVICE_PREFIX_MAPPING environment variable): $brokers. To configure resource adapters we expect ${service}_${protocol_env}_SERVICE_HOST and ${service}_${protocol_env}_SERVICE_PORT to be set."
         log_warning
         log_warning "Current values:"
         log_warning
