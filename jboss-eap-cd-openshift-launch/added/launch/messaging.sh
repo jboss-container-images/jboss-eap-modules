@@ -365,7 +365,7 @@ function inject_brokers() {
       protocol_env=${protocol//[-+.]/_}
       protocol_env=${protocol_env^^}
 
-      # remap for AMQ7 config vars AMQ7 gets looked up as AMQ
+      # remap for AMQ7 config vars, AMQ7 gets looked up as AMQ
       if [ "$type" = "AMQ7" ] ; then
         host=$(find_env "${service/%AMQ7/AMQ}_${protocol_env}_SERVICE_HOST")
         port=$(find_env "${service/%AMQ7/AMQ}_${protocol_env}_SERVICE_PORT")
@@ -433,7 +433,7 @@ function inject_brokers() {
              sed -i "s|java:/JmsXA|java:/JmsXALocal|" $CONFIG_FILE
          fi
 
-         # XXX this should be configurable
+         # this should be configurable - see CLOUD-2225 for multi broker support
          socket_binding_name="messaging-remote-throughput"
          connector=$(generate_remote_artemis_remote_connector ${socket_binding_name})
          sed -i "s|<!-- ##AMQ_REMOTE_CONNECTOR## -->|${connector%$'\n'}<!-- ##AMQ_REMOTE_CONNECTOR## -->|" $CONFIG_FILE
@@ -444,7 +444,7 @@ function inject_brokers() {
          naming=$(generate_remote_artemis_naming "remoteContext" ${host} ${port})
          sed -i "s|<!-- ##AMQ_REMOTE_CONTEXT## -->|${naming%$'\n'}<!-- ##AMQ_REMOTE_CONTEXT## -->|" $CONFIG_FILE
 
-         # XXX this should be configurable
+         # this name should also be configurable (CLOUD-2225)
          cnx_factory_name="activemq-ra-remote"
          EJB_RESOURCE_ADAPTER_NAME=${cnx_factory_name}.rar
 
@@ -458,7 +458,6 @@ function inject_brokers() {
          cnx_factory=$(generate_remote_artemis_connection_factory ${cnx_factory_name} ${username} ${password} ${default_connection_factory})
          sed -i "s|<!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->|${cnx_factory%$'\n'}<!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->|" $CONFIG_FILE
 
-         IFS=',' read -a queues <<< ${MQ_QUEUES}
          if [ "${#queues[@]}" -ne "0" ]; then
             for q in ${queues[@]}; do
                 prop=$(generate_remote_artemis_property "queue" ${q})
@@ -469,7 +468,6 @@ function inject_brokers() {
             done
          fi
 
-         IFS=',' read -a topics <<< ${MQ_TOPICS}
          if [ "${#topics[@]}" -ne "0" ]; then
             for t in ${topics[@]}; do
                 prop=$(generate_remote_artemis_property "topic" ${t})
