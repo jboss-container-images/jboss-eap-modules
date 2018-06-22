@@ -445,8 +445,9 @@ function inject_brokers() {
          cnx_factory=$(generate_remote_artemis_connection_factory ${cnx_factory_name} ${username} ${password} ${jndi})
          sed -i "s|<!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->|${cnx_factory%$'\n'}<!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->|" $CONFIG_FILE
 
-         if [ "${#queues[@]}" -ne "0" ]; then
-            for q in ${queues[@]}; do
+         IFS=',' read -a amq7_queues <<< ${queues:-}
+         if [ "${#amq7_queues[@]}" -ne "0" ]; then
+            for q in ${amq7_queues[@]}; do
                 prop=$(generate_remote_artemis_property "queue" ${q})
                 sed -i "s|<!-- ##AMQ7_CONFIG_PROPERTIES## -->|${prop%$'\n'}<!-- ##AMQ7_CONFIG_PROPERTIES## -->|" $CONFIG_FILE
 
@@ -455,8 +456,9 @@ function inject_brokers() {
             done
          fi
 
-         if [ "${#topics[@]}" -ne "0" ]; then
-            for t in ${topics[@]}; do
+         IFS=',' read -a amq7_topics <<< ${topics:-}
+         if [ "${#amq7_topics[@]}" -ne "0" ]; then
+            for t in ${amq7_topics[@]}; do
                 prop=$(generate_remote_artemis_property "topic" ${t})
                 sed -i "s|<!-- ##AMQ7_CONFIG_PROPERTIES## -->|${prop%$'\n'}<!-- ##AMQ7_CONFIG_PROPERTIES## -->|" $CONFIG_FILE
 
