@@ -25,10 +25,10 @@ function configure_jgroups_encryption() {
     if [ -n "${JGROUPS_ENCRYPT_NAME}" -a -n "${JGROUPS_ENCRYPT_PASSWORD}" ] ; then
       # For new JGroups we need to use SYM_ENCRYPT protocol
       jgroups_encrypt="\
-        <protocol type=\"SYM_ENCRYPT\" key-store=\"${JGROUPS_ENCRYPT_KEYSTORE_DIR}/${JGROUPS_ENCRYPT_KEYSTORE}\" key-alias=\"${JGROUPS_ENCRYPT_NAME}\">\
+        <encrypt-protocol type=\"SYM_ENCRYPT\" key-store=\"${JGROUPS_ENCRYPT_KEYSTORE_DIR}/${JGROUPS_ENCRYPT_KEYSTORE}\" key-alias=\"${JGROUPS_ENCRYPT_NAME}\">\
           <key-credential-reference clear-text=\"${JGROUPS_ENCRYPT_PASSWORD}\"/>\
           <property name=\"encrypt_entire_message\">true</property>\
-        </protocol>"
+        </encrypt-protocol>"
     else
       log_warning "Partial JGroups encryption configuration, the communication within the cluster WILL NOT be encrypted."
     fi
