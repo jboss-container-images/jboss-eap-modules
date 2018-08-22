@@ -1,7 +1,8 @@
 schema_version: 1
-name: jboss.eap.cd.jgroups
+name: jboss.eap.config.elytron
 version: '1.0'
-description: JBoss EAP CD jgroups configuration
+description: EAP Elytron configuration scripts
 execute:
 - script: configure.sh
   user: '185'
+

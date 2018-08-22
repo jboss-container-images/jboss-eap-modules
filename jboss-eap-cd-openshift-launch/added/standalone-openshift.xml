@@ -334,7 +334,17 @@
                 </mechanism-provider-filtering-sasl-server-factory>
                 <provider-sasl-server-factory name="global"/>
             </sasl>
-            <!-- ##TLS## -->
+            <tls>
+                <key-stores>
+                    <!-- ##ELYTRON_KEY_STORE## -->
+                </key-stores>
+                <key-managers>
+                    <!-- ##ELYTRON_KEY_MANAGER## -->
+                </key-managers>
+                <server-ssl-contexts>
+                    <!-- ##ELYTRON_SERVER_SSL_CONTEXT## -->
+                </server-ssl-contexts>
+            </tls>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:infinispan:5.0">
             <cache-container name="server" aliases="singleton cluster" default-cache="default" module="org.wildfly.clustering.server">
