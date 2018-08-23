@@ -1,0 +1,7 @@
+schema_version: 1
+name: jboss.eap.config.jgroups
+version: '1.0'
+description: JBoss EAP jgroups configuration
+execute:
+- script: configure.sh
+  user: '185'
