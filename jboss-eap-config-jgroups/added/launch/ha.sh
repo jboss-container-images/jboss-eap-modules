@@ -77,7 +77,7 @@ function configure_ha() {
   else
     JGROUPS_AUTH="\n\
                 <auth-protocol type=\"AUTH\">\n\
-                    <digest-token algorithm=\"SHA-512\">\n\
+                    <digest-token algorithm=\"${JGROUPS_DIGEST_TOKEN_ALGORITHM:-SHA-512}\">\n\
                         <shared-secret-reference clear-text=\"$JGROUPS_CLUSTER_PASSWORD\"/>\n\
                     </digest-token>\n\
                 </auth-protocol>\n"
