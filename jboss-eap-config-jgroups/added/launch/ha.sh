@@ -1,7 +1,7 @@
 source ${JBOSS_HOME}/bin/launch/openshift-node-name.sh
 source $JBOSS_HOME/bin/launch/logging.sh
 
-function prepareEnv() {
+prepareEnv() {
   unset OPENSHIFT_KUBE_PING_NAMESPACE
   unset OPENSHIFT_KUBE_PING_LABELS
   unset OPENSHIFT_DNS_PING_SERVICE_NAME
@@ -11,11 +11,11 @@ function prepareEnv() {
   unset NODE_NAME
 }
 
-function configure() {
+configure() {
   configure_ha
 }
 
-function check_view_pods_permission() {
+check_view_pods_permission() {
     if [ -n "${OPENSHIFT_KUBE_PING_NAMESPACE+_}" ]; then
         local CA_CERT="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
         local CURL_CERT_OPTION
@@ -46,23 +46,41 @@ function check_view_pods_permission() {
     fi
 }
 
-function validate_dns_ping_settings() {
+validate_dns_ping_settings() {
   if [ "x$OPENSHIFT_DNS_PING_SERVICE_NAME" = "x" ]; then
     log_warning "Environment variable OPENSHIFT_DNS_PING_SERVICE_NAME undefined. Clustering will be unavailable. Please refer to the documentation for configuration."
   fi
 }
 
-function validate_ping_protocol() {
-  if [ "$1" = "openshift.KUBE_PING" ]; then
+validate_ping_protocol() {
+  declare protocol="$1"
+  if [ "${protocol}" = "openshift.KUBE_PING" ]; then
     check_view_pods_permission
-  elif [ "$1" = "openshift.DNS_PING" ]; then
+  elif [ "${protocol}" = "openshift.DNS_PING" ]; then
     validate_dns_ping_settings
   else
     log_warning "Unknown protocol specified for JGroups discovery protocol: $1.  Expecting one of: openshift.KUBE_PING or openshift.DNS_PING."
   fi
 }
 
-function configure_ha() {
+get_socket_binding_for_ping() {
+    # KUBE_PING and DNS_PING don't need socket bindings, but if the protocol is something else, we should allow it
+    declare protocol="$1" socket_binding_name="$2"
+    local default_socket_binding="socket-binding=\"jgroups-mping\""
+    if [ "${protocol}" = "openshift.KUBE_PING" -o \
+          "${protocol}" = "openshift.DNS_PING" -o \
+          "${protocol}" = "kubernetes.KUBE_PING" -o \
+          "${protocol}" = "dns.DNS_PING" ]; then
+      echo ""
+    else
+      if [ -n "$socket_binding_name" ]; then
+        echo "socket-binding=\"${socket_binding}\""
+      else
+        echo ${default_socket_binding}
+      fi
+    fi
+}
+configure_ha() {
   # Set HA args
   IP_ADDR=`hostname -i`
   JBOSS_HA_ARGS="-b ${IP_ADDR} -bprivate ${IP_ADDR}"
@@ -84,7 +102,8 @@ function configure_ha() {
   fi
 
   local ping_protocol=${JGROUPS_PING_PROTOCOL:-openshift.KUBE_PING}
-  local ping_protocol_element="<protocol type=\"${ping_protocol}\"/>"
+  local socket_binding=$(get_socket_binding_for_ping "${ping_protocol}")
+  local ping_protocol_element="<protocol type=\"${ping_protocol}\" ${socket_binding}/>"
   validate_ping_protocol "${ping_protocol}" 
 
   sed -i "s|<!-- ##JGROUPS_AUTH## -->|${JGROUPS_AUTH}|g" $CONFIG_FILE
