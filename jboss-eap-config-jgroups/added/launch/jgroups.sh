@@ -22,8 +22,8 @@ configureEnv() {
 }
 
 create_jgroups_elytron_encrypt_sym() {
-    declare jg_encrypt_keystore="$1" jg_encrypt_name="$2" jg_encrypt_password="$3" jg_encrypt_entire_message="$4"
-    local encrypt="<encrypt-protocol type=\"SYM_ENCRYPT\" key-store=\"${jg_encrypt_keystore}\" key-alias=\"${jg_encrypt_name}\">\
+    declare jg_encrypt_keystore="$1" jg_encrypt_key_alias="$2" jg_encrypt_password="$3" jg_encrypt_entire_message="$4"
+    local encrypt="<encrypt-protocol type=\"SYM_ENCRYPT\" key-store=\"${jg_encrypt_keystore}\" key-alias=\"${jg_encrypt_key_alias}\">\
                        <key-credential-reference clear-text=\"${jg_encrypt_password}\"/>\
                        <property name=\"encrypt_entire_message\">${jg_encrypt_entire_message:-true}</property>\
                    </encrypt-protocol>"
@@ -49,7 +49,7 @@ create_jgroups_encrypt_asym() {
 }
 
 create_jgroups_elytron_legacy() {
-    declare jg_encrypt_keystore_dir="$1" jg_encrypt_keystore="$2" jg_encrypt_password="$3" jg_encrypt_name="$4"
+    declare jg_encrypt_keystore="$1" jg_encrypt_password="$2" jg_encrypt_name="$3" jg_encrypt_keystore_dir="$4"
     # compatability with old marker, only used if new marker is not present
     local legacy_encrypt="\
         <protocol type=\"SYM_ENCRYPT\">\
@@ -64,7 +64,22 @@ create_jgroups_elytron_legacy() {
 }
 
 validate_keystore() {
-    declare jg_encrypt_secret="$1" jg_encrypt_name="$2" jg_encrypt_password="$3" jg_encrypt_keystore_dir="$4" jg_encrypt_keystore="$5"
+    declare jg_encrypt_secret="$1" jg_encrypt_name="$2" jg_encrypt_password="$3" jg_encrypt_keystore="$4"
+    if [ -n "${jg_encrypt_secret}"   -a \
+      -n "${jg_encrypt_name}"         -a \
+      -n "${jg_encrypt_password}"     -a \
+      -n "${jg_encrypt_keystore}" ]; then
+        echo "valid"
+      elif [ -n "${jg_encrypt_secret}" ]; then
+        echo "partial"
+      else
+        echo "missing"
+      fi
+}
+
+# for legacy configs, we require JGROUPS_ENCRYPT_KEYSTORE_DIR
+validate_keystore_legacy() {
+    declare jg_encrypt_secret="$1" jg_encrypt_name="$2" jg_encrypt_password="$3" jg_encrypt_keystore="$4" jg_encrypt_keystore_dir="$5"
     if [ -n "${jg_encrypt_secret}"   -a \
       -n "${jg_encrypt_name}"         -a \
       -n "${jg_encrypt_password}"     -a \
@@ -87,19 +102,26 @@ configure_jgroups_encryption() {
     log_info "Configuring JGroups cluster traffic encryption protocol to SYM_ENCRYPT."
     local jgroups_unencrypted_message="Detected <STATE> JGroups encryption configuration, the communication within the cluster WILL NOT be encrypted."
     local keystore_warning_message=""
-    local keystore_validation_state=$(validate_keystore "${JGROUPS_ENCRYPT_SECRET}" "${JGROUPS_ENCRYPT_NAME}" "${JGROUPS_ENCRYPT_PASSWORD}" "${JGROUPS_ENCRYPT_KEYSTORE_DIR}" "${JGROUPS_ENCRYPT_KEYSTORE}")
+    local has_elytron_tls_marker=$(has_elytron_tls)
+    local keystore_validation_state="";
+    if [ "${has_elytron_tls_marker}" = "true" ]; then
+        keystore_validation_state=$(validate_keystore "${JGROUPS_ENCRYPT_SECRET}" "${JGROUPS_ENCRYPT_NAME}" "${JGROUPS_ENCRYPT_PASSWORD}" "${JGROUPS_ENCRYPT_KEYSTORE}")
+    else
+        keystore_validation_state=$(validate_keystore_legacy "${JGROUPS_ENCRYPT_SECRET}" "${JGROUPS_ENCRYPT_NAME}" "${JGROUPS_ENCRYPT_PASSWORD}" "${JGROUPS_ENCRYPT_KEYSTORE}" "${JGROUPS_ENCRYPT_KEYSTORE_DIR}")
+    fi
 
     if [ "${keystore_validation_state}" = "valid" ]; then
         # first add the elytron key-store:
         if [ "$(has_elytron_tls)" = "true" ]; then
-            key_store=$(create_elytron_keystore "${JGROUPS_ENCRYPT_KEYSTORE}" "${JGROUPS_ENCRYPT_PASSWORD}" "${JGROUPS_ENCRYPT_KEYSTORE_TYPE}" "${JGROUPS_ENCRYPT_KEYSTORE_DIR}" "${JGROUPS_ENCRYPT_KEYSTORE}")
+            key_store=$(create_elytron_keystore "${JGROUPS_ENCRYPT_KEYSTORE}" "${JGROUPS_ENCRYPT_KEYSTORE}" "${JGROUPS_ENCRYPT_PASSWORD}" "${JGROUPS_ENCRYPT_KEYSTORE_TYPE}" "${JGROUPS_ENCRYPT_KEYSTORE_DIR}")
             jgroups_encrypt=$(create_jgroups_elytron_encrypt_sym "${JGROUPS_ENCRYPT_KEYSTORE}" "${JGROUPS_ENCRYPT_NAME}" "${JGROUPS_ENCRYPT_PASSWORD}" "${JGROUPS_ENCRYPT_ENTIRE_MESSAGE:-true}")
         else
+          declare jg_encrypt_keystore="$1" jg_encrypt_password="$2" jg_encrypt_name="$3" jg_encrypt_keystore_dir="$4"
             # compatibility with old marker, only used if new marker is not present
-            jgroups_encrypt=$(create_jgroups_elytron_legacy "${JGROUPS_ENCRYPT_KEYSTORE_DIR}" "${JGROUPS_ENCRYPT_KEYSTORE}" "${JGROUPS_ENCRYPT_PASSWORD}" "${JGROUPS_ENCRYPT_NAME}")
+            jgroups_encrypt=$(create_jgroups_elytron_legacy "${JGROUPS_ENCRYPT_KEYSTORE}" "${JGROUPS_ENCRYPT_PASSWORD}" "${JGROUPS_ENCRYPT_NAME}" "${JGROUPS_ENCRYPT_KEYSTORE_DIR}")
         fi
-    elif [ "${keystore_vaidation_state}" = "partial" ]; then
-        keystore_warning_message="${jgroups_unencrpted_message//<STATE>/partial}"
+    elif [ "${keystore_validation_state}" = "partial" ]; then
+        keystore_warning_message="${jgroups_unencrypted_message//<STATE>/partial}"
     else
          keystore_warning_message="${jgroups_unencrypted_message//<STATE>/missing}"
     fi
@@ -109,7 +131,7 @@ configure_jgroups_encryption() {
     fi
 
     # add elytron block if we need it
-    if [ "$(has_elytron_tls)" = "true" ]; then
+    if [ "${has_elytron_tls_marker}" = "true" ]; then
         insert_elytron_tls
     fi
   ;;

@@ -65,19 +65,15 @@ validate_ping_protocol() {
 
 get_socket_binding_for_ping() {
     # KUBE_PING and DNS_PING don't need socket bindings, but if the protocol is something else, we should allow it
-    declare protocol="$1" socket_binding_name="$2"
+    declare protocol="$1" socket_binding="$2"
     local default_socket_binding="socket-binding=\"jgroups-mping\""
     if [ "${protocol}" = "openshift.KUBE_PING" -o \
           "${protocol}" = "openshift.DNS_PING" -o \
           "${protocol}" = "kubernetes.KUBE_PING" -o \
           "${protocol}" = "dns.DNS_PING" ]; then
-      echo ""
+        echo ""
     else
-      if [ -n "$socket_binding_name" ]; then
-        echo "socket-binding=\"${socket_binding}\""
-      else
-        echo ${default_socket_binding}
-      fi
+        echo "socket-binding=\"${socket_binding_name:-$default_socket_binding}\""
     fi
 }
 configure_ha() {
