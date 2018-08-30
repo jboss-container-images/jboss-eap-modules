@@ -160,7 +160,7 @@ create_elytron_https_connector() {
     echo "<https-listener name=\"https\" socket-binding=\"https\" ssl-context=\"LocalhostSslContext\" proxy-address-forwarding=\"true\"/>"
 }
 
-function configure_https() {
+configure_https() {
   local ssl="<!-- No SSL configuration discovered -->"
   local https_connector="<!-- No HTTPS configuration discovered -->"
 
@@ -198,7 +198,7 @@ function configure_https() {
   sed -i "s|<!-- ##HTTPS_CONNECTOR## -->|${elytron_https_connector}<!-- ##HTTPS_CONNECTOR## -->|" $CONFIG_FILE
 }
 
-function configure_security_domains() {
+configure_security_domains() {
   if [ -n "${SECDOMAIN_NAME}" ]; then
     elytron_integration="<elytron-integration>\n\
                 <security-realms>\n\
