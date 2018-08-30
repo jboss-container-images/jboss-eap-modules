@@ -119,7 +119,7 @@ create_elytron_keystore() {
     local keystore_path=""
     local keystore_rel_to=""
 
-    # if jg_encrypt_keystore_dir is null, we assume the keystore is relative to the servers jboss.server.config.dir
+    # if encrypt_keystore_dir is null, we assume the keystore is relative to the servers jboss.server.config.dir
     if [ -z "${encrypt_keystore_dir}" ]; then
       # Documented behavior; HTTPS_KEYSTORE is relative to the config dir
       # Use case is the user puts their keystore in their source's 'configuration' dir and s2i pulls it in
