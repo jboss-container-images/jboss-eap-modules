@@ -64,14 +64,16 @@ insert_elytron_tls() {
 }
 
 elytron_legacy_config() {
-    declare https_password="$1" https_keystore_type="$2" https_keystore_dir="$3" https_keystore="$4" https_key_password="$5"
+    declare https_keystore="$1" https_keystore_type="$2" https_password="$3" https_key_password="$4" https_keystore_dir="$5"
 
     local keystore_path=""
     local keystore_rel_to=""
     local key_password=""
 
     if [ -n "${https_key_password}" ]; then
-      key_password="<credential-reference clear-text=\"${https_key_password}\"/>"
+      key_password=${https_key_password}
+    else
+      key_password=${https_password}
     fi
 
     if [ -z "${https_keystore_dir}"  ]; then
@@ -89,22 +91,22 @@ elytron_legacy_config() {
       keystore_path="path=\"${https_keystore}\""
       keystore_rel_to="relative-to=\"${https_keystore_dir}\""
     fi
+
+    local elytron_key_store=$(create_elytron_keystore "LocalhostKeyStore" "${https_keystore}" "${https_password}" "${https_keystore_type}" "${https_keystore_dir}")
+    local elytron_key_manager=$(create_elytron_keymanager "LocalhostKeyManager" "LocalhostKeyStore" "${key_password}")
+    local elytron_server_ssl_context=$(create_elytron_ssl_context "LocalhostSslContext" "LocalhostKeyManager")
+
+    # this is to support the legacy <!-- ##TLS## --> insertion block.
     local legacy_elytron_tls="\
     <tls>\n\
         <key-stores>\n\
-            <key-store name=\"LocalhostKeyStore\">\n\
-                <credential-reference clear-text=\"${https_password}\"/>\n\
-                <implementation type=\"${https_keystore_type}\"/>\n\
-                <file ${keystore_path} ${keystore_rel_to}/>\n\
-            </key-store>\n\
+            ${elytron_key_store}\n\
         </key-stores>\n\
         <key-managers>\n\
-            <key-manager name=\"LocalhostKeyManager\" key-store=\"LocalhostKeyStore\">\n\
-                ${key_password}\n\
-            </key-manager>\n\
+            ${elytron_key_manager}\n\
         </key-managers>\n\
         <server-ssl-contexts>\n\
-            <server-ssl-context name=\"LocalhostSslContext\" key-manager=\"LocalhostKeyManager\"/>\n\
+            ${server_ssl_context}\n\
         </server-ssl-contexts>\n\
     </tls>"
 
@@ -112,27 +114,30 @@ elytron_legacy_config() {
 }
 
 create_elytron_keystore() {
-    declare encrypt_keystore="$1" encrypt_password="$2" encrypt_keystore_type="$3" encrypt_keystore_dir="$4"
+    declare encrypt_keystore_name="$1" encrypt_keystore="$2" encrypt_password="$3" encrypt_keystore_type="$4" encrypt_keystore_dir="$5"
 
     local keystore_path=""
     local keystore_rel_to=""
 
     # if jg_encrypt_keystore_dir is null, we assume the keystore is relative to the servers jboss.server.config.dir
     if [ -z "${encrypt_keystore_dir}" ]; then
+      # Documented behavior; HTTPS_KEYSTORE is relative to the config dir
+      # Use case is the user puts their keystore in their source's 'configuration' dir and s2i pulls it in
       keystore_path="path=\"${encrypt_keystore}\""
       keystore_rel_to="relative-to=\"jboss.server.config.dir\""
     elif [[ "${encrypt_keystore_dir}" =~ ^/ ]]; then
-      # if this is present and starts with "/", then the path is absolute
+      # Assume leading '/' means the value is a FS path
+      # Standard template behavior where the template sets this var to /etc/eap-secret-volume
       keystore_path="path=\"${encrypt_keystore_dir}/${encrypt_keystore}\""
       keystore_rel_to=""
     else
-        # no absolute path for the keystore directory, assume its relative
-        keystore_path="path=\"${encrypt_keystore}\""
-        keystore_rel_to="relative-to=\"jboss.server.config.dir\""
+      # Compatibility edge case. Treat no leading '/' as meaning HTTPS_KEYSTORE_DIR is the name of a config model path
+      keystore_path="path=\"${encrypt_keystore}\""
+      keystore_rel_to="relative-to=\"jboss.server.config.dir\""
     fi
 
     local key_store="\
-        <key-store name=\"${encrypt_keystore}\">\n\
+        <key-store name=\"${encrypt_keystore_name}\">\n\
             <credential-reference clear-text=\"${encrypt_password}\"/>\n\
             <implementation type=\"${encrypt_keystore_type:-JCEKS}\"/>\n\
             <file ${keystore_path} ${keystore_rel_to} />\n\
@@ -141,45 +146,60 @@ create_elytron_keystore() {
 }
 
 create_elytron_keymanager() {
-   declare https_password="$2" http_key_password="$1"
-   local key_password=""
-   if [ -n "${http_key_password}" ]; then
-      key_password="<credential-reference clear-text=\"${http_key_password}\"/>"
-   else
-      key_password="<credential-reference clear-text=\"${http_password}\"/>"
-   fi
-   local elytron_keymanager="\<key-manager name=\"LocalhostKeyManager\" key-store=\"LocalhostKeyStore\">$key_password</key-manager>\n"
-   echo ${elytron_keymanager}
+    declare key_manager="$1" key_store="$2" key_password="$1"
+    # note key password here may be the same as the password to the keystore itself, or a seperate key specific password.
+    # in either case it is required.
+    local key_password="<credential-reference clear-text=\"${http_key_password}\"/>"
+    local elytron_keymanager="\<key-manager name=\"${key_manager}\" key-store=\"${key_store}\">$key_password</key-manager>\n"
+    echo ${elytron_keymanager}
 }
 
 create_elytron_ssl_context() {
-    echo "<server-ssl-context name=\"LocalhostSslContext\" key-manager=\"LocalhostKeyManager\"/>\n"
+    declare ssl_context_name="$1" key_manager_name="$2"
+    echo "<server-ssl-context name=\"${ssl_context_name}\" key-manager=\"${key_manager_name}\"/>\n"
 }
 
 create_elytron_https_connector() {
-    echo "<https-listener name=\"https\" socket-binding=\"https\" ssl-context=\"LocalhostSslContext\" proxy-address-forwarding=\"true\"/>"
+    declare name="$1" socket_binding="$2" ssl_context="$3" proxy_address_forwarding="$3"
+    echo "<https-listener name=\"${name}\" socket-binding=\"${socket_binding}\" ssl-context=\"${ssl_context}\" proxy-address-forwarding=\"${proxy_address_forwarding:-true}\"/>"
 }
 
 configure_https() {
   local ssl="<!-- No SSL configuration discovered -->"
   local https_connector="<!-- No HTTPS configuration discovered -->"
+  local key_password=""
 
   if [ "${CONFIGURE_ELYTRON_SSL}" != "true" ]; then
     echo "Using PicketBox SSL configuration."
     return 
   fi
 
-  if [ -n "${HTTPS_PASSWORD}" -a -n "${HTTPS_KEYSTORE_DIR}" -a -n "${HTTPS_KEYSTORE}" -a -n "${HTTPS_KEYSTORE_TYPE}" ]; then
+  if [ -n "${HTTPS_PASSWORD}" -a -n "${HTTPS_KEYSTORE}" -a -n "${HTTPS_KEYSTORE_TYPE}" ]; then
 
-    elytron_key_store=$(create_elytron_keystore "LocalhostKeyStore" "${HTTPS_PASSWORD}" "${HTTPS_KEYSTORE_TYPE}" "${HTTPS_KEYSTORE_DIR}")
-    elytron_key_manager=$(create_elytron_keymanager "${HTTPS_PASSWORD}" "${HTTPS_KEY_PASSWORD}")
-    elytron_server_ssl_context=$(create_elytron_ssl_context)
-    elytron_https_connector=$(create_elytron_https_connector)
+    if [ -n "${HTTPS_KEY_PASSWORD}" ]; then
+      key_password="${HTTPS_KEY_PASSWORD}"
+    else
+      echo "No HTTPS_KEY_PASSWORD was provided; using HTTPS_PASSWORD for Elytron LocalhostKeyManager."
+      key_password="${HTTPS_PASSWORD}"
+    fi
 
-    legacy_elytron_tls=$(elytron_legacy_config "${HTTPS_PASSWORD}" "${HTTPS_KEYSTORE_TYPE}" "${HTTPS_KEYSTORE_DIR}" "${HTTPS_KEYSTORE}" "${HTTPS_KEY_PASSWORD}")
+    elytron_key_store=$(create_elytron_keystore "LocalhostKeyStore" "${HTTPS_KEYSTORE}" "${HTTPS_PASSWORD}" "${HTTPS_KEYSTORE_TYPE}" "${HTTPS_KEYSTORE_DIR}")
+    elytron_key_manager=$(create_elytron_keymanager "LocalhostKeyManager" "LocalhostKeyStore" "${key_password}")
+    elytron_server_ssl_context=$(create_elytron_ssl_context "LocalhostSslContext" "LocalhostKeyManager")
+    elytron_https_connector=$(create_elytron_https_connector "https" "https" "LocalhostSslContext" "true")
 
-  elif [ -n "${HTTPS_PASSWORD}" -o -n "${HTTPS_KEYSTORE_DIR}" -o -n "${HTTPS_KEYSTORE}" -o -n "${HTTPS_KEYSTORE_TYPE}" ]; then
-    echo "WARNING! Partial HTTPS configuration, the https connector WILL NOT be configured."
+  elif [ -n "${HTTPS_PASSWORD}" -o -n "${HTTPS_KEYSTORE}" -o -n "${HTTPS_KEYSTORE_TYPE}" ]; then
+    local missing_msg="WARNING! Partial HTTPS configuration, the https connector WILL NOT be configured. Missing:"
+    if [ -z "${HTTPS_PASSWORD}" ]; then
+      missing_msg="$missing_msg HTTPS_PASSWORD"
+    fi
+    if [ -z "${HTTPS_KEYSTORE}" ]; then
+      missing_msg="$missing_msg HTTPS_KEYSTORE"
+    fi
+    if [ -z "${HTTPS_KEYSTORE_TYPE}" ]; then
+      missing_msg="$missing_msg HTTPS_KEYSTORE_TYPE"
+    fi
+    echo $missing_msg
   fi
 
   # check for new config tag, use that if it's present
@@ -193,9 +213,10 @@ configure_https() {
     sed -i "s|<!-- ##ELYTRON_KEY_MANAGER## -->|${elytron_key_manager}<!-- ##ELYTRON_KEY_MANAGER## -->|" $CONFIG_FILE
     sed -i "s|<!-- ##ELYTRON_SERVER_SSL_CONTEXT## -->|${elytron_server_ssl_context}<!-- ##ELYTRON_SERVER_SSL_CONTEXT## -->|" $CONFIG_FILE
   else # legacy config
+    legacy_elytron_tls=$(elytron_legacy_config "${HTTPS_KEYSTORE}" "${HTTPS_KEYSTORE_TYPE}" "${HTTPS_PASSWORD}" "${HTTPS_KEY_PASSWORD}" "${HTTPS_KEYSTORE_DIR}")
     sed -i "s|<!-- ##TLS## -->|${legacy_elytron_tls}|" $CONFIG_FILE
   fi
-  sed -i "s|<!-- ##HTTPS_CONNECTOR## -->|${elytron_https_connector}<!-- ##HTTPS_CONNECTOR## -->|" $CONFIG_FILE
+  sed -i "s|<!-- ##HTTPS_CONNECTOR## -->|${elytron_https_connector}|" $CONFIG_FILE
 }
 
 configure_security_domains() {
