@@ -29,7 +29,7 @@ teardown() {
 @test "Configure JGROUPS_PROTOCOL=SYM_ENCRYPT" {
     expected=$(cat <<EOF
 <?xml version="1.0"?>
-   <enc1rypt-protocol type="SYM_ENCRYPT" key-store="keystore" key-alias="key_alias">
+   <encrypt-protocol type="SYM_ENCRYPT" key-store="keystore" key-alias="key_alias">
      <key-credential-reference clear-text="encrypt_password"/>
      <property name="encrypt_entire_message">encrypt-entire-message-true</property>
    </encrypt-protocol>
