@@ -1,0 +1,7 @@
+schema_version: 1
+name: jboss.eap.cd14.openshift
+version: '1.0'
+description: The jboss.eap.cd14.openshift script package. Installs a standalone-openshift.xml compatible with EAP CD 14.
+execute:
+- script: configure.sh
+  user: '185'
