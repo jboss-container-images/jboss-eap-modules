@@ -1,5 +1,9 @@
 # only processes a single environment as the placeholder is not preserved
 
+# strict mode for testing
+# set -euo pipefail
+# IFS=$'\n\t'
+
 prepareEnv() {
   unset HTTPS_NAME
   unset HTTPS_PASSWORD
@@ -146,10 +150,10 @@ create_elytron_keystore() {
 }
 
 create_elytron_keymanager() {
-    declare key_manager="$1" key_store="$2" key_password="$1"
+    declare key_manager="$1" key_store="$2" key_password="$3"
     # note key password here may be the same as the password to the keystore itself, or a seperate key specific password.
     # in either case it is required.
-    local key_password="<credential-reference clear-text=\"${http_key_password}\"/>"
+    local key_password="<credential-reference clear-text=\"${key_password}\"/>"
     local elytron_keymanager="\<key-manager name=\"${key_manager}\" key-store=\"${key_store}\">$key_password</key-manager>\n"
     echo ${elytron_keymanager}
 }
@@ -160,7 +164,7 @@ create_elytron_ssl_context() {
 }
 
 create_elytron_https_connector() {
-    declare name="$1" socket_binding="$2" ssl_context="$3" proxy_address_forwarding="$3"
+    declare name="$1" socket_binding="$2" ssl_context="$3" proxy_address_forwarding="$4"
     echo "<https-listener name=\"${name}\" socket-binding=\"${socket_binding}\" ssl-context=\"${ssl_context}\" proxy-address-forwarding=\"${proxy_address_forwarding:-true}\"/>"
 }
 
