@@ -1,9 +1,17 @@
 # only processes a single environment as the placeholder is not preserved
 
-source $JBOSS_HOME/bin/launch/logging.sh
+if [ -n "${LOGGING_INCLUDE}" ]; then
+    source "${LOGGING_INCLUDE}"
+else
+    source $JBOSS_HOME/bin/launch/logging.sh
+fi
 
 # required shared elytron functions
-source $JBOSS_HOME/bin/launch/elytron.sh
+if [ -n "${ELYTRON_INCLUDE}" ]; then
+    source "${ELYTRON_INCLUDE}"
+else
+    source $JBOSS_HOME/bin/launch/elytron.sh
+fi
 
 prepareEnv() {
   unset JGROUPS_ENCRYPT_SECRET
@@ -35,7 +43,7 @@ create_jgroups_encrypt_asym() {
     # from the docs: "The ASYM_ENCRYPT protocol should be configured immediately before the pbcast.NAKACK2"
     # this also *requires* AUTH to be enabled.
     # TODO: make these properties configurable, this is currently just falling back on defaults.
-    declare encrypt_entire_message="$1" sym_keylength="$2" sym_algorithm="$3" asym_keylength="$4" asym_algorithm="$5" change_key_on_leave="$6"
+    declare encrypt_entire_message="${1:-}" sym_keylength="${2:-}" sym_algorithm="${3:-}" asym_keylength="${4:-}" asym_algorithm="${5:-}" change_key_on_leave="${6:-}"
     local jgroups_encrypt="\
                     <protocol type=\"ASYM_ENCRYPT\">\n\
                         <property name=\"encrypt_entire_message\">${encrypt_entire_message:-true}</property>\n\
@@ -50,7 +58,7 @@ create_jgroups_encrypt_asym() {
 
 create_jgroups_elytron_legacy() {
     declare jg_encrypt_keystore="$1" jg_encrypt_password="$2" jg_encrypt_name="$3" jg_encrypt_keystore_dir="$4"
-    # compatability with old marker, only used if new marker is not present
+    # compatibility with old marker, only used if new marker is not present
     local legacy_encrypt="\
         <protocol type=\"SYM_ENCRYPT\">\
           <property name=\"provider\">SunJCE</property>\
@@ -102,7 +110,7 @@ configure_jgroups_encryption() {
     log_info "Configuring JGroups cluster traffic encryption protocol to SYM_ENCRYPT."
     local jgroups_unencrypted_message="Detected <STATE> JGroups encryption configuration, the communication within the cluster WILL NOT be encrypted."
     local keystore_warning_message=""
-    local has_elytron_tls_marker=$(has_elytron_tls)
+    local has_elytron_tls_marker=$(has_elytron_tls "${CONFIG_FILE}")
     local keystore_validation_state="";
     if [ "${has_elytron_tls_marker}" = "true" ]; then
         keystore_validation_state=$(validate_keystore "${JGROUPS_ENCRYPT_SECRET}" "${JGROUPS_ENCRYPT_NAME}" "${JGROUPS_ENCRYPT_PASSWORD}" "${JGROUPS_ENCRYPT_KEYSTORE}")
@@ -112,11 +120,10 @@ configure_jgroups_encryption() {
 
     if [ "${keystore_validation_state}" = "valid" ]; then
         # first add the elytron key-store:
-        if [ "$(has_elytron_tls)" = "true" ]; then
+        if [ "${has_elytron_tls_marker}" = "true" ]; then
             key_store=$(create_elytron_keystore "${JGROUPS_ENCRYPT_KEYSTORE}" "${JGROUPS_ENCRYPT_KEYSTORE}" "${JGROUPS_ENCRYPT_PASSWORD}" "${JGROUPS_ENCRYPT_KEYSTORE_TYPE}" "${JGROUPS_ENCRYPT_KEYSTORE_DIR}")
             jgroups_encrypt=$(create_jgroups_elytron_encrypt_sym "${JGROUPS_ENCRYPT_KEYSTORE}" "${JGROUPS_ENCRYPT_NAME}" "${JGROUPS_ENCRYPT_PASSWORD}" "${JGROUPS_ENCRYPT_ENTIRE_MESSAGE:-true}")
         else
-          declare jg_encrypt_keystore="$1" jg_encrypt_password="$2" jg_encrypt_name="$3" jg_encrypt_keystore_dir="$4"
             # compatibility with old marker, only used if new marker is not present
             jgroups_encrypt=$(create_jgroups_elytron_legacy "${JGROUPS_ENCRYPT_KEYSTORE}" "${JGROUPS_ENCRYPT_PASSWORD}" "${JGROUPS_ENCRYPT_NAME}" "${JGROUPS_ENCRYPT_KEYSTORE_DIR}")
         fi
@@ -155,7 +162,7 @@ configure_jgroups_encryption() {
   esac
 
   # now either use the new, or legacy config
-  if [ "$(has_elytron_keystore)" = "true" ]; then
+  if [ "$(has_elytron_keystore "${CONFIG_FILE}")" = "true" ]; then
     sed -i "s|<!-- ##ELYTRON_KEY_STORE## -->|${key_store}<!-- ##ELYTRON_KEY_STORE## -->|" $CONFIG_FILE
   fi
 

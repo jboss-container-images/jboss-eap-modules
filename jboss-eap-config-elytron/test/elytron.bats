@@ -9,11 +9,11 @@ setup() {
   export CONFIG_FILE=${BATS_TMPDIR}/standalone-openshift.xml
 }
 
-#teardown() {
-#  if [ -n "${CONFIG_FILE}" ] && [ -f "${CONFIG_FILE}" ]; then
-#    rm "${CONFIG_FILE}"
-#  fi
-#}
+teardown() {
+  if [ -n "${CONFIG_FILE}" ] && [ -f "${CONFIG_FILE}" ]; then
+    rm "${CONFIG_FILE}"
+  fi
+}
 
 @test "Check for new elytron marker" {
   echo '<!-- ##ELYTRON_TLS## -->' > ${CONFIG_FILE}
@@ -104,6 +104,35 @@ setup() {
 EOF
 )
     run elytron_legacy_config "keystore" "keystore_type" "https_password" "https_key_password" "https_keystore_dir"
+    xml=${output}
+    result=$(echo ${xml} | sed 's|\\n||g' | xmllint --format --noblanks -)
+    expected=$(echo "${expected}" | sed 's|\\n||g' | xmllint --format --noblanks -)
+    [ "${result}" = "${expected}" ]
+}
+
+@test "Verify legacy configuration - relative keystore location - with HTTPS_KEYSTORE_DIR no leading /, and no HTTP_KEY_PASSWORD" {
+    expected=$(cat <<EOF
+<?xml version="1.0"?>
+   <tls>
+     <key-stores>
+       <key-store name="LocalhostKeyStore">
+         <credential-reference clear-text="https_password"/>
+         <implementation type="keystore_type"/>
+         <file path="keystore" relative-to="https_keystore_dir"/>
+       </key-store>
+     </key-stores>
+     <key-managers>
+       <key-manager name="LocalhostKeyManager" key-store="LocalhostKeyStore">
+         <credential-reference clear-text="https_password"/>
+       </key-manager>
+     </key-managers>
+     <server-ssl-contexts>
+       <server-ssl-context name="LocalhostSslContext" key-manager="LocalhostKeyManager"/>
+     </server-ssl-contexts>
+   </tls>
+EOF
+)
+    run elytron_legacy_config "keystore" "keystore_type" "https_password" "" "https_keystore_dir"
     xml=${output}
     result=$(echo ${xml} | sed 's|\\n||g' | xmllint --format --noblanks -)
     expected=$(echo "${expected}" | sed 's|\\n||g' | xmllint --format --noblanks -)
@@ -233,6 +262,8 @@ EOF
 }
 
 @test "Configure HTTPS - CONFIGURE_ELYTRON_SSL=true, missing all required vars" {
+    echo '<!-- ##ELYTRON_TLS## -->' > ${CONFIG_FILE}
+    echo '<!-- ##TLS## -->' >> ${CONFIG_FILE}
     expected='WARNING! Partial HTTPS configuration, the https connector WILL NOT be configured. Missing: HTTPS_PASSWORD HTTPS_KEYSTORE HTTPS_KEYSTORE_TYPE'
     CONFIGURE_ELYTRON_SSL=true
     HTTPS_PASSWORD=
@@ -246,6 +277,8 @@ EOF
 }
 
 @test "Configure HTTPS - CONFIGURE_ELYTRON_SSL=true, missing HTTPS_PASSWORD" {
+    echo '<!-- ##ELYTRON_TLS## -->' > ${CONFIG_FILE}
+    echo '<!-- ##TLS## -->' >> ${CONFIG_FILE}
     expected='WARNING! Partial HTTPS configuration, the https connector WILL NOT be configured. Missing: HTTPS_PASSWORD'
     CONFIGURE_ELYTRON_SSL=true
     HTTPS_PASSWORD=
@@ -259,6 +292,8 @@ EOF
 }
 
 @test "Configure HTTPS - CONFIGURE_ELYTRON_SSL=true, missing HTTPS_KEYSTORE_TYPE" {
+    echo '<!-- ##ELYTRON_TLS## -->' > ${CONFIG_FILE}
+    echo '<!-- ##TLS## -->' >> ${CONFIG_FILE}
     expected='WARNING! Partial HTTPS configuration, the https connector WILL NOT be configured. Missing: HTTPS_KEYSTORE_TYPE'
     CONFIGURE_ELYTRON_SSL=true
     HTTPS_PASSWORD="password"
@@ -272,6 +307,8 @@ EOF
 }
 
 @test "Configure HTTPS - CONFIGURE_ELYTRON_SSL=true, missing HTTPS_KEYSTORE" {
+    echo '<!-- ##ELYTRON_TLS## -->' > ${CONFIG_FILE}
+    echo '<!-- ##TLS## -->' >> ${CONFIG_FILE}
     expected='WARNING! Partial HTTPS configuration, the https connector WILL NOT be configured. Missing: HTTPS_KEYSTORE'
     CONFIGURE_ELYTRON_SSL=true
     HTTPS_PASSWORD="password"
@@ -285,6 +322,8 @@ EOF
 }
 
 @test "Configure HTTPS - CONFIGURE_ELYTRON_SSL=true, no HTTPS_KEY_PASSWORD" {
+    echo '<!-- ##ELYTRON_TLS## -->' > ${CONFIG_FILE}
+    echo '<!-- ##TLS## -->' >> ${CONFIG_FILE}
     expected='No HTTPS_KEY_PASSWORD was provided; using HTTPS_PASSWORD for Elytron LocalhostKeyManager.'
     CONFIGURE_ELYTRON_SSL=true
     HTTPS_PASSWORD="password"
