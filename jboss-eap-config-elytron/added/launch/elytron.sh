@@ -1,9 +1,5 @@
 # only processes a single environment as the placeholder is not preserved
 
-# strict mode for testing
-# set -euo pipefail
-# IFS=$'\n\t'
-
 prepareEnv() {
   unset HTTPS_NAME
   unset HTTPS_PASSWORD
