@@ -1,5 +1,7 @@
-set -euo pipefail
-IFS=$'\n\t'
+
+# dont enable these by default, bats on CI doesn't output anything if they are set
+#set -euo pipefail
+#IFS=$'\n\t'
 
 # bug in bats with set -eu?
 export BATS_TEST_SKIPPED=
