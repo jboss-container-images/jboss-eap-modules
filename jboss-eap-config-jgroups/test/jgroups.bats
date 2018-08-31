@@ -18,11 +18,11 @@ setup() {
   export CONFIG_FILE=${BATS_TMPDIR}/standalone-openshift.xml
 }
 
-#teardown() {
-#  if [ -n "${CONFIG_FILE}" ] && [ -f "${CONFIG_FILE}" ]; then
-#    rm "${CONFIG_FILE}"
-#  fi
-#}
+teardown() {
+  if [ -n "${CONFIG_FILE}" ] && [ -f "${CONFIG_FILE}" ]; then
+    rm "${CONFIG_FILE}"
+  fi
+}
 
 @test "Configure JGROUPS_PROTOCOL=SYM_ENCRYPT" {
     expected=$(cat <<EOF
