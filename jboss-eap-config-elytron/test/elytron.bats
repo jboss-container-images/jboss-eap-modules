@@ -1,5 +1,6 @@
-set -euo pipefail
-IFS=$'\n\t'
+
+#set -euo pipefail
+#IFS=$'\n\t'
 
 export BATS_TEST_SKIPPED=
 
