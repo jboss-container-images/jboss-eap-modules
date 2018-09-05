@@ -105,9 +105,14 @@ teardown() {
    </tls>
 EOF
 )
-    run elytron_legacy_config "keystore" "keystore_type" "https_password" "https_key_password" "https_keystore_dir"
+    local elytron_key_store=$(create_elytron_keystore "LocalhostKeyStore" "keystore" "https_password" "keystore_type" "https_keystore_dir")
+    local elytron_key_manager=$(create_elytron_keymanager "LocalhostKeyManager" "LocalhostKeyStore" "https_key_password")
+    local elytron_server_ssl_context=$(create_elytron_ssl_context "LocalhostSslContext" "LocalhostKeyManager")
+
+    run elytron_legacy_config "${elytron_key_store}" "${elytron_key_manager}" "${elytron_server_ssl_context}"
     xml=${output}
     result=$(echo ${xml} | sed 's|\\n||g' | xmllint --format --noblanks -)
+    echo ${result}
     expected=$(echo "${expected}" | sed 's|\\n||g' | xmllint --format --noblanks -)
     [ "${result}" = "${expected}" ]
 }
@@ -134,9 +139,15 @@ EOF
    </tls>
 EOF
 )
-    run elytron_legacy_config "keystore" "keystore_type" "https_password" "" "https_keystore_dir"
+
+    local elytron_key_store=$(create_elytron_keystore "LocalhostKeyStore" "keystore" "https_password" "keystore_type" "https_keystore_dir")
+    local elytron_key_manager=$(create_elytron_keymanager "LocalhostKeyManager" "LocalhostKeyStore" "https_password")
+    local elytron_server_ssl_context=$(create_elytron_ssl_context "LocalhostSslContext" "LocalhostKeyManager")
+
+    run elytron_legacy_config "${elytron_key_store}" "${elytron_key_manager}" "${elytron_server_ssl_context}"
     xml=${output}
     result=$(echo ${xml} | sed 's|\\n||g' | xmllint --format --noblanks -)
+    echo ${result}
     expected=$(echo "${expected}" | sed 's|\\n||g' | xmllint --format --noblanks -)
     [ "${result}" = "${expected}" ]
 }
@@ -163,7 +174,11 @@ EOF
    </tls>
 EOF
 )
-    run elytron_legacy_config "keystore" "keystore_type" "https_password" "https_key_password" ""
+    local elytron_key_store=$(create_elytron_keystore "LocalhostKeyStore" "keystore" "https_password" "keystore_type" "")
+    local elytron_key_manager=$(create_elytron_keymanager "LocalhostKeyManager" "LocalhostKeyStore" "https_key_password")
+    local elytron_server_ssl_context=$(create_elytron_ssl_context "LocalhostSslContext" "LocalhostKeyManager")
+
+    run elytron_legacy_config "${elytron_key_store}" "${elytron_key_manager}" "${elytron_server_ssl_context}"
     xml=${output}
     result=$(echo "${xml}" | sed 's|\\n||g' | xmllint --format --noblanks -)
     expected=$(echo "${expected}" | sed 's|\\n||g' | xmllint --format --noblanks -)
@@ -192,7 +207,11 @@ EOF
    </tls>
 EOF
 )
-    run elytron_legacy_config "keystore" "keystore_type" "https_password" "https_key_password" "/https_keystore_dir"
+    local elytron_key_store=$(create_elytron_keystore "LocalhostKeyStore" "keystore" "https_password" "keystore_type" "/https_keystore_dir")
+    local elytron_key_manager=$(create_elytron_keymanager "LocalhostKeyManager" "LocalhostKeyStore" "https_key_password")
+    local elytron_server_ssl_context=$(create_elytron_ssl_context "LocalhostSslContext" "LocalhostKeyManager")
+
+    run elytron_legacy_config "${elytron_key_store}" "${elytron_key_manager}" "${elytron_server_ssl_context}"
     xml=${output}
     result=$(echo "${xml}" | sed 's|\\n||g' | xmllint --format --noblanks -)
     expected=$(echo "${expected}" | sed 's|\\n||g' | xmllint --format --noblanks -)

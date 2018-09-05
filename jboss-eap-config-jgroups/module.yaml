@@ -7,9 +7,8 @@ execute:
   user: '185'
 envs:
     - name: "JGROUPS_ENCRYPT_PROTOCOL"
-      example: "false"
-      description: The JGroups protocol to use for encryption of the cluster traffic. Can be one of `SYM_ENCRYPT` (the default), or `ASYM_ENCRYPT`. If set to `SYM_ENCRYPT`, the definition of the JGroups `AUTH` protocol is optional, and can be performed by setting the **JGROUPS_CLUSTER_PASSWORD** environment variable. If set to `ASYM_ENCRYPT`, the definition of the JGroups `AUTH` protocol is **required**, and must be performed by setting the **JGROUPS_CLUSTER_PASSWORD** variable. The definition of the JGroups JCEKS keystore is **not** **expected**, when using the `ASYM_ENCRYPT` encryption protocol. A warning will be issued in this case, if such a keystore is defined.
       example: "SYM_ENCRYPT"
+      description: The JGroups protocol to use for encryption of the cluster traffic. Can be one of `SYM_ENCRYPT` (the default), or `ASYM_ENCRYPT`. If set to `SYM_ENCRYPT`, the definition of the JGroups `AUTH` protocol is optional, and can be performed by setting the **JGROUPS_CLUSTER_PASSWORD** environment variable. If set to `ASYM_ENCRYPT`, the definition of the JGroups `AUTH` protocol is **required**, and must be performed by setting the **JGROUPS_CLUSTER_PASSWORD** variable. The definition of the JGroups JCEKS keystore is **not** **expected**, when using the `ASYM_ENCRYPT` encryption protocol. A warning will be issued in this case, if such a keystore is defined.
     - name: "JGROUPS_ENCRYPT_KEYSTORE"
       example: "mykeystore.jceks"
       description: "The JGroups keystore containing the key. If this does not begin with a directory separator (such as /) this is interpreted as a location relative to jboss.server.config.dir."

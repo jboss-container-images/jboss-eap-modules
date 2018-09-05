@@ -72,38 +72,7 @@ insert_elytron_tls() {
 }
 
 elytron_legacy_config() {
-    declare https_keystore="$1" https_keystore_type="$2" https_password="$3" https_key_password="$4" https_keystore_dir="$5"
-
-    local keystore_path=""
-    local keystore_rel_to=""
-    local key_password=""
-
-    if [ -n "${https_key_password}" ]; then
-      key_password=${https_key_password}
-    else
-      key_password=${https_password}
-    fi
-
-    if [ -z "${https_keystore_dir}"  ]; then
-      # Documented behavior; HTTPS_KEYSTORE is relative to the config dir
-      # Use case is the user puts their keystore in their source's 'configuration' dir and s2i pulls it in
-      keystore_path="path=\"${https_keystore}\""
-      keystore_rel_to="relative-to=\"jboss.server.config.dir\""
-    elif [[ "${https_keystore_dir}" =~ ^/ ]]; then
-      # Assume leading '/' means the value is a FS path
-      # Standard template behavior where the template sets this var to /etc/eap-secret-volume
-      keystore_path="path=\"${https_keystore_dir}/${https_keystore}\""
-      keystore_rel_to=""
-    else
-      # Compatibility edge case. Treat no leading '/' as meaning HTTPS_KEYSTORE_DIR is the name of a config model path
-      keystore_path="path=\"${https_keystore}\""
-      keystore_rel_to="relative-to=\"${https_keystore_dir}\""
-    fi
-
-    local elytron_key_store=$(create_elytron_keystore "LocalhostKeyStore" "${https_keystore}" "${https_password}" "${https_keystore_type}" "${https_keystore_dir}")
-    local elytron_key_manager=$(create_elytron_keymanager "LocalhostKeyManager" "LocalhostKeyStore" "${key_password}")
-    local elytron_server_ssl_context=$(create_elytron_ssl_context "LocalhostSslContext" "LocalhostKeyManager")
-
+    declare elytron_keystore="$1" elytron_key_manager="$2" elytron_server_ssl_context="$3"
     # this is to support the legacy <!-- ##TLS## --> insertion block.
     local legacy_elytron_tls="\
     <tls>\n\
@@ -214,18 +183,17 @@ configure_https() {
 
   # check for new config tag, use that if it's present
   if [ "$(has_elytron_tls "${CONFIG_FILE}")" = "true" ]; then
-    # has new tag, replace it
+    # insert the new config element
     insert_elytron_tls
-  fi
-
-  if [ "$(has_elytron_keystore "${CONFIG_FILE}")" = "true" ]; then
+    # insert the individual config blocks.
     sed -i "s|<!-- ##ELYTRON_KEY_STORE## -->|${elytron_key_store}<!-- ##ELYTRON_KEY_STORE## -->|" $CONFIG_FILE
     sed -i "s|<!-- ##ELYTRON_KEY_MANAGER## -->|${elytron_key_manager}<!-- ##ELYTRON_KEY_MANAGER## -->|" $CONFIG_FILE
     sed -i "s|<!-- ##ELYTRON_SERVER_SSL_CONTEXT## -->|${elytron_server_ssl_context}<!-- ##ELYTRON_SERVER_SSL_CONTEXT## -->|" $CONFIG_FILE
   else # legacy config
-    legacy_elytron_tls=$(elytron_legacy_config "${HTTPS_KEYSTORE}" "${HTTPS_KEYSTORE_TYPE}" "${HTTPS_PASSWORD}" "${HTTPS_KEY_PASSWORD}" "${HTTPS_KEYSTORE_DIR}")
-    sed -i "s|<!-- ##TLS## -->|${legacy_elytron_tls}|" $CONFIG_FILE
+    legacy_elytron_tls=$(elytron_legacy_config "${elytron_key_store}" "${elytron_key_manager}" "${elytron_server_ssl_context}")
   fi
+  # will be empty unless only the old marker is present.
+  sed -i "s|<!-- ##TLS## -->|${legacy_elytron_tls}|" $CONFIG_FILE
   sed -i "s|<!-- ##HTTPS_CONNECTOR## -->|${elytron_https_connector}|" $CONFIG_FILE
 }
 
