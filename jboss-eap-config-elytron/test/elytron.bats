@@ -615,3 +615,25 @@ EOF
     expected=$(echo "${expected}" | sed 's|\\n||g' | xmllint --format --noblanks -)
     [ "${output}" = "${expected}" ]
 }
+
+@test "Configure HTTPS - missing required params" {
+    echo '<!-- ##TLS## -->' > ${CONFIG_FILE}
+    echo '<!-- ##ELYTRON_TLS## -->' >> ${CONFIG_FILE}
+expected=$(cat <<EOF
+<!-- ##TLS## -->
+<!-- ##ELYTRON_TLS## -->
+EOF
+)
+    CONFIGURE_ELYTRON_SSL=true
+    HTTPS_PASSWORD=
+    HTTPS_KEYSTORE=
+    HTTPS_KEYSTORE_TYPE=
+    HTTPS_KEY_PASSWORD=
+    HTTPS_KEYSTORE_DIR=
+    run configure_https
+    output=$(cat "${CONFIG_FILE}")
+    echo "${output}"
+    expected=$(echo "${expected}")
+    echo "${expected}"
+    [ "${output}" = "${expected}" ]
+}

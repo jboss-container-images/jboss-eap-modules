@@ -168,6 +168,21 @@ configure_https() {
     local elytron_key_manager=$(create_elytron_keymanager "LocalhostKeyManager" "LocalhostKeyStore" "${key_password}")
     local elytron_server_ssl_context=$(create_elytron_ssl_context "LocalhostSslContext" "LocalhostKeyManager")
     local elytron_https_connector=$(create_elytron_https_connector "https" "https" "LocalhostSslContext" "true")
+
+    # check for new config tag, use that if it's present
+    if [ "$(has_elytron_tls "${CONFIG_FILE}")" = "true" ]; then
+        # insert the new config element
+        insert_elytron_tls
+        # insert the individual config blocks.
+        sed -i "s|<!-- ##ELYTRON_KEY_STORE## -->|${elytron_key_store}<!-- ##ELYTRON_KEY_STORE## -->|" $CONFIG_FILE
+        sed -i "s|<!-- ##ELYTRON_KEY_MANAGER## -->|${elytron_key_manager}<!-- ##ELYTRON_KEY_MANAGER## -->|" $CONFIG_FILE
+        sed -i "s|<!-- ##ELYTRON_SERVER_SSL_CONTEXT## -->|${elytron_server_ssl_context}<!-- ##ELYTRON_SERVER_SSL_CONTEXT## -->|" $CONFIG_FILE
+    else # legacy config
+        legacy_elytron_tls=$(elytron_legacy_config "${elytron_key_store}" "${elytron_key_manager}" "${elytron_server_ssl_context}")
+    fi
+    # will be empty unless only the old marker is present.
+    sed -i "s|<!-- ##TLS## -->|${legacy_elytron_tls}|" $CONFIG_FILE
+    sed -i "s|<!-- ##HTTPS_CONNECTOR## -->|${elytron_https_connector}|" $CONFIG_FILE
   else
     if [ -z "${HTTPS_PASSWORD}" ]; then
       missing_msg="$missing_msg HTTPS_PASSWORD"
@@ -180,21 +195,6 @@ configure_https() {
     fi
     echo ${missing_msg}
   fi
-
-  # check for new config tag, use that if it's present
-  if [ "$(has_elytron_tls "${CONFIG_FILE}")" = "true" ]; then
-    # insert the new config element
-    insert_elytron_tls
-    # insert the individual config blocks.
-    sed -i "s|<!-- ##ELYTRON_KEY_STORE## -->|${elytron_key_store}<!-- ##ELYTRON_KEY_STORE## -->|" $CONFIG_FILE
-    sed -i "s|<!-- ##ELYTRON_KEY_MANAGER## -->|${elytron_key_manager}<!-- ##ELYTRON_KEY_MANAGER## -->|" $CONFIG_FILE
-    sed -i "s|<!-- ##ELYTRON_SERVER_SSL_CONTEXT## -->|${elytron_server_ssl_context}<!-- ##ELYTRON_SERVER_SSL_CONTEXT## -->|" $CONFIG_FILE
-  else # legacy config
-    legacy_elytron_tls=$(elytron_legacy_config "${elytron_key_store}" "${elytron_key_manager}" "${elytron_server_ssl_context}")
-  fi
-  # will be empty unless only the old marker is present.
-  sed -i "s|<!-- ##TLS## -->|${legacy_elytron_tls}|" $CONFIG_FILE
-  sed -i "s|<!-- ##HTTPS_CONNECTOR## -->|${elytron_https_connector}|" $CONFIG_FILE
 }
 
 configure_security_domains() {
