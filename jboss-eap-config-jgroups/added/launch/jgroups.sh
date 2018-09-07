@@ -30,10 +30,9 @@ configureEnv() {
 }
 
 create_jgroups_elytron_encrypt_sym() {
-    declare jg_encrypt_keystore="$1" jg_encrypt_key_alias="$2" jg_encrypt_password="$3" jg_encrypt_entire_message="$4"
+    declare jg_encrypt_keystore="$1" jg_encrypt_key_alias="$2" jg_encrypt_password="$3"
     local encrypt="<encrypt-protocol type=\"SYM_ENCRYPT\" key-store=\"${jg_encrypt_keystore}\" key-alias=\"${jg_encrypt_key_alias}\">\
                        <key-credential-reference clear-text=\"${jg_encrypt_password}\"/>\
-                       <property name=\"encrypt_entire_message\">${jg_encrypt_entire_message:-true}</property>\
                    </encrypt-protocol>"
     echo ${encrypt}
 }
@@ -43,10 +42,9 @@ create_jgroups_encrypt_asym() {
     # from the docs: "The ASYM_ENCRYPT protocol should be configured immediately before the pbcast.NAKACK2"
     # this also *requires* AUTH to be enabled.
     # TODO: make these properties configurable, this is currently just falling back on defaults.
-    declare encrypt_entire_message="${1:-}" sym_keylength="${2:-}" sym_algorithm="${3:-}" asym_keylength="${4:-}" asym_algorithm="${5:-}" change_key_on_leave="${6:-}"
+    declare sym_keylength="${1:-}" sym_algorithm="${2:-}" asym_keylength="${3:-}" asym_algorithm="${4:-}" change_key_on_leave="${5:-}"
     local jgroups_encrypt="\
                     <protocol type=\"ASYM_ENCRYPT\">\n\
-                        <property name=\"encrypt_entire_message\">${encrypt_entire_message:-true}</property>\n\
                         <property name=\"sym_keylength\">${sym_keylength:-128}</property>\n\
                         <property name=\"sym_algorithm\">${sym_algorithm:-AES/ECB/PKCS5Padding}</property>\n\
                         <property name=\"asym_keylength\">${asym_keylength:-512}</property>\n\

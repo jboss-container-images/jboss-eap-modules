@@ -31,15 +31,15 @@ teardown() {
 <?xml version="1.0"?>
    <encrypt-protocol type="SYM_ENCRYPT" key-store="keystore" key-alias="key_alias">
      <key-credential-reference clear-text="encrypt_password"/>
-     <property name="encrypt_entire_message">encrypt-entire-message-true</property>
    </encrypt-protocol>
 EOF
 )
-  run create_jgroups_elytron_encrypt_sym "keystore" "key_alias" "encrypt_password" "encrypt-entire-message-true"
+  run create_jgroups_elytron_encrypt_sym "keystore" "key_alias" "encrypt_password" 
   xml=${output}
   result=$(echo ${xml} | sed 's|\\n||g' | xmllint --format --noblanks -)
-  echo "${result}"
+  echo "Result: ${result}"
   expected=$(echo "${expected}" | sed 's|\\n||g' | xmllint --format --noblanks -)
+  echo "Expected: ${expected}"
   [ "${result}" = "${expected}" ]
 }
 
@@ -48,15 +48,15 @@ EOF
 <?xml version="1.0"?>
    <encrypt-protocol type="SYM_ENCRYPT" key-store="keystore1" key-alias="key_alias2">
      <key-credential-reference clear-text="encrypt_password3"/>
-     <property name="encrypt_entire_message">encrypt-entire-message-false4</property>
    </encrypt-protocol>
 EOF
 )
-  run create_jgroups_elytron_encrypt_sym "keystore1" "key_alias2" "encrypt_password3" "encrypt-entire-message-false4"
+  run create_jgroups_elytron_encrypt_sym "keystore1" "key_alias2" "encrypt_password3"
   xml=${output}
   result=$(echo ${xml} | sed 's|\\n||g' | xmllint --format --noblanks -)
-  echo "${result}"
+  echo "Result: ${result}"
   expected=$(echo "${expected}" | sed 's|\\n||g' | xmllint --format --noblanks -)
+  echo "Expected: ${expected}"
   [ "${result}" = "${expected}" ]
 }
 
@@ -64,7 +64,6 @@ EOF
     expected=$(cat <<EOF
 <?xml version="1.0"?>
    <protocol type="ASYM_ENCRYPT">
-     <property name="encrypt_entire_message">encrypt-entire-message-true</property>
      <property name="sym_keylength">sym-keylength-512</property>
      <property name="sym_algorithm">sym-algo-somealgo</property>
      <property name="asym_keylength">asym-keylength-256</property>
@@ -73,7 +72,7 @@ EOF
    </protocol>
 EOF
 )
-  run create_jgroups_encrypt_asym "encrypt-entire-message-true" "sym-keylength-512" "sym-algo-somealgo" "asym-keylength-256" "asym-algo-somealgo" "change-key-on-leave-true"
+  run create_jgroups_encrypt_asym "sym-keylength-512" "sym-algo-somealgo" "asym-keylength-256" "asym-algo-somealgo" "change-key-on-leave-true"
   xml=${output}
   result=$(echo ${xml} | sed 's|\\n||g' | xmllint --format --noblanks -)
   echo "${result}"
@@ -85,7 +84,6 @@ EOF
     expected=$(cat <<EOF
 <?xml version="1.0"?>
    <protocol type="ASYM_ENCRYPT">
-     <property name="encrypt_entire_message">encrypt-entire-message-true1</property>
      <property name="sym_keylength">sym-keylength-5122</property>
      <property name="sym_algorithm">sym-algo-somealgo3</property>
      <property name="asym_keylength">asym-keylength-2564</property>
@@ -94,7 +92,7 @@ EOF
    </protocol>
 EOF
 )
-  run create_jgroups_encrypt_asym "encrypt-entire-message-true1" "sym-keylength-5122" "sym-algo-somealgo3" "asym-keylength-2564" "asym-algo-somealgo5" "change-key-on-leave-true6"
+  run create_jgroups_encrypt_asym "sym-keylength-5122" "sym-algo-somealgo3" "asym-keylength-2564" "asym-algo-somealgo5" "change-key-on-leave-true6"
   xml=${output}
   result=$(echo ${xml} | sed 's|\\n||g' | xmllint --format --noblanks -)
   echo "${result}"
