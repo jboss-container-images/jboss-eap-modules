@@ -27,3 +27,6 @@ envs:
     - name: "JGROUPS_CLUSTER_PASSWORD"
       example: "some_cluster_password"
       description: "The JGroups cluster shared secret."
+    - name: "JBOSS_HA_IP"
+      example: "0.0.0.0"
+      description: "Override the default HA bind address (default value is the result of 'hostname -i') with a specific address."
