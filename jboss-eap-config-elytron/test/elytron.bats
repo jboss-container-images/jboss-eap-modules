@@ -637,3 +637,42 @@ EOF
     echo "${expected}"
     [ "${output}" = "${expected}" ]
 }
+
+@test "Configure ELYTRON_TLS - only replace once" {
+    echo '<!-- ##TLS## -->' > ${CONFIG_FILE}
+    echo '<!-- ##ELYTRON_TLS## -->' >> ${CONFIG_FILE}
+expected=$(cat <<EOF
+
+         <tls>
+            <key-stores>
+                <!-- ##ELYTRON_KEY_STORE## -->
+            </key-stores>
+            <key-managers>
+                <!-- ##ELYTRON_KEY_MANAGER## -->
+            </key-managers>
+            <server-ssl-contexts>
+                <!-- ##ELYTRON_SERVER_SSL_CONTEXT## -->
+            </server-ssl-contexts>
+         </tls>
+EOF
+)
+    CONFIGURE_ELYTRON_SSL=true
+    HTTPS_PASSWORD=
+    HTTPS_KEYSTORE=
+    HTTPS_KEYSTORE_TYPE=
+    HTTPS_KEY_PASSWORD=
+    HTTPS_KEYSTORE_DIR=
+    run insert_elytron_tls_config_if_needed "${CONFIG_FILE}"
+    output=$(cat "${CONFIG_FILE}")
+    echo "${output}"
+    expected=$(echo "${expected}")
+    echo "${expected}"
+    [ "${output}" = "${expected}" ]
+    # now run the substitution again and the content should be the same
+    run insert_elytron_tls_config_if_needed "${CONFIG_FILE}"
+    output=$(cat "${CONFIG_FILE}")
+    echo "${output}"
+    expected=$(echo "${expected}")
+    echo "${expected}"
+    [ "${output}" = "${expected}" ]
+}

@@ -51,8 +51,7 @@ has_elytron_keystore() {
 insert_elytron_tls() {
  # the elytron skelton config. This will be used to replace <!-- ##ELYTRON_TLS## -->
  # if this is replaced, we'll also remove the legacy <!-- ##TLS## --> marker
- local elytron_tls="\
-        <tls>\n\
+ local elytron_tls="         <tls>\n\
             <key-stores>\n\
                 <!-- ##ELYTRON_KEY_STORE## -->\n\
             </key-stores>\n\
@@ -63,11 +62,21 @@ insert_elytron_tls() {
                 <!-- ##ELYTRON_SERVER_SSL_CONTEXT## -->\n\
             </server-ssl-contexts>\n\
          </tls>\n"
-    # check for new config tag, use that if it's present
+    # check for new config tag, use that if it's present, note we remove the <!-- ##ELYTRON_TLS## --> on first substitution
     if [ "true" = $(has_elytron_tls "${CONFIG_FILE}") ]; then
         sed -i "s|<!-- ##ELYTRON_TLS## -->|${elytron_tls}|" $CONFIG_FILE
         # remove the legacy tag, if it's present
         sed -i "s|<!-- ##TLS## -->||" $CONFIG_FILE
+    fi
+}
+
+insert_elytron_tls_config_if_needed() {
+    declare config_file="$1"
+    if [ "$(has_elytron_tls "${config_file}")" = "true" ] || [ "$(has_elytron_keystore "${config_file}")" = "true" ]; then
+        # insert the new config element, only if it hasn't been added already
+        if [ "$(has_elytron_keystore "${config_file}")" = "false" ]; then
+            insert_elytron_tls
+        fi
     fi
 }
 
@@ -172,9 +181,7 @@ configure_https() {
     # check for new config tag, use that if it's present, also allow for the fact that somethign else has already replaced it
     if [ "$(has_elytron_tls "${CONFIG_FILE}")" = "true" ] || [ "$(has_elytron_keystore "${CONFIG_FILE}")" = "true" ]; then
         # insert the new config element, only if it hasn't been added already
-        if [ "$(has_elytron_keystore "${CONFIG_FILE}")" = "false" ]; then
-            insert_elytron_tls
-        fi
+        insert_elytron_tls_config_if_needed "${CONFIG_FILE}"
         # insert the individual config blocks we leave the replacement tags around in case something else (e.g. jgoups might need to add a keystore etc)
         sed -i "s|<!-- ##ELYTRON_KEY_STORE## -->|${elytron_key_store}<!-- ##ELYTRON_KEY_STORE## -->|" $CONFIG_FILE
         sed -i "s|<!-- ##ELYTRON_KEY_MANAGER## -->|${elytron_key_manager}<!-- ##ELYTRON_KEY_MANAGER## -->|" $CONFIG_FILE

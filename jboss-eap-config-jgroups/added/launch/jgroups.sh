@@ -154,11 +154,10 @@ configure_jgroups_encryption() {
     ;;
   esac
 
+
   if [ "$(has_elytron_tls "${CONFIG_FILE}")" = "true" ] || [ "$(has_elytron_keystore "${CONFIG_FILE}")" = "true" ]; then
     # insert the new config element, only if it hasn't been added already
-    if [ "$(has_elytron_keystore "${CONFIG_FILE}")" = "false" ]; then
-        insert_elytron_tls
-    fi
+    insert_elytron_tls_config_if_needed "${CONFIG_FILE}"
     # note we leave the <!-- ##ELYTRON_KEY_STORE## --> tag in case something else needs to add a keystore etc.
     sed -i "s|<!-- ##ELYTRON_KEY_STORE## -->|${key_store}<!-- ##ELYTRON_KEY_STORE## -->|" $CONFIG_FILE
   fi
