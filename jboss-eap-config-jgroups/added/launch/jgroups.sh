@@ -134,11 +134,6 @@ configure_jgroups_encryption() {
     if [ -n "${keystore_warning_message}" ]; then
         log_warning "${keystore_warning_message}"
     fi
-
-    # add elytron block if we need it
-    if [ "${has_elytron_tls_marker}" = "true" ]; then
-        insert_elytron_tls
-    fi
   ;;
   "ASYM_ENCRYPT")
       log_info "Configuring JGroups cluster traffic encryption protocol to ASYM_ENCRYPT."
@@ -159,8 +154,12 @@ configure_jgroups_encryption() {
     ;;
   esac
 
-  # now either use the new, or legacy config
-  if [ "$(has_elytron_keystore "${CONFIG_FILE}")" = "true" ]; then
+  if [ "$(has_elytron_tls "${CONFIG_FILE}")" = "true" ] || [ "$(has_elytron_keystore "${CONFIG_FILE}")" = "true" ]; then
+    # insert the new config element, only if it hasn't been added already
+    if [ "$(has_elytron_keystore "${CONFIG_FILE}")" = "false" ]; then
+        insert_elytron_tls
+    fi
+    # note we leave the <!-- ##ELYTRON_KEY_STORE## --> tag in case something else needs to add a keystore etc.
     sed -i "s|<!-- ##ELYTRON_KEY_STORE## -->|${key_store}<!-- ##ELYTRON_KEY_STORE## -->|" $CONFIG_FILE
   fi
 
