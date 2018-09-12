@@ -335,6 +335,7 @@
                 <provider-sasl-server-factory name="global"/>
             </sasl>
             <!-- ##TLS## -->
+            <!-- ##ELYTRON_TLS## -->
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:infinispan:5.0">
             <cache-container name="server" aliases="singleton cluster" default-cache="default" module="org.wildfly.clustering.server">
