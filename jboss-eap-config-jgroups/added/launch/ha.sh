@@ -64,19 +64,18 @@ validate_dns_ping_settings() {
 
 validate_ping_protocol() {
   declare protocol="$1"
-  if [ "${protocol}" = "openshift.KUBE_PING" ]; then
+  if [ "${protocol}" = "openshift.KUBE_PING" ] || [ "${protocol}" = "kubernetes.KUBE_PING" ]; then
     check_view_pods_permission
   elif [ "${protocol}" = "openshift.DNS_PING" ]; then
     validate_dns_ping_settings
   else
-    log_warning "Unknown protocol specified for JGroups discovery protocol: $1.  Expecting one of: openshift.KUBE_PING or openshift.DNS_PING."
+    log_warning "Unknown protocol specified for JGroups discovery protocol: $1. Expecting one of: kubernetes.KUBE_PING, openshift.KUBE_PING or openshift.DNS_PING."
   fi
 }
 
 get_socket_binding_for_ping() {
     # KUBE_PING and DNS_PING don't need socket bindings, but if the protocol is something else, we should allow it
     declare protocol="$1"
-    local default_socket_binding="socket-binding=\"jgroups-mping\""
     if [ "${protocol}" = "openshift.KUBE_PING" -o \
           "${protocol}" = "openshift.DNS_PING" -o \
           "${protocol}" = "kubernetes.KUBE_PING" -o \
@@ -107,7 +106,7 @@ configure_ha() {
                 </auth-protocol>\n"
   fi
 
-  local ping_protocol=${JGROUPS_PING_PROTOCOL:-openshift.KUBE_PING}
+  local ping_protocol=${JGROUPS_PING_PROTOCOL:-kubernetes.KUBE_PING}
   local socket_binding=$(get_socket_binding_for_ping "${ping_protocol}")
   local ping_protocol_element="<protocol type=\"${ping_protocol}\" ${socket_binding}/>"
   validate_ping_protocol "${ping_protocol}" 
