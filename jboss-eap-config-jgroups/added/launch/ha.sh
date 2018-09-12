@@ -19,6 +19,8 @@ prepareEnv() {
   unset JGROUPS_CLUSTER_PASSWORD
   unset JGROUPS_PING_PROTOCOL
   unset NODE_NAME
+  unset KUBERNETES_NAMESPACE
+  unset KUBERNETES_LABELS
 }
 
 configure() {
@@ -26,12 +28,18 @@ configure() {
 }
 
 check_view_pods_permission() {
-    if [ -n "${OPENSHIFT_KUBE_PING_NAMESPACE+_}" ]; then
+    if [ -n "${OPENSHIFT_KUBE_PING_NAMESPACE+_}" ] || [ -n "${KUBERNETES_NAMESPACE}" ]; then
         local CA_CERT="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
         local CURL_CERT_OPTION
-        pods_url="https://${KUBERNETES_SERVICE_HOST:-kubernetes.default.svc}:${KUBERNETES_SERVICE_PORT:-443}/api/${OPENSHIFT_KUBE_PING_API_VERSION:-v1}/namespaces/${OPENSHIFT_KUBE_PING_NAMESPACE}/pods"
-        if [ -n "${OPENSHIFT_KUBE_PING_LABELS}" ]; then
-            pods_labels="labels=${OPENSHIFT_KUBE_PING_LABELS}"
+        local namespace="${KUBERNETES_NAMESPACE:-${OPENSHIFT_KUBE_PING_NAMESPACE}}"
+        local labels="${KUBERNETES_LABELS:-${OPENSHIFT_KUBE_PING_LABELS}}"
+        local api_version="${OPENSHIFT_KUBE_PING_API_VERSION:-v1}"
+        local service_port="${KUBERNETES_SERVICE_PORT:-443}"
+        local service_host="${KUBERNETES_SERVICE_HOST:-kubernetes.default.svc}"
+
+        pods_url="https://${service_host}:${service_port}/api/${api_version}/namespaces/${namespace}/pods"
+        if [ -n "${labels}" ]; then
+            pods_labels="labels=${labels}"
         else
             pods_labels=""
         fi
@@ -114,6 +122,27 @@ configure_ha() {
   sed -i "s|<!-- ##JGROUPS_AUTH## -->|${JGROUPS_AUTH}|g" $CONFIG_FILE
   log_info "Configuring JGroups discovery protocol to ${ping_protocol}"
   sed -i "s|<!-- ##JGROUPS_PING_PROTOCOL## -->|${ping_protocol_element}|g" $CONFIG_FILE
+
+  # OPENSHIFT_KUBE_PING_NAMESPACE / OPENSHIFT_KUBE_PING_LABELS are deprecated, so if we're using those and kubernetes.KUBE_PING, convert to new values
+  if [ "${ping_protocol}" = "kubernetes.KUBE_PING" ]; then
+
+    if [ -n "${OPENSHIFT_KUBE_PING_NAMESPACE}" ]; then
+        if [ -z "${KUBERNETES_NAMESPACE}" ]; thenq
+                export KUBERNETES_NAMESPACE="${OPENSHIFT_KUBE_PING_NAMESPACE}"
+        fi
+        log_warning "OPENSHIFT_KUBE_PING_NAMESPACE (${OPENSHIFT_KUBE_PING_NAMESPACE}) is deprecated and KUBERNETES_NAMESPACE is used when using kubernetes.KUBE_PING."
+        unset OPENSHIFT_KUBE_PING_NAMESPACE
+    fi
+
+    if [ -n "${OPENSHIFT_KUBE_PING_LABELS}" ]; then
+        if [ -z "${KUBERNETES_LABELS}" ]; then
+            export KUBERNETES_LABELS="${OPENSHIFT_KUBE_PING_LABELS}"
+        fi
+        log_warning "OPENSHIFT_KUBE_PING_LABELS (${OPENSHIFT_KUBE_PING_LABELS}) is deprecated and KUBERNETES_LABELS is used when using kubernetes.KUBE_PING."
+        unset OPENSHIFT_KUBE_PING_LABELS
+    fi
+
+ fi
 
 }
 
