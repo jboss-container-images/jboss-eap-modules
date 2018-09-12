@@ -34,6 +34,7 @@
         <extension module="org.wildfly.extension.messaging-activemq"/>
         <extension module="org.wildfly.extension.microprofile.config-smallrye"/>
         <extension module="org.wildfly.extension.microprofile.health-smallrye"/>
+        <!-- ##TRACING_EXTENSION## -->
         <extension module="org.wildfly.extension.request-controller"/>
         <extension module="org.wildfly.extension.security.manager"/>
         <extension module="org.wildfly.extension.undertow"/>
@@ -477,6 +478,7 @@
             <!-- ##MICROPROFILE_CONFIG_SOURCE## -->
         </subsystem>
         <subsystem xmlns="urn:wildfly:microprofile-health-smallrye:1.0"/>
+        <!-- ##TRACING_SUBSYSTEM## -->
         <subsystem xmlns="urn:jboss:domain:modcluster:4.0">
             <proxy name="default" advertise-socket="modcluster" listener="ajp">
                 <dynamic-load-provider>
