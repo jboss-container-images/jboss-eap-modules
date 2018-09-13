@@ -30,3 +30,12 @@ envs:
     - name: "JBOSS_HA_IP"
       example: "0.0.0.0"
       description: "Override the default HA bind address (default value is the result of 'hostname -i') with a specific address."
+    - name: JGROUPS_PING_PROTOCOL
+      example: "openshift.DNS_PING"
+      description: "Protocol to discover other nodes in this cluster. Example values: openshift.DNS_PING, openshift.KUBE_PING, kubernetes.KUBE_PING"
+    - name: "OPENSHIFT_KUBE_PING_NAMESPACE"
+      example: "myproject"
+      description: "(KUBE_PING only) Namespace for application cluster. See template documentation for additional setup requirements."
+    - name: "OPENSHIFT_KUBE_PING_LABELS"
+      example: "application=my-application-name"
+      description: "(KUBE_PING only) Selector labels to control cluster formation. Omitting this will permit all nodes in OPENSHIFT_KUBE_PING_NAMESPACE to join the cluster."
