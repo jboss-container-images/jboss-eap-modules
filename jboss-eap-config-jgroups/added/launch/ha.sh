@@ -74,10 +74,10 @@ validate_ping_protocol() {
   declare protocol="$1"
   if [ "${protocol}" = "openshift.KUBE_PING" ] || [ "${protocol}" = "kubernetes.KUBE_PING" ]; then
     check_view_pods_permission
-  elif [ "${protocol}" = "openshift.DNS_PING" ]; then
+  elif [ "${protocol}" = "openshift.DNS_PING" ] || [ "${protocol}" = "dns.DNS_PING" ]; then
     validate_dns_ping_settings
   else
-    log_warning "Unknown protocol specified for JGroups discovery protocol: $1. Expecting one of: kubernetes.KUBE_PING, openshift.KUBE_PING or openshift.DNS_PING."
+    log_warning "Unknown protocol specified for JGroups discovery protocol: $1. Expecting one of: openshift.DNS_PING, openshift.KUBE_PING, kubernetes.KUBE_PING or dns.DNS_PING."
   fi
 }
 
@@ -93,6 +93,62 @@ get_socket_binding_for_ping() {
         echo "socket-binding=\"jgroups-mping\""
     fi
 }
+
+generate_jgroups_auth_config() {
+
+  local cluster_password="${1}"
+  local digest_algorithm="${2}"
+  local config
+
+  if [ -z "${cluster_password}" ]; then
+      log_warning "No password defined for JGroups cluster. AUTH protocol will be disabled. Please define JGROUPS_CLUSTER_PASSWORD."
+      config="<!--WARNING: No password defined for JGroups cluster. AUTH protocol has been disabled. Please define JGROUPS_CLUSTER_PASSWORD. -->"
+  else
+      config="\n <auth-protocol type=\"AUTH\">\n\
+                    <digest-token algorithm=\"${digest_algorithm:-SHA-512}\">\n\
+                        <shared-secret-reference clear-text=\"${cluster_password}\"/>\n\
+                    </digest-token>\n\
+                </auth-protocol>\n"
+  fi
+  echo ${config}
+}
+
+generate_generic_ping_config() {
+    local ping_protocol="${1}"
+    local socket_binding="${2}"
+    # for DNS_PING, the record is my-port-name._my-port-protocol.my-svc.my-namespace
+    local config="<protocol type=\"${ping_protocol}\" ${socket_binding}/>"
+    echo "${config}"
+}
+
+generate_dns_ping_config() {
+    local ping_protocol="${1}"
+    local ping_service_name="${2}"
+    local ping_service_port="${3}"
+    local ping_service_namespace="${4}"
+    local socket_binding="${5}"
+    local ping_service_protocol="tcp"
+    local config
+    # for DNS_PING, the record is my-port-name._my-port-protocol.my-svc.my-namespace
+    config="<protocol type=\"${ping_protocol}\" ${socket_binding}>"
+    if [ "${ping_protocol}" = "dns.DNS_PING" ]; then
+        if [ "x${ping_service_namespace}" = "x" ]; then
+            # use env, then files to determine the namespace
+            if [ -n "${OPENSHIFT_DNS_PING_SERVICE_NAMESPACE}" ]; then
+                ping_service_namespace=${OPENSHIFT_DNS_PING_SERVICE_NAMESPACE}
+            elif [ -f "/var/run/secrets/kubernetes.io/serviceaccount/namespace" ]; then
+                ping_service_namespace=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+            else
+                log_error "Unable to determine DNS_PING service namespace. Please check /var/run/secrets/kubernetes.io/serviceaccount/namespace is readable or set OPENSHIFT_DNS_PING_SERVICE_NAMESPACE."
+                return
+            fi
+        fi
+        config="${config}<property name=\"dns_query\">${ping_service_port:-8888}._${ping_service_protocol}.${ping_service_name}.${ping_service_namespace}</property>"
+    fi
+    config="${config}</protocol>"
+    echo "${config}"
+}
+
 configure_ha() {
   # Set HA args
   IP_ADDR=`hostname -i`
@@ -102,22 +158,17 @@ configure_ha() {
 
   JBOSS_HA_ARGS="${JBOSS_HA_ARGS} -Djboss.node.name=${JBOSS_NODE_NAME}"
 
-  if [ -z "${JGROUPS_CLUSTER_PASSWORD}" ]; then
-      log_warning "No password defined for JGroups cluster. AUTH protocol will be disabled. Please define JGROUPS_CLUSTER_PASSWORD."
-      JGROUPS_AUTH="<!--WARNING: No password defined for JGroups cluster. AUTH protocol has been disabled. Please define JGROUPS_CLUSTER_PASSWORD. -->"
-  else
-    JGROUPS_AUTH="\n\
-                <auth-protocol type=\"AUTH\">\n\
-                    <digest-token algorithm=\"${JGROUPS_DIGEST_TOKEN_ALGORITHM:-SHA-512}\">\n\
-                        <shared-secret-reference clear-text=\"$JGROUPS_CLUSTER_PASSWORD\"/>\n\
-                    </digest-token>\n\
-                </auth-protocol>\n"
-  fi
+  JGROUPS_AUTH=$(generate_jgroups_auth_config "${JGROUPS_CLUSTER_PASSWORD}" "${JGROUPS_DIGEST_TOKEN_ALGORITHM}")
 
-  local ping_protocol=${JGROUPS_PING_PROTOCOL:-kubernetes.KUBE_PING}
+  local ping_protocol=${JGROUPS_PING_PROTOCOL:-openshift.KUBE_PING}
   local socket_binding=$(get_socket_binding_for_ping "${ping_protocol}")
-  local ping_protocol_element="<protocol type=\"${ping_protocol}\" ${socket_binding}/>"
-  validate_ping_protocol "${ping_protocol}" 
+  validate_ping_protocol "${ping_protocol}"
+  local ping_protocol_element
+  if [ "${ping_protocol}" = "dns.DNS_PING" ] || [ "${ping_protocol}" = "openshift.DNS_PING" ]; then
+    ping_protocol_element=$(generate_dns_ping_config "${ping_protocol}" "${OPENSHIFT_DNS_PING_SERVICE_NAME}" "${OPENSHIFT_DNS_PING_SERVICE_PORT}" "${OPENSHIFT_DNS_PING_SERVICE_NAMESPACE}" "${socket_binding}")
+  else
+    ping_protocol_element=$(generate_generic_ping_config "${ping_protocol}" "${socket_binding}")
+  fi
 
   sed -i "s|<!-- ##JGROUPS_AUTH## -->|${JGROUPS_AUTH}|g" $CONFIG_FILE
   log_info "Configuring JGroups discovery protocol to ${ping_protocol}"
