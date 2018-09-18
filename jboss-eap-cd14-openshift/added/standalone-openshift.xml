@@ -32,6 +32,7 @@
         <extension module="org.wildfly.extension.elytron"/>
         <extension module="org.wildfly.extension.io"/>
         <extension module="org.wildfly.extension.messaging-activemq"/>
+        <extension module="org.wildfly.extension.microprofile.config-smallrye"/>
         <extension module="org.wildfly.extension.microprofile.health-smallrye"/>
         <extension module="org.wildfly.extension.request-controller"/>
         <extension module="org.wildfly.extension.security.manager"/>
@@ -471,6 +472,9 @@
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:messaging-activemq:3.0">
             <!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->
+        </subsystem>
+        <subsystem xmlns="urn:wildfly:microprofile-config-smallrye:1.0">
+            <!-- ##MICROPROFILE_CONFIG_SOURCE## -->
         </subsystem>
         <subsystem xmlns="urn:wildfly:microprofile-health-smallrye:1.0"/>
         <subsystem xmlns="urn:jboss:domain:modcluster:3.0">
