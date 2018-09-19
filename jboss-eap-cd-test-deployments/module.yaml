@@ -1,0 +1,8 @@
+schema_version: 1
+name: jboss.eap.cd.test.deployments
+version: '1.0'
+description: Helper module for testing images. Anything in added/ will be copied to /deployments when the image is built. Note this module is for testing only and should not be included in production builds.
+execute:
+- script: configure.sh
+  user: '185'
+
