@@ -66,6 +66,7 @@ function configure() {
   inject_brokers
   configure_mq
   configure_thread_pool
+  disable_unused_rar
 }
 
 function configure_artemis_address() {
@@ -492,4 +493,13 @@ function inject_brokers() {
   # legacy format, bare ##DEFAULT_JMS##
   sed -i "s|##DEFAULT_JMS##|${defaultJms}|" $CONFIG_FILE
 
+}
+
+disable_unused_rar() {
+  # Put down a skipdeploy marker for the legacy activemq-rar.rar unless there is a .dodeploy marker
+  # or the rar is mentioned in the config file
+  local base_rar="$JBOSS_HOME/standalone/deployments/activemq-rar.rar"
+  if [ -e "${base_rar}" ] && [ ! -e "${base_rar}.dodeploy" ] && ! grep -q -E "activemq-rar\.rar" $CONFIG_FILE; then
+    touch "$JBOSS_HOME/standalone/deployments/activemq-rar.rar.skipdeploy"
+  fi
 }
