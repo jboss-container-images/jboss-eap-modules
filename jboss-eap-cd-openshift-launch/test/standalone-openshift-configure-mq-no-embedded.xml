@@ -1,0 +1,1 @@
+<socket-binding name="messaging" port="5445"/><socket-binding name="messaging-throughput" port="5455"/>

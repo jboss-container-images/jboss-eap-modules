@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+   <test-content>
+     <remote-connector name="remote-amq" socket-binding="messaging-remote-throughput"/>
+     <remote-connector name="remote-amq-1" socket-binding="messaging-remote-throughput-1"/>
+     <remote-connector name="remote-amq-2" socket-binding="messaging-remote-throughput-2"/>
+     <!-- ##AMQ_REMOTE_CONNECTOR## -->
+     <pooled-connection-factory name="activemq-ra-remote" user="adminUserMQ1" password="adminPasswordMQ1" entries="java:/jms/remote-amq/JmsConnectionFactory" connectors="remote-amq" transaction="xa"/>
+     <pooled-connection-factory name="activemq-ra-remote-1" user="adminUserMQ2" password="adminPasswordMQ2" entries="java:/jms/remote-amq-1/JmsConnectionFactory" connectors="remote-amq-1" transaction="xa"/>
+     <pooled-connection-factory name="activemq-ra-remote-2" user="adminUserMQ3" password="adminPasswordMQ3" entries="java:/jms/remote-amq-2/JmsConnectionFactory" connectors="remote-amq-2" transaction="xa"/>
+     <!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->
+     <external-jms-queue name="HELLOWORLDMDBQueueMQ1" entries="java:/jms/remote-amq/HELLOWORLDMDBQueueMQ1 HELLOWORLDMDBQueueMQ1"/>
+     <external-jms-topic name="HELLOWORLDMDBTopicMQ1" entries="java:/jms/remote-amq/HELLOWORLDMDBTopicMQ1 HELLOWORLDMDBTopicMQ1"/>
+     <external-jms-queue name="HELLOWORLDMDBQueueMQ2" entries="java:/jms/remote-amq-1/HELLOWORLDMDBQueueMQ2 HELLOWORLDMDBQueueMQ2"/>
+     <external-jms-topic name="HELLOWORLDMDBTopicMQ2" entries="java:/jms/remote-amq-1/HELLOWORLDMDBTopicMQ2 HELLOWORLDMDBTopicMQ2"/>
+     <external-jms-queue name="HELLOWORLDMDBQueueMQ3" entries="java:/jms/remote-amq-2/HELLOWORLDMDBQueueMQ3 HELLOWORLDMDBQueueMQ3"/>
+     <external-jms-topic name="HELLOWORLDMDBTopicMQ3" entries="java:/jms/remote-amq-2/HELLOWORLDMDBTopicMQ3 HELLOWORLDMDBTopicMQ3"/>
+     <!-- ##AMQ_EXTERNAL_JMS_OBJECTS## -->
+     <outbound-socket-binding name="messaging-remote-throughput">
+       <remote-destination host="localhostMQ1" port="61616"/>
+     </outbound-socket-binding>
+     <outbound-socket-binding name="messaging-remote-throughput-1">
+       <remote-destination host="localhostMQ2" port="61616"/>
+     </outbound-socket-binding>
+     <outbound-socket-binding name="messaging-remote-throughput-2">
+       <remote-destination host="localhostMQ3" port="61616"/>
+     </outbound-socket-binding>
+     <!-- ##AMQ_MESSAGING_SOCKET_BINDING## -->
+     <default-bindings jms-connection-factory="java:/MQ2ConnectionFactory"/>
+   </test-content>

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+   <test-content>
+     <remote-connector name="remote-amq" socket-binding="messaging-remote-throughput"/>
+     <!-- ##AMQ_REMOTE_CONNECTOR## -->
+     <pooled-connection-factory name="activemq-ra-remote" user="adminUser" password="adminPassword" entries="java:/jms/remote-amq/JmsConnectionFactory" connectors="remote-amq" transaction="xa"/>
+     <!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->
+     <external-jms-queue name="HELLOWORLDMDBQueue" entries="java:/jms/remote-amq/HELLOWORLDMDBQueue HELLOWORLDMDBQueue"/>
+     <external-jms-topic name="HELLOWORLDMDBTopic" entries="java:/jms/remote-amq/HELLOWORLDMDBTopic HELLOWORLDMDBTopic"/>
+     <!-- ##AMQ_EXTERNAL_JMS_OBJECTS## -->
+     <outbound-socket-binding name="messaging-remote-throughput">
+       <remote-destination host="localhost" port="61616"/>
+     </outbound-socket-binding>
+     <!-- ##AMQ_MESSAGING_SOCKET_BINDING## -->
+     <default-bindings jms-connection-factory="java:/jms/remote-amq/JmsConnectionFactory"/>
+   </test-content>

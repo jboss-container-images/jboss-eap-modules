@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+   <resource-adapter id="archive9">
+     <archive>archive9</archive>
+     <transaction-support>XATransaction</transaction-support>
+     <config-property name="UserName">brokerUsername3</config-property>
+     <config-property name="Password">brokerPassword4</config-property>
+     <config-property name="ServerUrl">tcp://brokerHost6:brokerPort7?jms.rmIdFromConnectionId=true</config-property>
+     <connection-definitions>
+       <connection-definition tracking="" class-name="org.apache.activemq.ra.ActiveMQManagedConnectionFactory" jndi-name="connectionFactory2" enabled="true" pool-name="serviceName1-ConnectionFactory">
+         <xa-pool>
+           <min-pool-size>1</min-pool-size>
+           <max-pool-size>20</max-pool-size>
+           <prefill>false</prefill>
+           <is-same-rm-override>false</is-same-rm-override>
+         </xa-pool>
+         <recovery>
+           <recover-credential>
+             <user-name>brokerUsername3</user-name>
+             <password>brokerPassword4</password>
+           </recover-credential>
+         </recovery>
+       </connection-definition>
+     </connection-definitions>
+     <admin-objects>
+       <admin-object class-name="org.apache.activemq.command.ActiveMQQueue" jndi-name="java:/queue/queueName11" use-java-context="true" pool-name="queue/queueName11">
+         <config-property name="PhysicalName">queue/queueName11</config-property>
+       </admin-object>
+       <admin-object class-name="org.apache.activemq.command.ActiveMQTopic" jndi-name="java:/topic/topicNames12" use-java-context="true" pool-name="topic/topicNames12">
+         <config-property name="PhysicalName">topic/topicNames12</config-property>
+       </admin-object>
+     </admin-objects>
+   </resource-adapter>

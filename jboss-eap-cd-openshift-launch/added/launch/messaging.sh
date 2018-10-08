@@ -7,6 +7,12 @@ else
     ACTIVEMQ_SUBSYSTEM_FILE=${TEST_ACTIVEMQ_SUBSYSTEM_FILE_INCLUDE}
 fi
 
+if [ -z "${TEST_ACTIVEMQ_SUBSYSTEM_NO_EMBEDDED_FILE}" ]; then
+    ACTIVEMQ_SUBSYSTEM_NO_EMBEDDED_FILE=$JBOSS_HOME/bin/launch/activemq-subsystem-no-embedded.xml
+else
+    ACTIVEMQ_SUBSYSTEM_NO_EMBEDDED_FILE=${TEST_ACTIVEMQ_SUBSYSTEM_NO_EMBEDDED_FILE}
+fi
+
 if [ -n "${TEST_LAUNCH_COMMON_INCLUDE}" ]; then
     source "${TEST_LAUNCH_COMMON_INCLUDE}"
 else
@@ -23,7 +29,7 @@ fi
 # a start at what it would need to do to clear the env.  The reason for this is
 # that the HornetQ subsystem is automatically configured if no service mappings
 # are specified.  This could result in the configuration of both queuing systems.
-function prepareEnv() {
+prepareEnv() {
   # HornetQ configuration
   unset HORNETQ_QUEUES
   unset MQ_QUEUES
@@ -74,7 +80,7 @@ function prepareEnv() {
   unset MQ_SIMPLE_DEFAULT_PHYSICAL_DESTINATION
 }
 
-function configure() {
+configure() {
   configure_artemis_address
   inject_brokers
   configure_mq
@@ -82,12 +88,13 @@ function configure() {
   disable_unused_rar
 }
 
-function configure_artemis_address() {
+configure_artemis_address() {
     IP_ADDR=${JBOSS_MESSAGING_HOST:-`hostname -i`}
     JBOSS_MESSAGING_ARGS="${JBOSS_MESSAGING_ARGS} -Djboss.messaging.host=${IP_ADDR}"
+    echo "${JBOSS_MESSAGING_ARGS}"
 }
 
-function configure_mq_destinations() {
+configure_mq_destinations() {
   IFS=',' read -a queues <<< ${MQ_QUEUES:-$HORNETQ_QUEUES}
   IFS=',' read -a topics <<< ${MQ_TOPICS:-$HORNETQ_TOPICS}
 
@@ -95,30 +102,28 @@ function configure_mq_destinations() {
   if [ "${#queues[@]}" -ne "0" -o "${#topics[@]}" -ne "0" ]; then
     if [ "${#queues[@]}" -ne "0" ]; then
       for queue in ${queues[@]}; do
-        destinations="${destinations}<jms-queue name=\"${queue}\" entries=\"/queue/${queue}\"/>"
+        destinations="${destinations}<jms-queue name=\"${queue}\" entries=\"/queue/${queue}\"/>\n"
       done
     fi
     if [ "${#topics[@]}" -ne "0" ]; then
       for topic in ${topics[@]}; do
-        destinations="${destinations}<jms-topic name=\"${topic}\" entries=\"/topic/${topic}\"/>"
+        destinations="${destinations}<jms-topic name=\"${topic}\" entries=\"/topic/${topic}\"/>\n"
       done
     fi
   fi
-  echo "${destinations}"
+  echo "${destinations}" | sed ':a;N;$!ba;s|\n|\\n|g'
 }
 
-function configure_mq_cluster_password() {
+configure_mq_cluster_password() {
   if [ -n "${MQ_CLUSTER_PASSWORD:-HORNETQ_CLUSTER_PASSWORD}" ] ; then
-    JBOSS_MESSAGING_ARGS="${JBOSS_MESSAGING_ARGS} -Djboss.messaging.cluster.password=${MQ_CLUSTER_PASSWORD:-HORNETQ_CLUSTER_PASSWORD}"
+    echo "${JBOSS_MESSAGING_ARGS} -Djboss.messaging.cluster.password=${MQ_CLUSTER_PASSWORD:-HORNETQ_CLUSTER_PASSWORD}" | sed ':a;N;$!ba;s|\n|\\n|g'
   fi
 }
 
-function configure_mq() {
+configure_mq() {
   if [ "$REMOTE_AMQ_BROKER" != "true" ] ; then
-    configure_mq_cluster_password
-
+    JBOSS_MESSAGING_ARGS=$(configure_mq_cluster_password)
     destinations=$(configure_mq_destinations)
-    
     # We need the broker if they configured destinations or didn't explicitly disable the broker AND there's a point to doing it because the marker exists
     if ([ -n "${destinations}" ] || [ "x${DISABLE_EMBEDDED_JMS_BROKER}" != "xtrue" ]) && grep -q '<!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->' ${CONFIG_FILE}; then
 
@@ -128,132 +133,160 @@ function configure_mq() {
       fi
 
       activemq_subsystem=$(sed -e "s|<!-- ##DESTINATIONS## -->|${destinations}|" <"${ACTIVEMQ_SUBSYSTEM_FILE}" | sed ':a;N;$!ba;s|\n|\\n|g')
-
-      sed -i "s|<!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->|${activemq_subsystem%$'\n'}|" "${CONFIG_FILE}"     
+      sed -i "s|<!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->|${activemq_subsystem%$'\n'}|" "${CONFIG_FILE}"
     fi
-
     #Handle the messaging socket-binding separately just in case its marker is present but the subsystem one is not
     if ([ -n "${destinations}" ] || [ "x${DISABLE_EMBEDDED_JMS_BROKER}" != "xtrue" ]) && grep -q '<!-- ##MESSAGING_PORTS## -->' ${CONFIG_FILE}; then
       # We don't warn about this as socket-bindings are pretty harmless
       sed -i 's|<!-- ##MESSAGING_PORTS## -->|<socket-binding name="messaging" port="5445"/><socket-binding name="messaging-throughput" port="5455"/>|' "${CONFIG_FILE}"
     fi
-
   fi
 }
 
 # Currently, the JVM is not cgroup aware and cannot be trusted to generate default values for
 # threads pool args. Therefore, if there are resource limits specifed by the container, this function
 # will configure the thread pool args using cgroups and the formulae provied by https://github.com/apache/activemq-artemis/blob/master/artemis-core-client/src/main/java/org/apache/activemq/artemis/api/core/client/ActiveMQClient.java
-function configure_thread_pool() {
-  source /opt/run-java/container-limits
+configure_thread_pool() {
+  if [ -a "${CONTAINER_LIMITS_INCLUDE}" ]; then
+    source ${CONTAINER_LIMITS_INCLUDE}
+  else
+    source /opt/run-java/container-limits
+  fi
   if [ -n "$CORE_LIMIT" ]; then
     local mtp=$(expr 8 \* $CORE_LIMIT) # max thread pool size
     local ctp=5                                  # core thread pool size
     JBOSS_MESSAGING_ARGS="${JBOSS_MESSAGING_ARGS}
     -Dactivemq.artemis.client.global.thread.pool.max.size=$mtp
     -Dactivemq.artemis.client.global.scheduled.thread.pool.core.size=$ctp"
+    echo "${JBOSS_MESSAGING_ARGS}"
   fi
 }
 
-# $1 - name - messaging-remote-throughput
-# <!-- ##AMQ_REMOTE_CONNECTOR## -->
-function generate_remote_artemis_remote_connector() {
-    echo "<remote-connector name=\"netty-remote-throughput\" socket-binding=\"${1}\"/>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
-}
-
-# Arguments:
-# $1 - remote context name - default remoteContext
-# $2 - remote host
-# $3 - remote port - 61616
 # <!-- ##AMQ_REMOTE_CONTEXT## -->
-function generate_remote_artemis_naming() {
-    echo "<bindings><external-context name=\"java:global/${1}\" module=\"org.apache.activemq.artemis\" class=\"javax.naming.InitialContext\">
+# deprecated, not used by the new external connector
+generate_remote_artemis_naming() {
+    declare remote_context_name="${1}"
+    declare remote_host="${2}"
+    declare remote_port="${3}"
+    echo "<bindings><external-context name=\"java:global/${remote_context_name}\" module=\"org.apache.activemq.artemis\" class=\"javax.naming.InitialContext\">
               <environment>
                   <property name=\"java.naming.factory.initial\" value=\"org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory\"/>
-                      <property name=\"java.naming.provider.url\" value=\"tcp://${2}:${3}\"/>
+                      <property name=\"java.naming.provider.url\" value=\"tcp://${remote_host}:${remote_port}\"/>
                       <!-- ##AMQ7_CONFIG_PROPERTIES## -->
               </environment>
           </external-context>
           <!-- ##AMQ_LOOKUP_OBJECTS## --></bindings>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
 }
 
-# $1 - factory name - activemq-ra-remote
-# $2 - username
-# $3 - password
-# $4 - default connection factory - java:jboss/DefaultJMSConnectionFactory
-# <!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->
-function generate_remote_artemis_connection_factory() {
-    echo "<pooled-connection-factory user=\"${2}\" password=\"${3}\" name=\"${1}\" entries=\"java:/JmsXA java:/RemoteJmsXA java:jboss/RemoteJmsXA ${4}\" connectors=\"netty-remote-throughput\" transaction=\"xa\"/>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
-}
-
-# $1 object type - queue / topic
-# $2 object name - MyQueue / MyTopic
-# <!-- ##AMQ7_CONFIG_PROPERTIES## -->
-function generate_remote_artemis_property() {
-    echo "<property name=\"${1}.${2}\" value=\"${2}\"/>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
-}
-
-# $1 - remote context - remoteContext
-# $2 - object name - MyQueue / MyTopic etc
-# <!-- ##AMQ_LOOKUP_OBJECTS## -->
-function generate_remote_artemis_lookup() {
-    echo "<lookup name=\"java:/${2}\" lookup=\"java:global/${1}/${2}\"/>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
-}
-
 # $1 - name - messaging-remote-throughput
-# $2 - remote hostname
-# $3 - remote port
+# <!-- ##AMQ_REMOTE_CONNECTOR## -->
+generate_remote_artemis_remote_connector() {
+    declare name="${1}"
+    declare socket_binding_name="${2}"
+    echo "<remote-connector name=\"${name}\" socket-binding=\"${socket_binding_name}\"/>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
+}
+
+# <!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->
+generate_remote_artemis_connection_factory() {
+    declare name="${1}"
+    declare username="${2}"
+    declare password="${3}"
+    declare connectors="${4}"
+    declare entries="${5}"
+    echo "<pooled-connection-factory name=\"${name}\" user=\"${username}\" password=\"${password}\" entries=\"${entries}\" connectors=\"${connectors}\" transaction=\"xa\"/>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
+}
+
+# <!-- ##AMQ7_CONFIG_PROPERTIES## -->
+generate_remote_artemis_property() {
+    declare object_type="${1}"
+    declare object_name="${2}"
+    echo "<property name=\"${object_type}.${object_name}\" value=\"${object_name}\"/>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
+}
+
+# <!-- ##AMQ_LOOKUP_OBJECTS## -->
+generate_remote_artemis_lookup() {
+    declare remote_context="${1}"
+    declare object_name="${2}"
+    echo "<lookup name=\"java:/${object_name}\" lookup=\"java:global/${remote_context}/${object_name}\"/>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
+}
+
 # <!-- ##AMQ_MESSAGING_SOCKET_BINDING## -->
-function generate_remote_artemis_socket_binding() {
-    echo "<outbound-socket-binding name=\"${1}\">
-            <remote-destination host=\"${2}\" port=\"${3}\"/>
+generate_remote_artemis_socket_binding() {
+    declare name="${1}"
+    declare remote_host="${2}"
+    declare remote_port="${3}"
+    echo "<outbound-socket-binding name=\"${name}\">
+            <remote-destination host=\"${remote_host}\" port=\"${port}\"/>
          </outbound-socket-binding>" | sed -e ':a;N;$!ba;s|\n|\\n|g'
 }
 
-# Arguments:
-# $1 - physical name
-# $2 - jndi name
-# $3 - class
-function generate_object_config() {
-  echo "generating object config for $1" >&2
+# <!-- ##AMQ_EXTERNAL_JMS_CONFIG## -->
+generate_external_jms_lookup() {
+    declare type="${1,,}" # queue / topic
+    declare connector_name="${2}"
+    declare name="${3}" # MyQueue / MyTopic
+
+    local result=""
+
+    if [ -z "${name}" ]; then
+        result="<!-- Error: name is required for external JMS object -->"
+        echo ${result}
+        return
+    fi
+
+    # /HELLOWORLDMDBQueue  java:/queue/HELLOWORLDMDBQueue
+    if [ "${type}" = "queue" ]; then
+        result="<external-jms-queue name=\"${name}\" entries=\"java:/jms/${connector_name}/${name} java:/queue/${name}\"/>"
+    elif [ "${type}" = "topic" ]; then
+        result="<external-jms-topic name=\"${name}\" entries=\"java:/jms/${connector_name}/${name} java:/topic/${name}\"/>"
+    else
+        result="<!-- Error: Unknown type (${type}) for external JMS configuration. valid values are: {queue, topic} -->"
+    fi
+    echo "${result}"
+}
+
+generate_object_config() {
+  declare name="${1}"
+  declare jndi_name="${2}"
+  declare class="${3}"
 
   ao="
                         <admin-object
-                              class-name=\"$3\"
-                              jndi-name=\"$2\"
+                              class-name=\"${class}\"
+                              jndi-name=\"${jndi_name}\"
                               use-java-context=\"true\"
-                              pool-name=\"$1\">
-                            <config-property name=\"PhysicalName\">$1</config-property>
+                              pool-name=\"${name}\">
+                            <config-property name=\"PhysicalName\">${name}</config-property>
                         </admin-object>"
   echo $ao
 }
 
-# Arguments:
-# $1 - service name
-# $2 - connection factory jndi name
-# $3 - broker username
-# $4 - broker password
-# $5 - protocol
-# $6 - broker host
-# $7 - broker port
-# $8 - prefix
-# $9 - archive
-# $10 - driver
-# $11 - queue names
-# $12 - topic names
-# $13 - ra tracking
-# $14 - resource counter, incremented for each broker, starting at 0
-function generate_resource_adapter() {
+generate_resource_adapter() {
+  declare service_name="${1}"
+  declare connection_factory_jndi="${2}"
+  declare broker_username="${3}"
+  declare broker_password="${4}"
+  declare protocol="${5}"
+  declare broker_host="${6}"
+  declare broker_port="${7}"
+  declare prefix="${8}"
+  declare archive="${9}"
+  declare driver="${10}"
+  declare queue_names="${11}"
+  declare topic_names="${12}"
+  declare ra_tracking="${13}"
+  declare resource_counter="${14}"
+
   log_info "Generating resource adapter configuration for service: $1 (${10})" >&2
-  IFS=',' read -a queues <<< ${11}
-  IFS=',' read -a topics <<< ${12}
+  IFS=',' read -a queues <<< ${queue_names}
+  IFS=',' read -a topics <<< ${topic_names}
 
   local ra_id=""
   # this preserves the expected behavior of the first RA, and doesn't append a number. Any additional RAs will have -count appended.
-  if [ "${14}" -eq "0" ]; then
-    ra_id="${9}"
+  if [ "${resource_counter}" -eq "0" ]; then
+    ra_id="${archive}"
   else
-    ra_id="${9}-${14}"
+    ra_id="${archive}-${resource_counter}"
   fi
 
   # if we don't declare a EJB_RESOURCE_ADAPTER_NAME, then just use the first one
@@ -261,23 +294,22 @@ function generate_resource_adapter() {
     export EJB_RESOURCE_ADAPTER_NAME="${ra_id}"
   fi
 
-  case "${10}" in
+  case "${driver}" in
     "amq")
-      prefix=$8
       ra="
                 <resource-adapter id=\"${ra_id}\">
-                    <archive>$9</archive>
+                    <archive>${archive}</archive>
                     <transaction-support>XATransaction</transaction-support>
-                    <config-property name=\"UserName\">$3</config-property>
-                    <config-property name=\"Password\">$4</config-property>
-                    <config-property name=\"ServerUrl\">tcp://$6:$7?jms.rmIdFromConnectionId=true</config-property>
+                    <config-property name=\"UserName\">${broker_username}</config-property>
+                    <config-property name=\"Password\">${broker_password}</config-property>
+                    <config-property name=\"ServerUrl\">tcp://${broker_host}:${broker_port}?jms.rmIdFromConnectionId=true</config-property>
                     <connection-definitions>
                         <connection-definition
-                              "${13}"
+                              "${ra_tracking}"
                               class-name=\"org.apache.activemq.ra.ActiveMQManagedConnectionFactory\"
-                              jndi-name=\"$2\"
+                              jndi-name=\"${connection_factory_jndi}\"
                               enabled=\"true\"
-                              pool-name=\"$1-ConnectionFactory\">
+                              pool-name=\"${service_name}-ConnectionFactory\">
                             <xa-pool>
                                 <min-pool-size>1</min-pool-size>
                                 <max-pool-size>20</max-pool-size>
@@ -286,8 +318,8 @@ function generate_resource_adapter() {
                             </xa-pool>
                             <recovery>
                                 <recover-credential>
-                                    <user-name>$3</user-name>
-                                    <password>$4</password>
+                                    <user-name>${broker_username}</user-name>
+                                    <password>${broker_password}</password>
                                 </recover-credential>
                             </recovery>
                         </connection-definition>
@@ -309,7 +341,7 @@ function generate_resource_adapter() {
           fi
           jndi=$(find_env "${queue_env}_JNDI" "java:/queue/$queue")
           class="org.apache.activemq.command.ActiveMQQueue"
-
+          log_info "generating object config for ${physical}"
           ra="$ra$(generate_object_config $physical $jndi $class)"
         done
       fi
@@ -326,7 +358,7 @@ function generate_resource_adapter() {
           fi
           jndi=$(find_env "${topic_env}_JNDI" "java:/topic/$topic")
           class="org.apache.activemq.command.ActiveMQTopic"
-
+          log_info "generating object config for ${physical}"
           ra="$ra$(generate_object_config $physical $jndi $class)"
         done
       fi
@@ -335,17 +367,14 @@ function generate_resource_adapter() {
                     </admin-objects>
                 </resource-adapter>"
     ;;
-  "amq7")
-      prefix=$8
-    ;;
   esac
 
-  echo $ra | sed ':a;N;$!ba;s|\n|\\n|g'
+  echo ${ra} | sed ':a;N;$!ba;s|\n|\\n|g'
 }
 
 # Finds the name of the broker services and generates resource adapters
 # based on this info
-function inject_brokers() {
+inject_brokers() {
   # Find all brokers in the $MQ_SERVICE_PREFIX_MAPPING separated by ","
   IFS=',' read -a brokers <<< $MQ_SERVICE_PREFIX_MAPPING
 
@@ -363,8 +392,22 @@ function inject_brokers() {
     fi
   else
     local counter=0
+    # names / types are determined from the name, for example:
+    # "eap-app-amq=MQ" the -amq indicates this is AMQ6
+    # example config:
+    # MQ_SERVICE_PREFIX_MAPPING="eap-app-amq=MQ"
+    # MQ_JNDI=java:/ConnectionFactory
+    # MQ_USERNAME=admin
+    # MQ_PASSWORD=admin
+    # MQ_PROTOCOL=tcp
+    # MQ_QUEUES=HELLOWORLDMDBQueue
+    # MQ_TOPICS=HELLOWORLDMDBTopic
+    #
+    # MQ_SERVICE_PREFIX_MAPPING is a of brokers, seperated by comma, all using the same format.
+    #
     for broker in ${brokers[@]}; do
       log_info "Processing broker($counter): $broker"
+      # Example: Service Name: eap-app-amq, Service: EAP_APP_AMQ, Type: AMQ, Prefix: MQ
       service_name=${broker%=*}
       service=${service_name^^}
       service=${service//-/_}
@@ -445,11 +488,18 @@ function inject_brokers() {
         "AMQ7")
          driver="amq7"
          archive=""
+         default_connector_name="remote-amq"
+         default_cnx_factory_name="activemq-ra-remote"
+         default_socket_binding_name="messaging-remote-throughput"
+         # XXX not used by remote
+         default_entries="java:/JmsXA java:/RemoteJmsXA java:jboss/RemoteJmsXA"
+         EJB_RESOURCE_ADAPTER_NAME="${default_cnx_factory_name}.rar"
          REMOTE_AMQ_BROKER=true
          REMOTE_AMQ7=true
          if [ "$subsystem_added" != "true" ] ; then
-             activemq_subsystem=$(sed -e ':a;N;$!ba;s|\n|\\n|g' <"${ACTIVEMQ_SUBSYSTEM_FILE}")
-             sed -i "s|<!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->|${activemq_subsystem%$'\n'}<!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->|" $CONFIG_FILE
+             activemq_subsystem=$(sed -e ':a;N;$!ba;s|\n|\\n|g' <"${ACTIVEMQ_SUBSYSTEM_NO_EMBEDDED_FILE}")
+             # only added once.
+             sed -i "s|<!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->|${activemq_subsystem%$'\n'}|" $CONFIG_FILE
              subsystem_added=true
              # make sure the default connection factory isn't set on another cnx factory
              sed -i "s|java:jboss/DefaultJMSConnectionFactory||g" $CONFIG_FILE
@@ -457,43 +507,46 @@ function inject_brokers() {
              sed -i "s|java:/JmsXA|java:/JmsXALocal|" $CONFIG_FILE
          fi
 
-         # this should be configurable - see CLOUD-2225 for multi broker support
-         socket_binding_name="messaging-remote-throughput"
-         connector=$(generate_remote_artemis_remote_connector ${socket_binding_name})
+         connector_name="${default_connector_name}"
+         socket_binding_name="${default_socket_binding_name}"
+         cnx_factory_name="${default_cnx_factory_name}"
+         entries="${default_entries} ${jndi}"
+         if [ "${counter}" -ne "0" ]; then
+            connector_name="${default_connector_name}-${counter}"
+            socket_binding_name="${default_socket_binding_name}-${counter}"
+            cnx_factory_name="${default_cnx_factory_name}-${counter}"
+            # this one doesn't get the default entries
+            entries="${jndi}"
+         fi
+
+         connector=$(generate_remote_artemis_remote_connector ${connector_name} ${socket_binding_name})
          sed -i "s|<!-- ##AMQ_REMOTE_CONNECTOR## -->|${connector%$'\n'}<!-- ##AMQ_REMOTE_CONNECTOR## -->|" $CONFIG_FILE
+
+         entries="java:/jms/${connector_name}/JmsConnectionFactory"
+         # if no default is defined the first one is the default
+         if [ -z "$defaultJmsConnectionFactoryJndi" ] ; then
+            defaultJmsConnectionFactoryJndi="${entries}"
+         fi
+
+         cnx_factory=$(generate_remote_artemis_connection_factory ${cnx_factory_name} ${username} ${password} ${connector_name} "${entries}")
+         sed -i "s|<!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->|${cnx_factory%$'\n'}<!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->|" $CONFIG_FILE
 
          socket_binding=$(generate_remote_artemis_socket_binding ${socket_binding_name} ${host} ${port})
          sed -i "s|<!-- ##AMQ_MESSAGING_SOCKET_BINDING## -->|${socket_binding%$'\n'}<!-- ##AMQ_MESSAGING_SOCKET_BINDING## -->|" $CONFIG_FILE
 
-         naming=$(generate_remote_artemis_naming "remoteContext" ${host} ${port})
-         sed -i "s|<!-- ##AMQ_REMOTE_CONTEXT## -->|${naming%$'\n'}<!-- ##AMQ_REMOTE_CONTEXT## -->|" $CONFIG_FILE
-
-         # this name should also be configurable (CLOUD-2225)
-         cnx_factory_name="activemq-ra-remote"
-         EJB_RESOURCE_ADAPTER_NAME=${cnx_factory_name}.rar
-
-         cnx_factory=$(generate_remote_artemis_connection_factory ${cnx_factory_name} ${username} ${password} ${jndi})
-         sed -i "s|<!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->|${cnx_factory%$'\n'}<!-- ##AMQ_POOLED_CONNECTION_FACTORY## -->|" $CONFIG_FILE
-
          IFS=',' read -a amq7_queues <<< ${queues:-}
          if [ "${#amq7_queues[@]}" -ne "0" ]; then
             for q in ${amq7_queues[@]}; do
-                prop=$(generate_remote_artemis_property "queue" ${q})
-                sed -i "s|<!-- ##AMQ7_CONFIG_PROPERTIES## -->|${prop%$'\n'}<!-- ##AMQ7_CONFIG_PROPERTIES## -->|" $CONFIG_FILE
-
-                lookup=$(generate_remote_artemis_lookup "remoteContext" ${q})
-                sed -i "s|<!-- ##AMQ_LOOKUP_OBJECTS## -->|${lookup%$'\n'}<!-- ##AMQ_LOOKUP_OBJECTS## -->|" $CONFIG_FILE
+                lookup=$(generate_external_jms_lookup "queue" "${connector_name}" "${q}")
+                sed -i "s|<!-- ##AMQ_EXTERNAL_JMS_OBJECTS## -->|${lookup%$'\n'}<!-- ##AMQ_EXTERNAL_JMS_OBJECTS## -->|" $CONFIG_FILE
             done
          fi
 
          IFS=',' read -a amq7_topics <<< ${topics:-}
          if [ "${#amq7_topics[@]}" -ne "0" ]; then
             for t in ${amq7_topics[@]}; do
-                prop=$(generate_remote_artemis_property "topic" ${t})
-                sed -i "s|<!-- ##AMQ7_CONFIG_PROPERTIES## -->|${prop%$'\n'}<!-- ##AMQ7_CONFIG_PROPERTIES## -->|" $CONFIG_FILE
-
-                lookup=$(generate_remote_artemis_lookup "remoteContext" ${t})
-                sed -i "s|<!-- ##AMQ_LOOKUP_OBJECTS## -->|${lookup%$'\n'}<!-- ##AMQ_LOOKUP_OBJECTS## -->|" $CONFIG_FILE
+                lookup=$(generate_external_jms_lookup "topic" "${connector_name}" "${t}")
+                sed -i "s|<!-- ##AMQ_EXTERNAL_JMS_OBJECTS## -->|${lookup%$'\n'}<!-- ##AMQ_EXTERNAL_JMS_OBJECTS## -->|" $CONFIG_FILE
             done
          fi
          ;;

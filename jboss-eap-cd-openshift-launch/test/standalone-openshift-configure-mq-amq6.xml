@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+   <test-content>
+     <resource-adapter id="activemq-rar.rar">
+       <archive>activemq-rar.rar</archive>
+       <transaction-support>XATransaction</transaction-support>
+       <config-property name="UserName">adminUser</config-property>
+       <config-property name="Password">adminPassword</config-property>
+       <config-property name="ServerUrl">tcp://localhost:61616?jms.rmIdFromConnectionId=true</config-property>
+       <connection-definitions>
+         <connection-definition class-name="org.apache.activemq.ra.ActiveMQManagedConnectionFactory" jndi-name="java:/DefaultJMSConnectionFactory" enabled="true" pool-name="eap-app-amq-ConnectionFactory">
+           <xa-pool>
+             <min-pool-size>1</min-pool-size>
+             <max-pool-size>20</max-pool-size>
+             <prefill>false</prefill>
+             <is-same-rm-override>false</is-same-rm-override>
+           </xa-pool>
+           <recovery>
+             <recover-credential>
+               <user-name>adminUser</user-name>
+               <password>adminPassword</password>
+             </recover-credential>
+           </recovery>
+         </connection-definition>
+       </connection-definitions>
+       <admin-objects>
+         <admin-object class-name="org.apache.activemq.command.ActiveMQQueue" jndi-name="java:/queue/HELLOWORLDMDBQueue" use-java-context="true" pool-name="queue/HELLOWORLDMDBQueue">
+           <config-property name="PhysicalName">queue/HELLOWORLDMDBQueue</config-property>
+         </admin-object>
+         <admin-object class-name="org.apache.activemq.command.ActiveMQTopic" jndi-name="java:/topic/HELLOWORLDMDBTopic" use-java-context="true" pool-name="topic/HELLOWORLDMDBTopic">
+           <config-property name="PhysicalName">topic/HELLOWORLDMDBTopic</config-property>
+         </admin-object>
+       </admin-objects>
+     </resource-adapter>
+     <!-- ##RESOURCE_ADAPTERS## -->
+     <default-bindings jms-connection-factory="java:/defaultJmsConnectionFactory"/>
+   </test-content>
