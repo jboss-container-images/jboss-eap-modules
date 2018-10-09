@@ -30,5 +30,6 @@ CONFIGURE_SCRIPTS=(
   $JBOSS_HOME/bin/launch/access_log_valve.sh
   $JBOSS_HOME/bin/launch/mp-config.sh
   $JBOSS_HOME/bin/launch/tracing.sh
+  $JBOSS_HOME/bin/launch/filters.sh
   /opt/run-java/proxy-options
 )
