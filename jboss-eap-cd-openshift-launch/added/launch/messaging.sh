@@ -1,10 +1,23 @@
 #!/bin/sh
 # Openshift EAP CD launch script routines for configuring messaging
 
+if [ -z "${TEST_ACTIVEMQ_SUBSYSTEM_FILE_INCLUDE}" ]; then
+    ACTIVEMQ_SUBSYSTEM_FILE=$JBOSS_HOME/bin/launch/activemq-subsystem.xml
+else
+    ACTIVEMQ_SUBSYSTEM_FILE=${TEST_ACTIVEMQ_SUBSYSTEM_FILE_INCLUDE}
+fi
 
-ACTIVEMQ_SUBSYSTEM_FILE=$JBOSS_HOME/bin/launch/activemq-subsystem.xml
-source $JBOSS_HOME/bin/launch/launch-common.sh
-source $JBOSS_HOME/bin/launch/logging.sh
+if [ -n "${TEST_LAUNCH_COMMON_INCLUDE}" ]; then
+    source "${TEST_LAUNCH_COMMON_INCLUDE}"
+else
+    source $JBOSS_HOME/bin/launch/launch-common.sh
+fi
+
+if [ -n "${TEST_LOGGING_INCLUDE}" ]; then
+    source "${TEST_LOGGING_INCLUDE}"
+else
+    source $JBOSS_HOME/bin/launch/logging.sh
+fi
 
 # Messaging doesn't currently support configuration using env files, but this is
 # a start at what it would need to do to clear the env.  The reason for this is
@@ -105,10 +118,26 @@ function configure_mq() {
     configure_mq_cluster_password
 
     destinations=$(configure_mq_destinations)
-    activemq_subsystem=$(sed -e "s|<!-- ##DESTINATIONS## -->|${destinations}|" <"${ACTIVEMQ_SUBSYSTEM_FILE}" | sed ':a;N;$!ba;s|\n|\\n|g')
+    
+    # We need the broker if they configured destinations or didn't explicitly disable the broker AND there's a point to doing it because the marker exists
+    if ([ -n "${destinations}" ] || [ "x${DISABLE_EMBEDDED_JMS_BROKER}" != "xtrue" ]) && grep -q '<!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->' ${CONFIG_FILE}; then
 
-    sed -i "s|<!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->|${activemq_subsystem%$'\n'}|" "${CONFIG_FILE}"
-    sed -i 's|<!-- ##MESSAGING_PORTS## -->|<socket-binding name="messaging" port="5445"/><socket-binding name="messaging-throughput" port="5455"/>|' "${CONFIG_FILE}"
+      log_warning "Configuration of an embedded messaging broker within the appserver is enabled but is not recommended. Support for such a configuration will be removed in a future release."
+      if [ "x${DISABLE_EMBEDDED_JMS_BROKER}" != "xtrue" ]; then
+        log_info "If you are not configuring messaging destinations, to disable configuring an embedded messaging broker set the DISABLE_EMBEDDED_JMS_BROKER environment variable to true."
+      fi
+
+      activemq_subsystem=$(sed -e "s|<!-- ##DESTINATIONS## -->|${destinations}|" <"${ACTIVEMQ_SUBSYSTEM_FILE}" | sed ':a;N;$!ba;s|\n|\\n|g')
+
+      sed -i "s|<!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->|${activemq_subsystem%$'\n'}|" "${CONFIG_FILE}"     
+    fi
+
+    #Handle the messaging socket-binding separately just in case its marker is present but the subsystem one is not
+    if ([ -n "${destinations}" ] || [ "x${DISABLE_EMBEDDED_JMS_BROKER}" != "xtrue" ]) && grep -q '<!-- ##MESSAGING_PORTS## -->' ${CONFIG_FILE}; then
+      # We don't warn about this as socket-bindings are pretty harmless
+      sed -i 's|<!-- ##MESSAGING_PORTS## -->|<socket-binding name="messaging" port="5445"/><socket-binding name="messaging-throughput" port="5455"/>|' "${CONFIG_FILE}"
+    fi
+
   fi
 }
 
