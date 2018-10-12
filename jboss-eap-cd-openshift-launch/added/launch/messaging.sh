@@ -236,9 +236,9 @@ generate_external_jms_lookup() {
 
     # /HELLOWORLDMDBQueue  java:/queue/HELLOWORLDMDBQueue
     if [ "${type}" = "queue" ]; then
-        result="<external-jms-queue name=\"${name}\" entries=\"java:/jms/${connector_name}/${name} java:/queue/${name}\"/>"
+        result="<external-jms-queue name=\"${name}\" entries=\"java:/jms/${connector_name}/${name} ${name}\"/>"
     elif [ "${type}" = "topic" ]; then
-        result="<external-jms-topic name=\"${name}\" entries=\"java:/jms/${connector_name}/${name} java:/topic/${name}\"/>"
+        result="<external-jms-topic name=\"${name}\" entries=\"java:/jms/${connector_name}/${name} ${name}\"/>"
     else
         result="<!-- Error: Unknown type (${type}) for external JMS configuration. valid values are: {queue, topic} -->"
     fi

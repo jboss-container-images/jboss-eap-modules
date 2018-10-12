@@ -1,14 +1,14 @@
 
-if [ -n "${NODE_NAME_INCLUDE}" ]; then
-    source "${NODE_NAME_INCLUDE}"
-else
-    source ${JBOSS_HOME}/bin/launch/openshift-node-name.sh
-fi
-
-if [ -n "${LOGGING_INCLUDE}" ]; then
-    source "${LOGGING_INCLUDE}"
+if [ -n "${TEST_LOGGING_INCLUDE}" ]; then
+    source "${TEST_LOGGING_INCLUDE}"
 else
   source $JBOSS_HOME/bin/launch/logging.sh
+fi
+
+if [ -n "${TEST_NODE_NAME_INCLUDE}" ]; then
+    source ${TEST_NODE_NAME_INCLUDE}
+else
+    source ${JBOSS_HOME}/bin/launch/openshift-node-name.sh
 fi
 
 prepareEnv() {

@@ -1,14 +1,14 @@
 # only processes a single environment as the placeholder is not preserved
 
-if [ -n "${LOGGING_INCLUDE}" ]; then
-    source "${LOGGING_INCLUDE}"
+if [ -n "${TEST_LOGGING_INCLUDE}" ]; then
+    source "${TEST_LOGGING_INCLUDE}"
 else
     source $JBOSS_HOME/bin/launch/logging.sh
 fi
 
 # required shared elytron functions
-if [ -n "${ELYTRON_INCLUDE}" ]; then
-    source "${ELYTRON_INCLUDE}"
+if [ -n "${TEST_ELYTRON_INCLUDE}" ]; then
+    source "${TEST_ELYTRON_INCLUDE}"
 else
     source $JBOSS_HOME/bin/launch/elytron.sh
 fi

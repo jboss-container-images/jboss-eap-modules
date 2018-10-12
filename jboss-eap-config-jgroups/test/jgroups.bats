@@ -9,9 +9,9 @@ export BATS_TEST_SKIPPED=
 # fake JBOSS_HOME
 export JBOSS_HOME=$BATS_TEST_DIRNAME
 # fake the logger so we don't have to deal with colors
-export LOGGING_INCLUDE=$BATS_TEST_DIRNAME/../../test-common/logging.sh
-export ELYTRON_INCLUDE=$BATS_TEST_DIRNAME/../../jboss-eap-config-elytron/added/launch/elytron.sh
-export NODE_NAME_INCLUDE=$BATS_TEST_DIRNAME../../test-common/node-name.sh
+export TEST_LOGGING_INCLUDE=$BATS_TEST_DIRNAME/../../test-common/logging.sh
+export TEST_ELYTRON_INCLUDE=$BATS_TEST_DIRNAME/../../jboss-eap-config-elytron/added/launch/elytron.sh
+export TEST_NODE_NAME_INCLUDE=$BATS_TEST_DIRNAME/../../test-common/node-name.sh
 
 load $BATS_TEST_DIRNAME/../added/launch/jgroups.sh
 load $BATS_TEST_DIRNAME/../added/launch/ha.sh
