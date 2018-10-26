@@ -19,25 +19,12 @@ Feature: Openshift EAP common tests (EAP and EAP derived images)
   #     works.  Note too that http interface is only bound to localhost.
   #     setting to @ignore for now.
   # For EAP 6.4 and derived images
-  @ignore @jboss-eap-6/eap64-openshift @jboss-decisionserver-6 @jboss-processserver-6
+  @ignore
   Scenario: Management interface is secured (no warning message)
     When container is ready
     # The below should complete faster than 'should not contain' alone
     # this is the key for the "JBoss EAP 6.a.b.GA (AS x.y.z.Final-redhat-4) started" message
     Then container log should contain JBAS015874
-     And available container log should not contain No security realm defined for http management service; all access will be unrestricted.
-
-  # https://issues.jboss.org/browse/CLOUD-587 (security realm for management API)
-  # CLOUD-834 (probe rework) uses http interface, which cannot use "local" user,
-  #     even when the request originates from localhost, which is how jboss-cli
-  #     works.  Note too that http interface is only bound to localhost.
-  #     setting to @ignore for now.
-  # For EAP 7.0 and derived images
-  Scenario: Management interface is secured (no warning message)
-    When container is ready
-    # The below should complete faster than 'should not contain' alone
-    # this is the key for the "JBoss EAP 7.a.b.GA (WildFly Core x.y.z.Final-redhat-1) started" message
-    Then container log should contain WFLYSRV0025
      And available container log should not contain No security realm defined for http management service; all access will be unrestricted.
 
   Scenario: Java 1.8 is installed and set as default one
@@ -88,16 +75,18 @@ Feature: Openshift EAP common tests (EAP and EAP derived images)
        | JGROUPS_ENCRYPT_KEYSTORE                     | keystore.jks                           |
        | JGROUPS_ENCRYPT_NAME                         | jboss                                  |
        | JGROUPS_ENCRYPT_PASSWORD                     | mykeystorepass                         |
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //ns:protocol[@type='SYM_ENCRYPT']
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value /etc/jgroups-encrypt-secret-volume/keystore.jks on XPath //ns:protocol[@type='SYM_ENCRYPT']/ns:property[@name='keystore_name']
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jboss on XPath //ns:protocol[@type='SYM_ENCRYPT']/ns:property[@name='alias']
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mykeystorepass on XPath //ns:protocol[@type='SYM_ENCRYPT']/ns:property[@name='store_password']
+       | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                     |
+       | JGROUPS_CLUSTER_PASSWORD                     | asdasdasdasdgfd                        |
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()='protocol'][@type='SYM_ENCRYPT']
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value /etc/jgroups-encrypt-secret-volume/keystore.jks on XPath //*[local-name()='protocol'][@type='SYM_ENCRYPT']/*[local-name()='property'][@name='keystore_name']
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jboss on XPath //*[local-name()='protocol'][@type='SYM_ENCRYPT']/*[local-name()='property'][@name='alias']
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mykeystorepass on XPath //*[local-name()='protocol'][@type='SYM_ENCRYPT']/*[local-name()='property'][@name='store_password']
      # https://issues.jboss.org/browse/CLOUD-1192
      # https://issues.jboss.org/browse/CLOUD-1196
      # Make sure the SYM_ENCRYPT protocol is specified before pbcast.NAKACK for udp stack
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value pbcast.NAKACK on XPath //ns:stack[@name='udp']/ns:protocol[@type='SYM_ENCRYPT']/following-sibling::*[1]/@type
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value pbcast.NAKACK on XPath //*[local-name()='protocol'][@type='SYM_ENCRYPT']/following-sibling::*[1]/@type
      # Make sure the SYM_ENCRYPT protocol is specified before pbcast.NAKACK for tcp stack
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value pbcast.NAKACK on XPath //ns:stack[@name='tcp']/ns:protocol[@type='SYM_ENCRYPT']/following-sibling::*[1]/@type
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value pbcast.NAKACK on XPath //*[local-name()='protocol'][@type='SYM_ENCRYPT']/following-sibling::*[1]/@type
 
   # https://issues.jboss.org/browse/CLOUD-295
   # https://issues.jboss.org/browse/CLOUD-336
@@ -205,7 +194,6 @@ Feature: Openshift EAP common tests (EAP and EAP derived images)
     When container is ready
     Then files at /opt/eap/modules/system/layers/openshift/org/jgroups/main should have count of 2
 
-  # Disabling @redhat-sso-7 for now - needs to be adjusted for EAP 7
   Scenario: Ensure transaction node name is set and we use urandom
     When container is ready
     Then container log should contain JBAS015874:

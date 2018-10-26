@@ -127,17 +127,8 @@ Feature: Check correct variable expansion used
     And XML namespaces
       | prefix | url                           |
       | ns     | urn:jboss:domain:security:1.2 |
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //ns:security-domain[@name='eap-secdomain-name']/ns:authentication/ns:login-module/ns:module-option[@name='usersProperties' and @value='${jboss.server.config.dir}/users.properties']
-
-  Scenario: Set SECDOMAIN_USERS_PROPERTIES to null
-    Given s2i build https://github.com/jboss-openshift/openshift-examples from security-custom-configuration with env
-      | variable                   | value                        |
-      | EAP_SECDOMAIN_NAME         | eap-secdomain-name           |
-      | SECDOMAIN_USERS_PROPERTIES |                              |
-    And XML namespaces
-      | prefix | url                           |
-      | ns     | urn:jboss:domain:security:1.2 |
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //ns:security-domain[@name='eap-secdomain-name']/ns:authentication/ns:login-module/ns:module-option[@name='usersProperties' and @value='${jboss.server.config.dir}/users.properties']
+    Then container log should contain JBAS015874
+      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='security-domain'][@name='eap-secdomain-name']/*[local-name()='authentication']/*[local-name()='login-module']/*[local-name()='module-option'][@name='usersProperties' and @value='${jboss.server.config.dir}/users.properties']
 
   Scenario: Set EAP_SECDOMAIN_ROLES_PROPERTIES to null
     Given s2i build https://github.com/jboss-openshift/openshift-examples from security-custom-configuration with env
@@ -147,17 +138,8 @@ Feature: Check correct variable expansion used
     And XML namespaces
       | prefix | url                           |
       | ns     | urn:jboss:domain:security:1.2 |
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //ns:security-domain[@name='eap-secdomain-name']/ns:authentication/ns:login-module/ns:module-option[@name='rolesProperties' and @value='${jboss.server.config.dir}/roles.properties']
-
-  Scenario: Set SECDOMAIN_ROLES_PROPERTIES to null
-    Given s2i build https://github.com/jboss-openshift/openshift-examples from security-custom-configuration with env
-      | variable                   | value                        |
-      | EAP_SECDOMAIN_NAME         | eap-secdomain-name           |
-      | SECDOMAIN_ROLES_PROPERTIES |                              |
-    And XML namespaces
-      | prefix | url                           |
-      | ns     | urn:jboss:domain:security:1.2 |
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //ns:security-domain[@name='eap-secdomain-name']/ns:authentication/ns:login-module/ns:module-option[@name='rolesProperties' and @value='${jboss.server.config.dir}/roles.properties']
+    Then container log should contain JBAS015874
+      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='security-domain'][@name='eap-secdomain-name']/*[local-name()='authentication']/*[local-name()='login-module']/*[local-name()='module-option'][@name='rolesProperties' and @value='${jboss.server.config.dir}/roles.properties']
 
   Scenario: Set SECDOMAIN_NAME to null
     Given s2i build https://github.com/jboss-openshift/openshift-examples from security-custom-configuration with env
@@ -167,7 +149,8 @@ Feature: Check correct variable expansion used
     And XML namespaces
       | prefix | url                           |
       | ns     | urn:jboss:domain:security:1.2 |
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //ns:security-domain[@name='eap-secdomain-name']
+    Then container log should contain JBAS015874
+      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='security-domain'][@name='eap-secdomain-name']
 
   Scenario: Set SECDOMAIN_PASSWORD_STACKING to null
     Given s2i build https://github.com/jboss-openshift/openshift-examples from security-custom-configuration with env
@@ -178,5 +161,5 @@ Feature: Check correct variable expansion used
     And XML namespaces
       | prefix | url                           |
       | ns     | urn:jboss:domain:security:1.2 |
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //ns:security-domain[@name='eap-secdomain-name']/ns:authentication/ns:login-module/ns:module-option[@name='password-stacking']
-
+    Then container log should contain JBAS015874
+      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //ns:security-domain[@name='eap-secdomain-name']/ns:authentication/ns:login-module/ns:module-option[@name='password-stacking']
