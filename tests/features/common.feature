@@ -1,4 +1,3 @@
-@wip
 @jboss-eap-7 @jboss-eap-6
 Feature: Openshift common test
   Scenario: Check jolokia port is available
