@@ -33,6 +33,9 @@ envs:
     - name: JGROUPS_PING_PROTOCOL
       example: "openshift.DNS_PING"
       description: "Protocol to discover other nodes in this cluster. Example values: openshift.DNS_PING, openshift.KUBE_PING, kubernetes.KUBE_PING, dns.DNS_PING"
+    - name: "JGROUPS_JOIN_TIMEOUT"
+      example: 10000
+      description: "JGroups join timeout"
     - name: "OPENSHIFT_KUBE_PING_NAMESPACE"
       example: "myproject"
       description: "(KUBE_PING only) Namespace for application cluster. See template documentation for additional setup requirements."

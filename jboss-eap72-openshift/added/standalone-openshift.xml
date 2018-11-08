@@ -430,14 +430,17 @@
                     <protocol type="UNICAST3"/>
                     <protocol type="pbcast.STABLE"/>
                     <!-- ##JGROUPS_AUTH## -->
-                    <protocol type="pbcast.GMS"/>
+                    <protocol type="pbcast.GMS">
+                        <property name="join_timeout">${env.JGROUPS_JOIN_TIMEOUT:10000}</property>
+                    </protocol>
                     <protocol type="UFC"/>
                     <protocol type="MFC"/>
                     <protocol type="FRAG3"/>
                 </stack>
                 <stack name="tcp">
                     <transport type="TCP" socket-binding="jgroups-tcp">
-                        <property name="use_ip_addrs">true</property>
+                        <property name="use_ip_addrs">false</property>
+                        <property name="sock_conn_timeout">300</property>
                     </transport>
                     <!-- ##JGROUPS_PING_PROTOCOL## -->
                     <protocol type="MERGE3"/>
@@ -449,7 +452,9 @@
                     <protocol type="UNICAST3"/>
                     <protocol type="pbcast.STABLE"/>
                     <!-- ##JGROUPS_AUTH## -->
-                    <protocol type="pbcast.GMS"/>
+                    <protocol type="pbcast.GMS">
+                        <property name="join_timeout">${env.JGROUPS_JOIN_TIMEOUT:10000}</property>
+                    </protocol>
                     <protocol type="MFC"/>
                     <protocol type="FRAG3"/>
                 </stack>
