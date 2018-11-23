@@ -76,6 +76,7 @@ Feature: Common EAP tests
     When container is ready
     Then container log should contain -javaagent:/opt/jboss/container/jolokia/jolokia.jar=config=/opt/jboss/container/jolokia/etc/jolokia.properties
 
+  @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   # https://issues.jboss.org/browse/CLOUD-295
   # https://issues.jboss.org/browse/CLOUD-336
   Scenario: Check if jgroups is secure
@@ -90,6 +91,7 @@ Feature: Common EAP tests
        | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                     |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()='auth-protocol'][@type='AUTH']
 
+  @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups AUTH protocol is disabled when using SYM_ENCRYPT and JGROUPS_CLUSTER_PASSWORD undefined
     When container is started with env
        | variable                                     | value                                  |
@@ -97,12 +99,14 @@ Feature: Common EAP tests
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath //*[local-name()='protocol'][@type='AUTH']
      And container log should contain WARN No password defined for JGroups cluster. AUTH protocol will be disabled. Please define JGROUPS_CLUSTER_PASSWORD.
 
+  @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption does not create invalid configuration when using SYM_ENCRYPT with encrypt secret undefined
     When container is started with env
        | variable                                     | value                                  |
        | JGROUPS_ENCRYPT_PROTOCOL                     | SYM_ENCRYPT                            |
     Then container log should contain WARN Detected missing JGroups encryption configuration, the communication within the cluster WILL NOT be encrypted.
 
+  @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption does not create invalid configuration when using SYM_ENCRYPT with missing name
     When container is started with env
        | variable                                     | value                                  |
@@ -113,6 +117,7 @@ Feature: Common EAP tests
        | JGROUPS_ENCRYPT_PASSWORD                     | mykeystorepass                         |
     Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster WILL NOT be encrypted.
 
+  @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption does not create invalid configuration when using SYM_ENCRYPT with missing password
     When container is started with env
        | variable                                     | value                                  |
@@ -123,6 +128,7 @@ Feature: Common EAP tests
        | JGROUPS_ENCRYPT_NAME                         | jboss                                  |
     Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster WILL NOT be encrypted.
 
+  @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption does not create invalid configuration when using SYM_ENCRYPT with missing keystore file
     When container is started with env
        | variable                                     | value                                  |
@@ -133,57 +139,58 @@ Feature: Common EAP tests
        | JGROUPS_ENCRYPT_PASSWORD                     | mykeystorepass                         |
     Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster WILL NOT be encrypted.
 
+  @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption requires AUTH protocol to be set when using ASYM_ENCRYPT protocol
     When container is started with env
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
-    Then container log should contain WARN No password defined for JGroups cluster. AUTH protocol will be disabled. Please define JGROUPS_CLUSTER_PASSWORD.
+    Then container log should contain WARN JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT requires JGROUPS_CLUSTER_PASSWORD to be set and not empty, the communication within the cluster WILL NOT be encrypted.
 
-  @ignore
+  @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_SECRET defined
     When container is started with env
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_SECRET                       | jdg_jgroups_encrypt_secret              |
        | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups SYM_ENCRYPT JCEKS keystore definition will be ignored when using ASYM_ENCRYPT.
+    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
 
-  @ignore
+  @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_NAME defined
     When container is started with env
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_NAME                         | jboss                                   |
        | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups SYM_ENCRYPT JCEKS keystore definition will be ignored when using ASYM_ENCRYPT.
+    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
 
-  @ignore
+  @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_PASSWORD defined
     When container is started with env
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_PASSWORD                     | mykeystorepass                          |
        | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups SYM_ENCRYPT JCEKS keystore definition will be ignored when using ASYM_ENCRYPT.
+    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
 
-  @ignore
+  @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_KEYSTORE_DIR defined
     When container is started with env
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_KEYSTORE_DIR                 | /etc/jgroups-encrypt-secret-volume      |
        | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups SYM_ENCRYPT JCEKS keystore definition will be ignored when using ASYM_ENCRYPT.
+    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
 
-  @ignore
+  @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_KEYSTORE file defined
     When container is started with env
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_KEYSTORE                     | keystore.jks                            |
        | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups SYM_ENCRYPT JCEKS keystore definition will be ignored when using ASYM_ENCRYPT.
+    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
 
   Scenario: No duplicate module jars
     When container is ready
