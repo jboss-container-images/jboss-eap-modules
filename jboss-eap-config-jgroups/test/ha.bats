@@ -127,7 +127,7 @@ EOF
 
 @test "Generate JGroups ping config - dns.DNS_PING" {
     expected=$(cat <<EOF
-<protocol type="dns.DNS_PING" ><property name="dns_query">8888._tcp.my-ping-service.testnamespace</property></protocol>
+<protocol type="dns.DNS_PING" ><property name="dns_query">my-ping-service</property><property name="async_discovery_use_separate_thread_per_request">true</property></protocol>
 EOF
 )
   ping_protocol="dns.DNS_PING"
@@ -175,7 +175,7 @@ EOF
  </digest-token>
  </auth-protocol>
 
-<protocol type="dns.DNS_PING" ><property name="dns_query">service_port._tcp.service_name.testnamespace</property></protocol>
+<protocol type="dns.DNS_PING" ><property name="dns_query">service_name</property><property name="async_discovery_use_separate_thread_per_request">true</property></protocol>
 EOF
 )
   export JGROUPS_CLUSTER_PASSWORD="clusterpassword"

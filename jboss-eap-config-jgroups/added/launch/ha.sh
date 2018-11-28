@@ -129,21 +129,11 @@ generate_dns_ping_config() {
     local socket_binding="${5}"
     local ping_service_protocol="tcp"
     local config
-    # for DNS_PING, the record is my-port-name._my-port-protocol.my-svc.my-namespace
+    # for DNS_PING, the record is ping-service-name, suffixes are determined from /etc/resolv.conf search domains.
     config="<protocol type=\"${ping_protocol}\" ${socket_binding}>"
     if [ "${ping_protocol}" = "dns.DNS_PING" ]; then
-        if [ "x${ping_service_namespace}" = "x" ]; then
-            # use env, then files to determine the namespace
-            if [ -n "${OPENSHIFT_DNS_PING_SERVICE_NAMESPACE}" ]; then
-                ping_service_namespace=${OPENSHIFT_DNS_PING_SERVICE_NAMESPACE}
-            elif [ -f "/var/run/secrets/kubernetes.io/serviceaccount/namespace" ]; then
-                ping_service_namespace=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
-            else
-                log_error "Unable to determine DNS_PING service namespace. Please check /var/run/secrets/kubernetes.io/serviceaccount/namespace is readable or set OPENSHIFT_DNS_PING_SERVICE_NAMESPACE."
-                return
-            fi
-        fi
-        config="${config}<property name=\"dns_query\">${ping_service_port:-8888}._${ping_service_protocol}.${ping_service_name}.${ping_service_namespace}</property>"
+        config="${config}<property name=\"dns_query\">${ping_service_name}</property>"
+        config="${config}<property name=\"async_discovery_use_separate_thread_per_request\">true</property>"
     fi
     config="${config}</protocol>"
     echo "${config}"
