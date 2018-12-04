@@ -7,6 +7,8 @@ export TEST_LAUNCH_COMMON_INCLUDE=$BATS_TEST_DIRNAME/../../test-common/launch-co
 export BATS_TEST_SKIPPED=
 
 INPUT_CONTENT="<test-content><!-- ##MESSAGING_SUBSYSTEM_CONFIG## --><!-- ##MESSAGING_PORTS## --></test-content>"
+DEFAULT_JMS_FACTORY_INPUT_CONTENT="<test-content>jms-connection-factory=\"##DEFAULT_JMS##\"<!-- ##MESSAGING_SUBSYSTEM_CONFIG## --><!-- ##MESSAGING_PORTS## --></test-content>"
+DEFAULT_JMS_FACTORY_OUTPUT_CONTENT="<test-content>jms-connection-factory=\"java:jboss/DefaultJMSConnectionFactory\"<!-- ##MESSAGING_SUBSYSTEM_CONFIG## --><!-- ##MESSAGING_PORTS## --></test-content>"
 SOCKET_BINDING_ONLY_INPUT_CONTENT="<test-content><!-- ##MESSAGING_PORTS## --></test-content>"
 SOCKET_BINDING_ONLY_OUTPUT_CONTENT='<test-content><socket-binding name="messaging" port="5445"/><socket-binding name="messaging-throughput" port="5455"/></test-content>'
 
@@ -143,6 +145,38 @@ setup() {
     export MQ_CLUSTER_PASSWORD="somemqpassword"
     export DISABLE_EMBEDDED_JMS_BROKER="true"
     run configure_mq
+    echo "Output: ${output}"
+    [ "${output}" = "" ]
+    result=$(cat ${CONFIG_FILE} | xmllint --format --noblanks -)
+    echo "Result: ${result}"
+    echo "Expected: ${expected}"
+    [ "${result}" = "${expected}" ]
+}
+
+@test "Configure MQ config file with markers embedded disabled and default JMSFactory to be removed" {
+    expected=$(echo "${INPUT_CONTENT}" | xmllint --format --noblanks -)
+    echo "CONFIG_FILE: ${CONFIG_FILE}"
+    echo "${DEFAULT_JMS_FACTORY_INPUT_CONTENT}" > ${CONFIG_FILE}
+    export MQ_CLUSTER_PASSWORD="somemqpassword"
+    export DISABLE_EMBEDDED_JMS_BROKER="true"
+    run inject_brokers
+    echo "Output: ${output}"
+    [ "${output}" = "" ]
+    result=$(cat ${CONFIG_FILE} | xmllint --format --noblanks -)
+    echo "Result: ${result}"
+    echo "Expected: ${expected}"
+    [ "${result}" = "${expected}" ]
+}
+
+@test "Configure MQ config file with markers embedded disabled, some destinations and default JMSFactory" {
+    expected=$(echo "${DEFAULT_JMS_FACTORY_OUTPUT_CONTENT}" | xmllint --format --noblanks -)
+    echo "CONFIG_FILE: ${CONFIG_FILE}"
+    echo "${DEFAULT_JMS_FACTORY_INPUT_CONTENT}" > ${CONFIG_FILE}
+    export MQ_CLUSTER_PASSWORD="somemqpassword"
+    export MQ_QUEUES="queue1,queue2"
+    export MQ_TOPICS="topic1,topic2"
+    export DISABLE_EMBEDDED_JMS_BROKER="true"
+    run inject_brokers
     echo "Output: ${output}"
     [ "${output}" = "" ]
     result=$(cat ${CONFIG_FILE} | xmllint --format --noblanks -)

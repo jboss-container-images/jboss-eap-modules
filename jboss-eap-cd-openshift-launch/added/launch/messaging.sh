@@ -517,10 +517,18 @@ function inject_brokers() {
     defaultJms="jms-connection-factory=\"$defaultJmsConnectionFactoryJndi\""
   fi
 
-  # new format
-  sed -i "s|jms-connection-factory=\"##DEFAULT_JMS##\"|${defaultJms}|" $CONFIG_FILE
-  # legacy format, bare ##DEFAULT_JMS##
-  sed -i "s|##DEFAULT_JMS##|${defaultJms}|" $CONFIG_FILE
+  if [ "$REMOTE_AMQ_BROKER" = "true" ] || [ -n "${MQ_QUEUES}" ] || [ -n "${HORNETQ_QUEUES}" ] || [ -n "${MQ_TOPICS}" ] || [ -n "${HORNETQ_TOPICS}" ] || [ "x${DISABLE_EMBEDDED_JMS_BROKER}" != "xtrue" ]
+  then
+    # new format
+    sed -i "s|jms-connection-factory=\"##DEFAULT_JMS##\"|${defaultJms}|" $CONFIG_FILE
+    # legacy format, bare ##DEFAULT_JMS##
+    sed -i "s|##DEFAULT_JMS##|${defaultJms}|" $CONFIG_FILE
+  else
+    # new format
+    sed -i "s|jms-connection-factory=\"##DEFAULT_JMS##\"||" $CONFIG_FILE
+    # legacy format, bare ##DEFAULT_JMS##
+    sed -i "s|##DEFAULT_JMS##||" $CONFIG_FILE
+  fi
 
 }
 
