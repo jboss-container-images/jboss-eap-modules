@@ -1,0 +1,11 @@
+schema_version: 1
+name: os-eap-activemq-rar
+version: '1.0'
+description: Legacy os-eap-activemq-rar script package.
+execute:
+- script: configure.sh
+  user: '185'
+
+artifacts:
+- url: https://maven.repository.redhat.com/ga/org/apache/activemq/activemq-rar/5.11.0.redhat-630371/activemq-rar-5.11.0.redhat-630371.rar
+  md5: 3e9758751e0a1efb29d1e624a495ddde
