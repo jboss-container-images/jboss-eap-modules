@@ -179,7 +179,7 @@ rules:
   attrNameSnakeCase: true
   type: GAUGE
 - pattern: "jboss.as<deployment=(.+), *subdeployment=(.+), *subsystem=ejb3, *(.+)=(.+)><>(peak_concurrent_invocations|pool_available_count|pool_current_size|pool_max_size): (.+)"
-  name: jboss_jb3_$5
+  name: jboss_ejb3_$5
   help: EJB Metrics $5
   value: $6
   valueFactor: 1
