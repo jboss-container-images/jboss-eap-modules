@@ -251,6 +251,7 @@ Feature: EAP Openshift datasources
        | TEST_POSTGRESQL_SERVICE_PORT   | 5432                                   |
        | TEST_POSTGRESQL_DATABASE       | pgdb                                   |
        | NODE_NAME                      | TestStoreNodeName                      |
+       | JDBC_SKIP_RECOVERY             | true                                   |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testdsObjectStore on XPath //*[local-name()='datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='datasource']/@jta
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresqlObjectStorePool on XPath //*[local-name()='datasource']/@pool-name
@@ -278,6 +279,7 @@ Feature: EAP Openshift datasources
        | TEST_JTA                       | true                                   |
        | JDBC_STORE_JNDI_NAME           | java:/jboss/datasources/testds         |
        | NODE_NAME                      | Test-Store-Node-Name                   |
+       | JDBC_SKIP_RECOVERY             | true                                   |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 10.1.1.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 5432 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="PortNumber"]
@@ -302,6 +304,7 @@ Feature: EAP Openshift datasources
        | TEST_POSTGRESQL_SERVICE_PORT   | 5432                                   |
        | TEST_POSTGRESQL_DATABASE       | pgdb                                   |
        | NODE_NAME                      | Test-Store-Node-Name                   |
+       | JDBC_SKIP_RECOVERY             | true                                   |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testdsObjectStore on XPath //*[local-name()='datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='datasource']/@jta
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresqlObjectStorePool on XPath //*[local-name()='datasource']/@pool-name
@@ -327,6 +330,7 @@ Feature: EAP Openshift datasources
        | TEST_DATABASE                  | pgdb                                   |
        | TEST_NONXA                     | true                                   |
        | TEST_JTA                       | false                                  |
+       | JDBC_SKIP_RECOVERY             | true                                   |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value tombrady on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='password']
@@ -519,6 +523,7 @@ Feature: EAP Openshift datasources
        | MYSQL_PASSWORD                | mysqlpass                                  |
        | MYSQL_MYSQL_SERVICE_HOST      | 10.1.1.1                                   |
        | MYSQL_MYSQL_SERVICE_PORT      | 3306                                       |
+       | JDBC_SKIP_RECOVERY            | true                                       |
     Then container log should contain WARN Missing configuration for datasource PG. PG_POSTGRESQL_SERVICE_HOST, PG_POSTGRESQL_SERVICE_PORT, and/or PG_DATABASE is missing. Datasource will not be configured.
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/mysql_mysql on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mysql_mysql-MYSQL on XPath //*[local-name()='xa-datasource']/@pool-name
@@ -543,6 +548,7 @@ Feature: EAP Openshift datasources
        | MYSQL_PASSWORD                | mysqlpass                                  |
        | MYSQL_MYSQL_SERVICE_HOST      | 10.1.1.1                                   |
        | MYSQL_MYSQL_SERVICE_PORT      | 3306                                       |
+       | JDBC_SKIP_RECOVERY            | true                                       |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/mysql_mysqlObjectStore on XPath //*[local-name()='datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mysql_mysqlObjectStorePool on XPath //*[local-name()='datasource']/@pool-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:mysql://10.1.1.1:3306/kitchensink on XPath //*[local-name()='datasource']/*[local-name()='connection-url']
@@ -565,6 +571,7 @@ Feature: EAP Openshift datasources
        | MYSQL_PASSWORD                | mysqlpass                                  |
        | MYSQL_MYSQL_SERVICE_HOST      | 10.1.1.1                                   |
        | MYSQL_MYSQL_SERVICE_PORT      | 3306                                       |
+       | JDBC_SKIP_RECOVERY            | true                                       |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/pg_postgresqlObjectStore on XPath //*[local-name()='datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value pg_postgresqlObjectStorePool on XPath //*[local-name()='datasource']/@pool-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:postgresql://10.1.1.1:5432/kitchensink on XPath //*[local-name()='datasource']/*[local-name()='connection-url']

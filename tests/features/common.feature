@@ -38,7 +38,7 @@ Feature: Openshift common test
        | NODE_NAME | abcdefghijk                |
     Then container log should contain jboss.node.name = abcdefghijk
 
-  # https://issues.jboss.org/browse/CLOUD-912
+  @ignore @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
   Scenario: Check that java binaries are linked properly
     When container is ready
     Then run sh -c 'test -L /usr/bin/java && echo "yes" || echo "no"' in container and immediately check its output for yes
@@ -49,3 +49,14 @@ Feature: Openshift common test
      And run sh -c 'test -L /usr/bin/rmic && echo "yes" || echo "no"' in container and immediately check its output for yes
      And run sh -c 'test -L /usr/bin/xjc && echo "yes" || echo "no"' in container and immediately check its output for yes
      And run sh -c 'test -L /usr/bin/wsimport && echo "yes" || echo "no"' in container and immediately check its output for yes
+
+  # JDK 11 images don't have xjc or wsimport
+  @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
+  Scenario: Check that java binaries are linked properly
+    When container is ready
+    Then run sh -c 'test -L /usr/bin/java && echo "yes" || echo "no"' in container and immediately check its output for yes
+     And run sh -c 'test -L /usr/bin/keytool && echo "yes" || echo "no"' in container and immediately check its output for yes
+     And run sh -c 'test -L /usr/bin/rmid && echo "yes" || echo "no"' in container and immediately check its output for yes
+     And run sh -c 'test -L /usr/bin/javac && echo "yes" || echo "no"' in container and immediately check its output for yes
+     And run sh -c 'test -L /usr/bin/jar && echo "yes" || echo "no"' in container and immediately check its output for yes
+     And run sh -c 'test -L /usr/bin/rmic && echo "yes" || echo "no"' in container and immediately check its output for yes
