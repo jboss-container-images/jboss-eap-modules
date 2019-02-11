@@ -12,6 +12,7 @@ Feature: Openshift EAP s2i tests
   # Always force IPv4 (CLOUD-188)
   # Append user-supplied arguments (CLOUD-412)
   # Allow the user to clear down the maven repository after running s2i (CLOUD-413)
+  @ignore @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
   Scenario: Test to ensure that maven is run with -Djava.net.preferIPv4Stack=true and user-supplied arguments, even when MAVEN_ARGS is overridden, and doesn't clear the local repository after the build
     Given s2i build https://github.com/jboss-developer/jboss-eap-quickstarts from helloworld using openshift
        | variable          | value                                                                                  |
@@ -22,6 +23,20 @@ Feature: Openshift EAP s2i tests
     And s2i build log should contain -Djava.net.preferIPv4Stack=true
     And s2i build log should contain -Dfoo=bar
     And s2i build log should contain -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseParallelOldGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90
+
+  # Like above, but JDK 11 options have changed.
+  # see cct_module/dynamic-resources for details.
+  @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
+  Scenario: Test to ensure that maven is run with -Djava.net.preferIPv4Stack=true and user-supplied arguments, even when MAVEN_ARGS is overridden, and doesn't clear the local repository after the build
+    Given s2i build https://github.com/jboss-developer/jboss-eap-quickstarts from helloworld using openshift
+       | variable          | value                                                                                  |
+       | MAVEN_ARGS        | -e -P jboss-eap-repository-insecure,-securecentral,insecurecentral -Dcom.redhat.xpaas.repo.jbossorg -DskipTests package |
+       | MAVEN_ARGS_APPEND | -Dfoo=bar                                                                              |
+    Then container log should contain WFLYSRV0025
+    And run sh -c 'test -d /tmp/artifacts/m2/org && echo all good' in container and immediately check its output for all good
+    And s2i build log should contain -Djava.net.preferIPv4Stack=true
+    And s2i build log should contain -Dfoo=bar
+    And s2i build log should contain -XX:+UseParallelOldGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:MaxMetaspaceSize=100m -XX:+ExitOnOutOfMemoryError
 
   # CLOUD-458
   Scenario: Test s2i build with environment only
@@ -36,8 +51,18 @@ Feature: Openshift EAP s2i tests
     And s2i build log should not contain \r
 
   # CLOUD-807
-  Scenario: Test if the container have the JavaScript engine available
+  @ignore @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
+  Scenario: Test if the container has the JavaScript engine available
     Given s2i build https://github.com/jboss-openshift/openshift-examples from eap-tests/jsengine
+    Then container log should contain Engine found: jdk.nashorn.api.scripting.NashornScriptEngine
+    And container log should contain Engine class provider found.
+    And container log should not contain JavaScript engine not found.
+
+  # CLOUD-807
+  # JDK 11 needs an extra dep for javax.annotations
+  @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
+  Scenario: Test if the container has the JavaScript engine available
+    Given s2i build https://github.com/luck3y/openshift-examples from eap-tests/jsengine using openjdk-11
     Then container log should contain Engine found: jdk.nashorn.api.scripting.NashornScriptEngine
     And container log should contain Engine class provider found.
     And container log should not contain JavaScript engine not found.
@@ -77,9 +102,10 @@ Feature: Openshift EAP s2i tests
 
   # https://issues.jboss.org/browse/CLOUD-1168
   Scenario: Make sure that custom data is being copied
-    Given s2i build https://github.com/jboss-openshift/openshift-examples.git from helloworld-ws
+    Given s2i build https://github.com/jboss-developer/jboss-eap-quickstarts.git from helloworld-ws using 7.2.0.GA
       | variable    | value                           |
       | APP_DATADIR | src/main/java/org/jboss/as/quickstarts/wshelloworld |
+      | MAVEN_ARGS_APPEND | -Dcom.redhat.xpaas.repo.jbossorg |
     Then file /opt/eap/standalone/data/HelloWorldService.java should exist
      And file /opt/eap/standalone/data/HelloWorldServiceImpl.java should exist
      And run stat -c "%a %n" /opt/eap/standalone/data in container and immediately check its output contains 775 /opt/eap/standalone/data
