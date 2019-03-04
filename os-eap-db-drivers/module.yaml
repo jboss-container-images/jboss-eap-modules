@@ -7,6 +7,5 @@ execute:
   user: '185'
 packages:
       install:
-          - rh-mongodb32-mongo-java-driver
           - postgresql-jdbc
-          - mysql-connector-java
+          - mariadb-java-client

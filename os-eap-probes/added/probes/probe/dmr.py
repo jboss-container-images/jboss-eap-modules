@@ -55,7 +55,7 @@ class DmrProbe(BatchingProbe):
         self.logger.debug("Configuration set as follows: host=%s, port=%s, user=%s, password=***", self.host, self.port, self.user)
 
     def getTestInput(self, results, testIndex):
-        return results["result"].values()[testIndex]
+        return list(results['result'].values())[testIndex]
 
     def createRequest(self):
         steps = []
