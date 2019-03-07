@@ -7,10 +7,13 @@ execute:
   user: '185'
 
 artifacts:
-- path: tomcat-7-valves-1.0.3.Final-redhat-1.jar
+- name: tomcat-7-valves
+  target: tomcat-7-valves-1.0.3.Final-redhat-1.jar
   md5: f286f6748e6d134ed0a9dadd8320ecd2
-- path: txn-recovery-marker-jdbc-common-1.1.2.Final-redhat-00001.jar
+- name: txn-recovery-marker-jdbc-common
+  target: txn-recovery-marker-jdbc-common-1.1.2.Final-redhat-00001.jar
   md5: 252aa2b4bcded8e5bf8a7087ad7bbbeb
-- path: txn-recovery-marker-jdbc-hibernate4-1.1.2.Final-redhat-00001.jar
+- name: txn-recovery-marker-jdbc-hibernate4
+  target: txn-recovery-marker-jdbc-hibernate4-1.1.2.Final-redhat-00001.jar
   md5: 8b6b26f587d5ef278a779ff5eef72e6c
 
