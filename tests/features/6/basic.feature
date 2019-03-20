@@ -75,7 +75,7 @@ Feature: Openshift EAP common tests (EAP and EAP derived images)
        | JGROUPS_ENCRYPT_KEYSTORE                     | keystore.jks                           |
        | JGROUPS_ENCRYPT_NAME                         | jboss                                  |
        | JGROUPS_ENCRYPT_PASSWORD                     | mykeystorepass                         |
-       | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                     |
+       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                     |
        | JGROUPS_CLUSTER_PASSWORD                     | asdasdasdasdgfd                        |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()='protocol'][@type='SYM_ENCRYPT']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value /etc/jgroups-encrypt-secret-volume/keystore.jks on XPath //*[local-name()='protocol'][@type='SYM_ENCRYPT']/*[local-name()='property'][@name='keystore_name']

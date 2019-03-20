@@ -6,7 +6,7 @@ Feature: Openshift EAP jgroups
     When container is started with env
        | variable                 | value    |
        | JGROUPS_CLUSTER_PASSWORD | asdfasdf |
-       | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
+       | JGROUPS_PING_PROTOCOL               | openshift.DNS_PING                      |
 
     Then container log should contain WFLYSRV0025:
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()='auth-protocol'][@type='AUTH']
@@ -18,7 +18,7 @@ Feature: Openshift EAP jgroups
        | JGROUPS_ENCRYPT_KEYSTORE_DIR                 | /etc/jgroups-encrypt-secret-volume     |
        | JGROUPS_ENCRYPT_KEYSTORE                     | keystore.jks                           |
        | JGROUPS_ENCRYPT_PASSWORD                     | mykeystorepass                         |
-       | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
+       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                     |
     Then container log should contain WFLYSRV0025:
      And available container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster WILL NOT be encrypted.
 
@@ -29,6 +29,6 @@ Feature: Openshift EAP jgroups
        | JGROUPS_ENCRYPT_KEYSTORE_DIR                 | /etc/jgroups-encrypt-secret-volume     |
        | JGROUPS_ENCRYPT_KEYSTORE                     | keystore.jks                           |
        | JGROUPS_ENCRYPT_NAME                         | jboss                                  |
-       | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
+       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                     |
     Then container log should contain WFLYSRV0025:
      And available container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster WILL NOT be encrypted.
