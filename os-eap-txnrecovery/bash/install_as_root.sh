@@ -8,5 +8,4 @@ SOURCES_DIR="/tmp/artifacts"
 
 test -d /opt/partition || mkdir /opt/partition
 
-cp "$ADDED_DIR"/*.sh "$ADDED_DIR"/*.py /opt/partition/
-chmod 755 /opt/partition/*
+cp "$ADDED_DIR"/*.sh "$ADDED_DIR"/*.py "$ADDED_DIR"/*.properties /opt/partition/
