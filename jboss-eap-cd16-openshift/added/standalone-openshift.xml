@@ -34,6 +34,7 @@
         <extension module="org.wildfly.extension.messaging-activemq"/>
         <extension module="org.wildfly.extension.microprofile.config-smallrye"/>
         <extension module="org.wildfly.extension.microprofile.health-smallrye"/>
+        <extension module="org.wildfly.extension.microprofile.metrics-smallrye"/>
         <!-- ##TRACING_EXTENSION## -->
         <extension module="org.wildfly.extension.request-controller"/>
         <extension module="org.wildfly.extension.security.manager"/>
