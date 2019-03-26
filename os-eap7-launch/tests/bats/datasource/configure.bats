@@ -306,6 +306,5 @@ load common
     run inject_datasources
 
     msg="WARN Missing configuration for datasource TEST. TEST_POSTGRESQL_SERVICE_HOST, TEST_POSTGRESQL_SERVICE_PORT, and/or TEST_DATABASE is missing. Datasource will not be configured."
-    echo ${output}
     [ "$output" = "$msg" ]
 }

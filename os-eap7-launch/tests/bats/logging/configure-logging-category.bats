@@ -7,14 +7,13 @@ export JBOSS_HOME=$BATS_TMPDIR/jboss_home
 export CONFIG_FILE=$JBOSS_HOME/standalone/configuration/standalone-openshift.xml
 
 mkdir -p $JBOSS_HOME/bin/launch
-echo $BATS_TEST_DIRNAME
 cp $BATS_TEST_DIRNAME/../../../../test-common/logging.sh $JBOSS_HOME/bin/launch
 cp $BATS_TEST_DIRNAME/../../../added/launch/configure_logger_category.sh $JBOSS_HOME/bin/launch
 source $BATS_TEST_DIRNAME/../../../added/launch/configure_logger_category.sh
 
 setup() {
   mkdir -p $JBOSS_HOME/standalone/configuration
-  cp $BATS_TEST_DIRNAME/../../../../os-eap71-openshift/added/standalone-openshift.xml $JBOSS_HOME/standalone/configuration
+  cp $BATS_TEST_DIRNAME/../../../../jboss/container/config/eap/7.1.0/added/standalone-openshift.xml $JBOSS_HOME/standalone/configuration
 }
 
 teardown() {

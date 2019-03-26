@@ -17,7 +17,7 @@ mkdir -p $JBOSS_HOME/standalone/configuration
 source $JBOSS_HOME/bin/launch/datasource.sh
 
 setup() {
-  cp $BATS_TEST_DIRNAME/../../../../os-eap71-openshift/added/standalone-openshift.xml $JBOSS_HOME/standalone/configuration
+  cp $BATS_TEST_DIRNAME/../../../../jboss/container/config/eap/7.1.0/added/standalone-openshift.xml $JBOSS_HOME/standalone/configuration
 }
 
 assert_datasources() {

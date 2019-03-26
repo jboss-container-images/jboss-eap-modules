@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<server xmlns="urn:jboss:domain:8.0">
+<server xmlns="urn:jboss:domain:9.0">
     <extensions>
         <extension module="org.jboss.as.clustering.infinispan"/>
         <extension module="org.jboss.as.clustering.jgroups"/>
@@ -99,6 +99,9 @@
                 </formatter>
             </console-handler>
             <logger category="com.arjuna">
+                <level name="WARN"/>
+            </logger>
+            <logger category="io.jaegertracing.Configuration">
                 <level name="WARN"/>
             </logger>
             <logger category="org.jboss.as.config">
@@ -229,7 +232,7 @@
             <log-system-exceptions value="true"/>
             <!-- ##EJB_APPLICATION_SECURITY_DOMAINS## -->
         </subsystem>
-        <subsystem xmlns="urn:wildfly:elytron:4.0" final-providers="combined-providers" disallowed-providers="OracleUcrypto">
+        <subsystem xmlns="urn:wildfly:elytron:5.0" final-providers="combined-providers" disallowed-providers="OracleUcrypto">
             <providers>
                 <aggregate-providers name="combined-providers">
                     <providers name="elytron"/>
@@ -389,7 +392,7 @@
                 <replicated-cache name="timestamps"/>
             </cache-container>
         </subsystem>
-        <subsystem xmlns="urn:jboss:domain:io:2.0">
+        <subsystem xmlns="urn:jboss:domain:io:3.0">
             <worker name="default"/>
             <buffer-pool name="default"/>
         </subsystem>
@@ -437,9 +440,7 @@
                     <protocol type="FRAG3"/>
                 </stack>
                 <stack name="tcp">
-                    <transport type="TCP" socket-binding="jgroups-tcp">
-                        <property name="use_ip_addrs">false</property>
-                    </transport>
+                    <transport type="TCP" socket-binding="jgroups-tcp"/>
                     <!-- ##JGROUPS_PING_PROTOCOL## -->
                     <protocol type="MERGE3"/>
                     <protocol type="FD_SOCK"/>
@@ -472,7 +473,7 @@
                 <smtp-server outbound-socket-binding-ref="mail-smtp"/>
             </mail-session>
         </subsystem>
-        <subsystem xmlns="urn:jboss:domain:messaging-activemq:4.0">
+        <subsystem xmlns="urn:jboss:domain:messaging-activemq:5.0">
             <!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->
         </subsystem>
         <subsystem xmlns="urn:wildfly:microprofile-config-smallrye:1.0">
@@ -555,7 +556,7 @@
             <coordinator-environment statistics-enabled="${wildfly.transactions.statistics-enabled:${wildfly.statistics-enabled:false}}"/>
             <!-- ##JDBC_STORE## -->
         </subsystem>
-        <subsystem xmlns="urn:jboss:domain:undertow:7.0" default-server="default-server" default-virtual-host="default-host" default-servlet-container="default" default-security-domain="other" statistics-enabled="${wildfly.undertow.statistics-enabled:${wildfly.statistics-enabled:false}}">
+        <subsystem xmlns="urn:jboss:domain:undertow:8.0" default-server="default-server" default-virtual-host="default-host" default-servlet-container="default" default-security-domain="other" statistics-enabled="${wildfly.undertow.statistics-enabled:${wildfly.statistics-enabled:false}}">
             <buffer-cache name="default"/>
             <server name="default-server">
                 <ajp-listener name="ajp" socket-binding="ajp"/>

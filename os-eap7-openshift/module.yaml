@@ -1,11 +1,8 @@
 schema_version: 1
 name: os-eap7-openshift
 version: '1.0'
-description: Legacy os-eap7-openshift script package.
+description: Deprecated see jboss.openshift.config.eap, version '7'.
 modules:
   install:
-  - name: os-java-run
-execute:
-- script: prepare.sh
-- script: configure.sh
-  user: '185'
+    - name: jboss.container.config.eap
+      version: '7'
