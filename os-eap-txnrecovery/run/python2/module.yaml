@@ -1,0 +1,13 @@
+schema_version: 1
+name: os-eap-txnrecovery.run
+version: 'python2'
+description: Query OpenShift API running with Python 2.
+execute:
+- script: install_as_root.sh
+packages:
+  install:
+    - python-enum34
+    - python-requests
+modules:
+  install:
+  - name: os-eap-txnrecovery.bash

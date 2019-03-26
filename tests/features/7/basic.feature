@@ -88,7 +88,7 @@ Feature: Common EAP tests
        | JGROUPS_ENCRYPT_KEYSTORE                     | keystore.jks                           |
        | JGROUPS_ENCRYPT_NAME                         | jboss                                  |
        | JGROUPS_ENCRYPT_PASSWORD                     | mykeystorepass                         |
-       | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                     |
+       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                     |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()='auth-protocol'][@type='AUTH']
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
@@ -144,7 +144,7 @@ Feature: Common EAP tests
     When container is started with env
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
-       | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
+       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
     Then container log should contain WARN JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT requires JGROUPS_CLUSTER_PASSWORD to be set and not empty, the communication within the cluster WILL NOT be encrypted.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
@@ -153,7 +153,7 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_SECRET                       | jdg_jgroups_encrypt_secret              |
-       | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
+       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
     Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
@@ -162,7 +162,7 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_NAME                         | jboss                                   |
-       | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
+       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
     Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
@@ -171,7 +171,7 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_PASSWORD                     | mykeystorepass                          |
-       | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
+       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
     Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
@@ -180,7 +180,7 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_KEYSTORE_DIR                 | /etc/jgroups-encrypt-secret-volume      |
-       | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
+       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
     Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
@@ -189,7 +189,7 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_KEYSTORE                     | keystore.jks                            |
-       | OPENSHIFT_KUBE_PING_NAMESPACE                | openshift.DNS_PING                      |
+       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
     Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
 
   Scenario: No duplicate module jars
