@@ -21,6 +21,8 @@ if ! $IS_SPLIT_DATA_DEFINED && [ "x$FORBID_TX_JDBC_RECOVERY_MARKER" = "xtrue" ];
     log_warning "[`date`] Forbidden to use jdbc for recovery marker by use of variable FORBID_TX_JDBC_RECOVERY_MARKER while SPLIT_DATA is not enabled."
     log_warning "The transaction recovery marker algorithm is not capable to save recovery data and won't work."
 fi
+# when not capable to connect to JDBC recovery storage retrying n-times before exiting the container
+[[ $TX_JDBC_RECOVERY_CONNECTION_RETRY =~ ^[0-9]+$ ]] || TX_JDBC_RECOVERY_CONNECTION_RETRY=3
 
 # parameters
 # - needle to search in array
@@ -68,7 +70,23 @@ function startApplicationServer() {
   init_pod_name
 
   local applicationPodDir="${podsDir}/${POD_NAME}"
-  $IS_TX_SQL_BACKEND && initJdbcRecoveryMarkerProperties
+
+  if $IS_TX_SQL_BACKEND; then
+    initJdbcRecoveryMarkerProperties
+    log_info "[`date`] Using database transaction recovery marker to be saved at ${JDBC_INFO}"
+    # loop while waiting till the database recovery storage will be available
+    local loopCount=0
+    until createRecoveryDatabaseSchema; do
+      if [ $loopCount -ge $TX_JDBC_RECOVERY_CONNECTION_RETRY ]; then
+          log_error "[`date`] Tried to connect to ${JDBC_INFO} for ${TX_JDBC_RECOVERY_CONNECTION_RETRY} times without success. Exiting."
+          exit 3
+      fi
+      log_error "[`date`] Cannot create schema of database transaction recovery records. Will be retrying."
+      log_error "${JDBC_INFO} is probably not available."
+      loopCount=$((loopCount+1))
+    done
+  fi
+
   $IS_SPLIT_DATA_DEFINED && mkdir -p "${podsDir}"
 
   # 2) while any recovery marker matches, sleep and wait for recovery to finish
@@ -91,6 +109,10 @@ function startApplicationServer() {
     local applicationPodExistence=($(${JDBC_COMMAND_PODNAME_REGISTRY} select_application -a "${applicationPodDir}"))
     if [ "x${applicationPodExistence}" = "x" ]; then
       ${JDBC_COMMAND_PODNAME_REGISTRY} insert -a "${applicationPodDir}" -r 'undefined'
+      if [ $? -ne 0 ]; then
+          log_error "[`date`] Cannot insert transaction recovery marker into database ${JDBC_INFO}, pod ${applicationPodDir}. Exiting."
+          exit 3
+      fi
     fi
   fi
   if $IS_SPLIT_DATA_DEFINED; then
@@ -137,7 +159,14 @@ function migratePV() {
   init_pod_name
   local recoveryPodName="${POD_NAME}"
 
-  $IS_TX_SQL_BACKEND && initJdbcRecoveryMarkerProperties
+  if $IS_TX_SQL_BACKEND; then
+    initJdbcRecoveryMarkerProperties
+    log_info "[`date`] Using database transaction recovery marker saved at ${JDBC_INFO}"
+    until createRecoveryDatabaseSchema; do
+      log_error "[`date`] Cannot create schema of recovery database records. Will be retrying."
+      log_error "Database ${JDBC_INFO} is probably not available."
+    done
+  fi
 
   while true ; do
 
@@ -393,6 +422,7 @@ function initJdbcRecoveryMarkerProperties() {
   JDBC_RECOVERY_USER=$(find_env "${prefix}_USERNAME")
   JDBC_RECOVERY_PASSWORD=$(find_env "${prefix}_PASSWORD")
   JDBC_RECOVERY_NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+  JDBC_INFO="${JDBC_RECOVERY_DB_HOST}:${JDBC_RECOVERY_DB_PORT}/${JDBC_RECOVERY_DATABASE}"
 
   local jdbcTableSuffix=${TX_JDBC_RECOVERY_MARKER_TABLE_SUFFIX//-/}
   [ "x${jdbcTableSuffix}" != "x" ] && jdbcTableSuffix="_${jdbcTableSuffix}"
@@ -416,8 +446,15 @@ function initJdbcRecoveryMarkerProperties() {
   local jdbcCommand="java $LOGGING_PROPERTIES -jar $JBOSS_HOME/jboss-modules.jar -mp $JBOSS_HOME/modules/ io.narayana.openshift-recovery -y ${JDBC_RECOVERY_DB_TYPE} -o ${JDBC_RECOVERY_DB_HOST} -p ${JDBC_RECOVERY_DB_PORT} -d ${JDBC_RECOVERY_DATABASE} -u ${JDBC_RECOVERY_USER} -s ${JDBC_RECOVERY_PASSWORD}"
   JDBC_COMMAND_RECOVERY_MARKER="${jdbcCommand} -t ${JDBC_RECOVERY_TABLE} -c"
   JDBC_COMMAND_PODNAME_REGISTRY="${jdbcCommand} -t ${JDBC_PODNAME_REGISTRY_TABLE} -c"
+}
 
-  # creating the database schema
+# creating the database schema
+# parameters:
+# - no params, expected to be called after the init properties is invoked
+function createRecoveryDatabaseSchema() {
   ${JDBC_COMMAND_RECOVERY_MARKER} create
+  [ $? -ne 0 ] && return 1
   ${JDBC_COMMAND_PODNAME_REGISTRY} create
+  [ $? -ne 0 ] && return 1
+  return 0
 }
