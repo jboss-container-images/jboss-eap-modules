@@ -39,6 +39,9 @@ function arrContains() {
 function init_pod_name() {
   # when POD_NAME is non-zero length using that given name
 
+  # if the user specifies NODE_NAME or JBOSS_NODE_NAME - this is ONLY intended to be used by tests.
+  [ -n "${NODE_NAME}" ] && POD_NAME="${NODE_NAME}"
+  [ -n "${JBOSS_NODE_NAME}" ] && POD_NAME="${JBOSS_NODE_NAME}"
   # docker sets up container_uuid
   [ -z "${POD_NAME}" ] && POD_NAME="${container_uuid}"
   # openshift sets up the node id as host name
