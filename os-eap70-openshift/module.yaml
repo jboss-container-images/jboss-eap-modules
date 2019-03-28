@@ -1,7 +1,7 @@
 schema_version: 1
 name: os-eap70-openshift
 version: '1.0'
-description: Deprecated see jboss.openshift.config.eap, version '7.0.0'.
+description: Deprecated see jboss.container.config.eap, version '7.0.0'.
 modules:
   install:
     - name: jboss.container.config.eap

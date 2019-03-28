@@ -1,7 +1,7 @@
 schema_version: 1
 name: jboss.eap72.openshift
 version: '1.0'
-description: Deprecated see jboss-openshift, version '7.2'. The jboss.eap72.openshift script package. Installs a standalone-openshift.xml compatible with EAP 7.2.
+description: Deprecated see jboss.container.config.eap, version '7.2'. The jboss.eap72.openshift script package. Installs a standalone-openshift.xml compatible with EAP 7.2.
 modules:
   install:
   - name: jboss.container.config.eap

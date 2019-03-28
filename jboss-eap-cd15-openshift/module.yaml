@@ -1,7 +1,7 @@
 schema_version: 1
 name: jboss.eap.cd15.openshift
 version: '1.0'
-description: Deprecated see jboss.openshift.config.cd, version '15.0'.
+description: Deprecated see jboss.container.config.cd, version '15.0'.
 modules:
   install:
     - name: jboss.container.config.cd
