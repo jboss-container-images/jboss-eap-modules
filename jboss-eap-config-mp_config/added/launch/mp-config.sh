@@ -16,7 +16,17 @@ configure_microprofile_config_source() {
   local dirConfigSource=$(generate_microprofile_config_source "${MICROPROFILE_CONFIG_DIR}" "${MICROPROFILE_CONFIG_DIR_ORDINAL}")
 
   if [ -n "$dirConfigSource" ]; then
-    sed -i "s|<!-- ##MICROPROFILE_CONFIG_SOURCE## -->|${dirConfigSource}|" $CONFIG_FILE
+    if grep -qF "<!-- ##MICROPROFILE_CONFIG_SOURCE## -->" $CONFIG_FILE; then
+      sed -i "s|<!-- ##MICROPROFILE_CONFIG_SOURCE## -->|${dirConfigSource}|" $CONFIG_FILE
+    else
+      cat << 'EOF' >> ${CLI_SCRIPT_FILE}
+      if (outcome == success) of /subsystem=microprofile-config-smallrye/config-source=config-map:read-resource
+        echo "Cannot configure microprofile config source. Config-map is already configured" >> ${error_file}
+      else-if
+        /subsystem=microprofile-config-smallrye/config-source=config-map:add(dir={path=${MICROPROFILE_CONFIG_DIR}}, ordinal=${MICROPROFILE_CONFIG_DIR_ORDINAL})
+      end-if
+EOF
+    fi
   elif [ -n "${MICROPROFILE_CONFIG_DIR}" ]; then
     # Invalid MICROPROFILE_CONFIG_DIR -- was not an absolute path.
     # Since we don't know if the deployment will behave correctly
