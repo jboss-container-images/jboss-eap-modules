@@ -73,6 +73,10 @@ if [ -f $JBOSS_HOME/bin/launch/json_logging.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/json_logging.sh)
 fi
 
+if [ -f $JBOSS_HOME/bin/launch/configure_logger_category.sh ]; then
+    CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/configure_logger_category.sh)
+fi
+
 if [ -f $JBOSS_HOME/bin/launch/security-domains.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/security-domains.sh)
 fi
