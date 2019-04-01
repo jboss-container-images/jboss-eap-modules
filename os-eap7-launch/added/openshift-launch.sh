@@ -71,6 +71,7 @@ function exec_cli_scripts() {
       exit 1
     elif [ -s "${CLI_SCRIPT_ERROR_FILE}" ]; then
       echo "Error applying ${CLI_SCRIPT_FILE_FOR_EMBEDDED} CLI script. Embedded server started successful. The Operations were executed but there were unexpected values. See list of errors in ${CLI_SCRIPT_ERROR_FILE}"
+      exit 1
     else
       rm ${CLI_SCRIPT_FILE_FOR_EMBEDDED} 2> /dev/null
     fi
