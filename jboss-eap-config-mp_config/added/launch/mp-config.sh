@@ -19,9 +19,9 @@ configure_microprofile_config_source() {
     if grep -qF "<!-- ##MICROPROFILE_CONFIG_SOURCE## -->" $CONFIG_FILE; then
       sed -i "s|<!-- ##MICROPROFILE_CONFIG_SOURCE## -->|${dirConfigSource}|" $CONFIG_FILE
     else
-      cat << 'EOF' >> ${CLI_SCRIPT_FILE}
+      cat << EOF >> ${CLI_SCRIPT_FILE}
       if (outcome == success) of /subsystem=microprofile-config-smallrye/config-source=config-map:read-resource
-        echo "Cannot configure microprofile config source. Config-map is already configured" >> ${error_file}
+        echo "Cannot configure microprofile config source. Config-map is already configured" >> \${error_file}
       else-if
         /subsystem=microprofile-config-smallrye/config-source=config-map:add(dir={path=${MICROPROFILE_CONFIG_DIR}}, ordinal=${MICROPROFILE_CONFIG_DIR_ORDINAL})
       end-if
