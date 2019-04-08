@@ -146,14 +146,6 @@ function inject_external_datasources() {
   # Add extensions from envs
   if [ -n "$DATASOURCES" ]; then
     for datasource_prefix in $(echo $DATASOURCES | sed "s/,/ /g"); do
-      driver=$(find_env "${datasource_prefix}_DRIVER" )
-      if [ "$driver" == "postgresql" ]; then
-        db="POSTGRESQL"
-      elif [ "$driver" == "mysql" ]; then
-        db="MYSQL"
-      else
-        db="EXTERNAL"
-      fi
       inject_datasource $datasource_prefix $datasource_prefix $datasource_prefix
     done
   fi
@@ -464,7 +456,7 @@ function inject_datasource() {
   database=$(find_env "${prefix}_DATABASE")
 
   if [ -z "$jndi" ] || [ -z "$username" ] || [ -z "$password" ]; then
-    log_warning "Ooops, there is a problem with the ${db,,} datasource!"
+    log_warning "Oops, there is a problem with the ${db,,} datasource!"
     log_warning "In order to configure ${db,,} datasource for $prefix service you need to provide following environment variables: ${prefix}_USERNAME and ${prefix}_PASSWORD."
     log_warning
     log_warning "Current values:"
@@ -493,59 +485,17 @@ function inject_datasource() {
   NON_XA_DATASOURCE=$(find_env "${prefix}_NONXA" false)
 
   url=$(find_env "${prefix}_URL")
-
-  IFS=. read -r -a java_version <<< "${JAVA_VERSION}"
-  java_maj_version=${java_version[0]:-8}
-  # JDK >= 11 doesn't have the default drivers present.
-  if [ ${java_maj_version} -lt 11 ]; then
-    case "$db" in
-    "MYSQL")
-      map_properties "jdbc:mysql" "${prefix}_XA_CONNECTION_PROPERTY_ServerName" "${prefix}_XA_CONNECTION_PROPERTY_Port" "${prefix}_XA_CONNECTION_PROPERTY_DatabaseName"
-
-      driver="mysql"
-      validate="true"
-      checker="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker"
-      sorter="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter"
-      ;;
-    "POSTGRESQL")
-      map_properties "jdbc:postgresql" "${prefix}_XA_CONNECTION_PROPERTY_ServerName" "${prefix}_XA_CONNECTION_PROPERTY_PortNumber" "${prefix}_XA_CONNECTION_PROPERTY_DatabaseName"
-
-      driver="postgresql"
-      validate="true"
-      checker="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"
-      sorter="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"
-      ;;
-    "MONGODB")
-      continue
-      ;;
-    *)
-      driver=$(find_env "${prefix}_DRIVER" )
-      checker=$(find_env "${prefix}_CONNECTION_CHECKER" )
-      sorter=$(find_env "${prefix}_EXCEPTION_SORTER" )
-      url=$(find_env "${prefix}_URL" )
-      if [ -n "$checker" ] && [ -n "$sorter" ]; then
-        validate=true
-      else
-        validate="false"
-      fi
-
-      service_name=$prefix
-      ;;
-    esac
+  driver=$(find_env "${prefix}_DRIVER" )
+  checker=$(find_env "${prefix}_CONNECTION_CHECKER" )
+  sorter=$(find_env "${prefix}_EXCEPTION_SORTER" )
+  url=$(find_env "${prefix}_URL" )
+  if [ -n "$checker" ] && [ -n "$sorter" ]; then
+    validate=true
   else
-      # >= JDK11
-      driver=$(find_env "${prefix}_DRIVER" )
-      checker=$(find_env "${prefix}_CONNECTION_CHECKER" )
-      sorter=$(find_env "${prefix}_EXCEPTION_SORTER" )
-      url=$(find_env "${prefix}_URL" )
-      if [ -n "$checker" ] && [ -n "$sorter" ]; then
-        validate=true
-      else
-        validate="false"
-      fi
-
-      service_name=$prefix
+    validate="false"
   fi
+
+  service_name=$prefix
 
   if [ -z "$jta" ]; then
     log_warning "JTA flag not set, defaulting to true for datasource  ${service_name}"
