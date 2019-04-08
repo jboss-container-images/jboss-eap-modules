@@ -1,7 +1,7 @@
 schema_version: 1
 name: jboss.eap.logging.jdk11
 version: '1.0'
-description: EAP log manager for OpenJDK 11.
+description: Deprecated. EAP log manager for OpenJDK 11.
 execute:
 - script: configure.sh
   user: '185'
