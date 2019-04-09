@@ -37,10 +37,17 @@ Feature: Common EAP tests
     Then container log should contain WFLYSRV0025
      And available container log should not contain No security realm defined for http management service; all access will be unrestricted.
 
+  @ignore @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
   Scenario: Java 1.8 is installed and set as default one
     When container is ready
-    Then run java -version in container and check its output for openjdk version "1.8.0
+    Then run java -version in container and check its output for openjdk version "1.8.0"
     Then run javac -version in container and check its output for javac 1.8.0
+
+  @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
+  Scenario: Java 11 is installed and set as default one
+    When container is ready
+    Then run java -version in container and check its output for openjdk version "11.0.
+    Then run javac -version in container and check its output for javac 11.0.
 
   Scenario: readinessProbe runs successfully
     When container is ready

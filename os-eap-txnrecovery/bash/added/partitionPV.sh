@@ -71,38 +71,40 @@ function startApplicationServer() {
   $IS_TX_SQL_BACKEND && initJdbcRecoveryMarkerProperties
   $IS_SPLIT_DATA_DEFINED && mkdir -p "${podsDir}"
 
-  # 2) while any recovery marker matches, sleep and wait for recovery to finish
-  local waitCounter=0
-  while true; do
+  # allow this to be skipped if we're testing, or running in docker with no db etc.
+  if [ "x${JDBC_SKIP_RECOVERY}" != "xtrue" ]; then
+    # 2) while any recovery marker matches, sleep and wait for recovery to finish
+    local waitCounter=0
+    while true; do
+      if isRecoveryInProgress; then
+        log_info "[`date`] Waiting to start pod ${POD_NAME} as recovery process for the pod is currently in progress"
+      else
+        # no recovery running: we are free to start the app container
+        break
+      fi
+      sleep 1
+    done
 
-    if isRecoveryInProgress; then
-      log_info "[`date`] Waiting to start pod ${POD_NAME} as recovery process for the pod is currently in progress"
-    else
-      # no recovery running: we are free to start the app container
-      break
-    fi
-    sleep 1
-  done
-
-  # 3) create app server data directory with name of the pod name /or/ creating pod dir jdbc record
-  if $IS_TX_SQL_BACKEND; then
-    SERVER_DATA_DIR="${podsDir}"
+    # 3) create app server data directory with name of the pod name /or/ creating pod dir jdbc record
+    if $IS_TX_SQL_BACKEND; then
+      SERVER_DATA_DIR="${podsDir}"
 
     local applicationPodExistence=($(${JDBC_COMMAND_PODNAME_REGISTRY} select_application -a "${applicationPodDir}"))
     if [ "x${applicationPodExistence}" = "x" ]; then
       ${JDBC_COMMAND_PODNAME_REGISTRY} insert -a "${applicationPodDir}" -r 'undefined'
     fi
-  fi
-  if $IS_SPLIT_DATA_DEFINED; then
-    SERVER_DATA_DIR="${applicationPodDir}/serverData"
-    mkdir -p "${SERVER_DATA_DIR}"
+    if $IS_SPLIT_DATA_DEFINED; then
+      SERVER_DATA_DIR="${applicationPodDir}/serverData"
+      mkdir -p "${SERVER_DATA_DIR}"
 
-    if [ ! -f "${SERVER_DATA_DIR}/../data_initialized" ]; then
-      init_data_dir ${SERVER_DATA_DIR}
-      touch "${SERVER_DATA_DIR}/../data_initialized"
+      if [ ! -f "${SERVER_DATA_DIR}/../data_initialized" ]; then
+        init_data_dir ${SERVER_DATA_DIR}
+        touch "${SERVER_DATA_DIR}/../data_initialized"
+      fi
     fi
+  else
+    echo "Skipping JDBC application server recovery start as JDBC_SKIP_RECOVERY is set to true"
   fi
-
   # 4) launch server with NODE_NAME to be assigned as POD_NAME (openshift-node-name.sh uses it)
   NODE_NAME=$(truncate_jboss_node_name "${POD_NAME}") runServer "${SERVER_DATA_DIR}" &
 
@@ -399,7 +401,7 @@ function initJdbcRecoveryMarkerProperties() {
   JDBC_RECOVERY_TABLE="recmark${jdbcTableSuffix}"
   JDBC_PODNAME_REGISTRY_TABLE="recpodreg${jdbcTableSuffix}"
 
-    case "$db" in
+  case "$db" in
     "MYSQL")
       JDBC_RECOVERY_DB_TYPE='mysql'
       ;;
@@ -412,8 +414,13 @@ function initJdbcRecoveryMarkerProperties() {
   # do not reduce logging when debug is enabled
   [ "x${SCRIPT_DEBUG}" = "xtrue" ] && LOGGING_PROPERTIES=""
 
+  local add_modules=""
+  if [ "${JAVA_VERSION}" = "11.0" ]; then
+    add_modules=" --add-modules java.se "
+  fi
+
   # one table works as storage for recovery markers, other stores information about started pods
-  local jdbcCommand="java $LOGGING_PROPERTIES -jar $JBOSS_HOME/jboss-modules.jar -mp $JBOSS_HOME/modules/ io.narayana.openshift-recovery -y ${JDBC_RECOVERY_DB_TYPE} -o ${JDBC_RECOVERY_DB_HOST} -p ${JDBC_RECOVERY_DB_PORT} -d ${JDBC_RECOVERY_DATABASE} -u ${JDBC_RECOVERY_USER} -s ${JDBC_RECOVERY_PASSWORD}"
+  local jdbcCommand="java ${add_modules} $LOGGING_PROPERTIES -jar $JBOSS_HOME/jboss-modules.jar -mp $JBOSS_HOME/modules/ io.narayana.openshift-recovery -y ${JDBC_RECOVERY_DB_TYPE} -o ${JDBC_RECOVERY_DB_HOST} -p ${JDBC_RECOVERY_DB_PORT} -d ${JDBC_RECOVERY_DATABASE} -u ${JDBC_RECOVERY_USER} -s ${JDBC_RECOVERY_PASSWORD}"
   JDBC_COMMAND_RECOVERY_MARKER="${jdbcCommand} -t ${JDBC_RECOVERY_TABLE} -c"
   JDBC_COMMAND_PODNAME_REGISTRY="${jdbcCommand} -t ${JDBC_PODNAME_REGISTRY_TABLE} -c"
 
