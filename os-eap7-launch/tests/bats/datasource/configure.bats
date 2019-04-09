@@ -290,10 +290,7 @@ load common
     run inject_datasources
 
     expected="WARN Missing configuration for XA datasource TEST. Either TEST_XA_CONNECTION_PROPERTY_URL or TEST_XA_CONNECTION_PROPERTY_ServerName, and TEST_XA_CONNECTION_PROPERTY_PortNumber, and TEST_XA_CONNECTION_PROPERTY_DatabaseName is required. Datasource will not be configured."
-    # check the warning is in the output
-    [ -z "${output##*$expected*}" ]
-    echo "Expected: ${expected}"
-    echo "Output: ${output}"
+    [ "$output" = "$expected" ]
 }
 
 @test "inject_datasources: DB_SERVICE_PREFIX_MAPPING - Missing required values" {
@@ -308,8 +305,7 @@ load common
 
     run inject_datasources
 
-    expected="WARN Missing configuration for datasource TEST. TEST_POSTGRESQL_SERVICE_HOST, TEST_POSTGRESQL_SERVICE_PORT, and/or TEST_DATABASE is missing. Datasource will not be configured."
-    [ -z "${output##*$expected*}" ]
-    echo "Expected: ${expected}"
-    echo "Output: ${output}"
+    msg="WARN Missing configuration for datasource TEST. TEST_POSTGRESQL_SERVICE_HOST, TEST_POSTGRESQL_SERVICE_PORT, and/or TEST_DATABASE is missing. Datasource will not be configured."
+    echo ${output}
+    [ "$output" = "$msg" ]
 }
