@@ -494,11 +494,7 @@ function inject_datasource() {
 
   url=$(find_env "${prefix}_URL")
 
-  IFS=. read -r -a java_version <<< "${JAVA_VERSION}"
-  java_maj_version=${java_version[0]:-8}
-  # JDK >= 11 doesn't have the default drivers present.
-  if [ ${java_maj_version} -lt 11 ]; then
-    case "$db" in
+  case "$db" in
     "MYSQL")
       map_properties "jdbc:mysql" "${prefix}_XA_CONNECTION_PROPERTY_ServerName" "${prefix}_XA_CONNECTION_PROPERTY_Port" "${prefix}_XA_CONNECTION_PROPERTY_DatabaseName"
 
@@ -531,21 +527,7 @@ function inject_datasource() {
 
       service_name=$prefix
       ;;
-    esac
-  else
-      # >= JDK11
-      driver=$(find_env "${prefix}_DRIVER" )
-      checker=$(find_env "${prefix}_CONNECTION_CHECKER" )
-      sorter=$(find_env "${prefix}_EXCEPTION_SORTER" )
-      url=$(find_env "${prefix}_URL" )
-      if [ -n "$checker" ] && [ -n "$sorter" ]; then
-        validate=true
-      else
-        validate="false"
-      fi
-
-      service_name=$prefix
-  fi
+  esac
 
   if [ -z "$jta" ]; then
     log_warning "JTA flag not set, defaulting to true for datasource  ${service_name}"
