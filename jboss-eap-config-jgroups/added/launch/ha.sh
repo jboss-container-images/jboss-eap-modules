@@ -39,7 +39,7 @@ check_view_pods_permission() {
 
         pods_url="https://${service_host}:${service_port}/api/${api_version}/namespaces/${namespace}/pods"
         if [ -n "${labels}" ]; then
-            pods_labels="labels=${labels}"
+            pods_labels="labelSelector=${labels}"
         else
             pods_labels=""
         fi
