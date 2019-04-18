@@ -1,0 +1,7 @@
+schema_version: 1
+name: jboss.container.security-domains
+version: '1.0'
+description: Module that manages shared configuration related to security domains
+execute:
+- script: configure.sh
+  user: '185'

@@ -31,21 +31,29 @@ add_logger_category() {
     local allowed_log_levels=("ALL" "SEVERE" "ERROR" "WARNING" "INFO" "CONFIG" "FINE" "DEBUG" "FINER" "FINEST" "TRACE")
 
     local IFS=","
-    if [ "x${LOGGER_CATEGORIES}" != "x" ] && grep -q '<!-- ##LOGGER-CATEGORY## -->' ${CONFIG_FILE}; then
-        log_info "Found env LOGGER_CATEGORIES, configuring...."
+    if [ "x${LOGGER_CATEGORIES}" != "x" ]; then
         for i in ${LOGGER_CATEGORIES}; do
             logger=$(echo "$i" | sed 's/ //g')
             logger_category=$(echo $logger | awk -F':' '{print $1}')
             logger_level=$(echo $logger | awk -F':' '{print $2}')
             if [[ ! "${allowed_log_levels[@]}" =~ " ${logger_level}" ]]; then
                  log_warning "Log Level ${logger_level} is not allowed, the allowed levels are ${allowed_log_levels[@]}"
-            else
+            elif grep -qF '<!-- ##LOGGER-CATEGORY## -->' ${CONFIG_FILE}; then
                 log_info "Configuring logger category ${logger_category} with level ${logger_level:-FINE}"
                 logger="<logger category=\"${logger_category}\">\n                \
 <level name=\"${logger_level:-FINE}\"/>\n\            \
 </logger>\n            \
 <!-- ##LOGGER-CATEGORY## -->"
                 sed -i "s|<!-- ##LOGGER-CATEGORY## -->|${logger}|" $CONFIG_FILE
+            else
+              log_info "Adding logger category ${logger_category} with level ${logger_level:-FINE} to server CLI configuration script"
+              cat << EOF >> ${CLI_SCRIPT_FILE}
+              if (outcome == success) of /subsystem=logging/logger=${logger_category}:read-resource
+                /subsystem=logging/logger=${logger_category}:write-attribute(name=level, value=${logger_level:-FINE})
+              else
+                /subsystem=logging/logger=${logger_category}:add(category=${logger_category},level=${logger_level:-FINE})
+              end-if
+EOF
             fi
         done
     fi

@@ -27,6 +27,23 @@ configure() {
   configure_ha
 }
 
+preConfigure() {
+  CONF_AUTH_BY_CLI=1
+  if grep -qF "<!-- ##JGROUPS_AUTH## -->" ${CONFIG_FILE}; then
+    CONF_AUTH_BY_CLI=0
+  fi
+
+  CONF_PING_BY_CLI=1
+  if grep -qF "<!-- ##JGROUPS_PING_PROTOCOL## -->" ${CONFIG_FILE}; then
+    CONF_PING_BY_CLI=0
+  fi
+}
+
+postConfigure() {
+  unset CONF_AUTH_BY_CLI
+  unset CONF_PING_BY_CLI
+}
+
 check_view_pods_permission() {
     if [ -n "${OPENSHIFT_KUBE_PING_NAMESPACE+_}" ] || [ -n "${KUBERNETES_NAMESPACE}" ]; then
         local CA_CERT="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
@@ -89,8 +106,10 @@ get_socket_binding_for_ping() {
           "${protocol}" = "kubernetes.KUBE_PING" -o \
           "${protocol}" = "dns.DNS_PING" ]; then
         echo ""
-    else
+    elif [ $CONF_PING_BY_CLI -eq 0 ]; then
         echo "socket-binding=\"jgroups-mping\""
+    else
+      echo "jgroups-mping"
     fi
 }
 
@@ -103,14 +122,23 @@ generate_jgroups_auth_config() {
   if [ -z "${cluster_password}" ]; then
       log_warning "No password defined for JGroups cluster. AUTH protocol will be disabled. Please define JGROUPS_CLUSTER_PASSWORD."
       config="<!--WARNING: No password defined for JGroups cluster. AUTH protocol has been disabled. Please define JGROUPS_CLUSTER_PASSWORD. -->"
-  else
+  elif [ ${CONF_AUTH_BY_CLI} -eq 0 ]; then
       config="\n <auth-protocol type=\"AUTH\">\n\
                     <digest-token algorithm=\"${digest_algorithm:-SHA-512}\">\n\
                         <shared-secret-reference clear-text=\"${cluster_password}\"/>\n\
                     </digest-token>\n\
                 </auth-protocol>\n"
+  else
+    #TODO: :add-protocol is a deprecated operation, should be replace by a non-deprecated version
+    config=$(cat <<EOF
+        batch
+         /subsystem=jgroups/stack=tcp:add-protocol(type=AUTH)
+         /subsystem=jgroups/stack=tcp/protocol=AUTH/token=digest:add(algorithm="${digest_algorithm:-SHA-512}", shared-secret-reference={clear-text="${cluster_password}"})
+        run-batch
+EOF
+   )
   fi
-  echo ${config}
+  echo "${config}"
 }
 
 generate_generic_ping_config() {
@@ -128,7 +156,20 @@ generate_generic_ping_config() {
     fi
 
     # for DNS_PING, the record is my-port-name._my-port-protocol.my-svc.my-namespace
-    local config="<protocol type=\"${ping_protocol}\" ${socket_binding}/>"
+    if [ ${CONF_AUTH_BY_CLI} -eq 0 ]; then
+      config="<protocol type=\"${ping_protocol}\" ${socket_binding}/>"
+    else
+      local op="/subsystem=jgroups/stack=tcp:add-protocol(type=${ping_protocol})"
+      if [ "${socket_binding}x" == "x" ]; then
+        op="/subsystem=jgroups/stack=tcp:add-protocol(type=${ping_protocol}, socket-binding=${socket_binding})"
+      fi
+    read -d '' config << EOF
+        batch
+          ${op}
+        run-batch
+EOF
+    fi
+
     echo "${config}"
 }
 
@@ -153,12 +194,38 @@ generate_dns_ping_config() {
     fi
 
     # for DNS_PING, the record is ping-service-name, suffixes are determined from /etc/resolv.conf search domains.
-    config="<protocol type=\"${ping_protocol}\" ${socket_binding}>"
-    if [ "${ping_protocol}" = "dns.DNS_PING" ]; then
-        config="${config}<property name=\"dns_query\">${ping_service_name}</property>"
-        config="${config}<property name=\"async_discovery_use_separate_thread_per_request\">true</property>"
+    if [ $CONF_PING_BY_CLI -eq 0 ]; then
+      config="<protocol type=\"${ping_protocol}\" ${socket_binding}>"
+      if [ "${ping_protocol}" = "dns.DNS_PING" ]; then
+          config="${config}<property name=\"dns_query\">${ping_service_name}</property>"
+          config="${config}<property name=\"async_discovery_use_separate_thread_per_request\">true</property>"
+      fi
+      config="${config}</protocol>"
+    else
+      #CLI operation is expected to fail if there is already a protocol configured with the same name
+      #TODO: :add-protocol is a deprecated operation, should be replace by a non-deprecated version
+
+      local op="/subsystem=jgroups/stack=tcp:add-protocol(type=${ping_protocol})"
+      if [ "${socket_binding}x" == "x" ]; then
+        op="/subsystem=jgroups/stack=tcp:add-protocol(type=${ping_protocol}, socket-binding=${socket_binding})"
+      fi
+
+      local op_prop1=""
+      local op_prop2=""
+      if [ "${ping_protocol}" = "dns.DNS_PING" ]; then
+        op_prop1="/subsystem=jgroups/stack=tcp/protocol=${ping_protocol}/property=dns_query:add(value=${ping_service_name})"
+        op_prop2="/subsystem=jgroups/stack=tcp/protocol=${ping_protocol}/property=async_discovery_use_separate_thread_per_request:add(value=true)"
+      fi
+
+      read -d '' config << EOF
+        batch
+          ${op}
+          ${op_prop1}
+          ${op_prop2}
+        run-batch
+EOF
     fi
-    config="${config}</protocol>"
+
     echo "${config}"
 }
 
@@ -194,9 +261,18 @@ configure_ha() {
     ping_protocol_element=$(generate_generic_ping_config "${ping_protocol}" "${socket_binding}")
   fi
 
-  sed -i "s|<!-- ##JGROUPS_AUTH## -->|${JGROUPS_AUTH}|g" $CONFIG_FILE
-  log_info "Configuring JGroups discovery protocol to ${ping_protocol}"
-  sed -i "s|<!-- ##JGROUPS_PING_PROTOCOL## -->|${ping_protocol_element}|g" $CONFIG_FILE
+  if [ ${CONF_AUTH_BY_CLI} -eq 0 ]; then
+    sed -i "s|<!-- ##JGROUPS_AUTH## -->|${JGROUPS_AUTH}|g" $CONFIG_FILE
+  else
+    echo ${JGROUPS_AUTH} >> $CONFIG_FILE;
+  fi
 
+  log_info "Configuring JGroups discovery protocol to ${ping_protocol}"
+
+  if [ ${CONF_PING_BY_CLI} -eq 0 ]; then
+    sed -i "s|<!-- ##JGROUPS_PING_PROTOCOL## -->|${ping_protocol_element}|g" $CONFIG_FILE
+  else
+    echo ${ping_protocol_element} >> $CONFIG_FILE;
+  fi
 }
 

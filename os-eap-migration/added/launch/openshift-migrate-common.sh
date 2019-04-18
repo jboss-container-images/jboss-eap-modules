@@ -15,7 +15,7 @@ function runMigration() {
   cp -f ${STANDALONE_XML_COPY} ${STANDALONE_XML}
 
   source $JBOSS_HOME/bin/launch/configure.sh
-
+# We must execute the scripts here, @TODO: add the exec_cli_script here too
   echo "Running $JBOSS_IMAGE_NAME image, version $JBOSS_IMAGE_VERSION"
 
   local txOptions="-Dcom.arjuna.ats.arjuna.common.RecoveryEnvironmentBean.recoveryBackoffPeriod=1 -Dcom.arjuna.ats.arjuna.common.RecoveryEnvironmentBean.periodicRecoveryPeriod=1 -Dcom.arjuna.ats.jta.common.JTAEnvironmentBean.orphanSafetyInterval=1"

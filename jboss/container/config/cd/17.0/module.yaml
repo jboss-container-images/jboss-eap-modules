@@ -1,0 +1,7 @@
+schema_version: 1
+name: jboss.container.config.cd
+version: '17.0'
+description: Installs a standalone-openshift.xml compatible with EAP CD17
+execute:
+- script: configure.sh
+  user: '185'
