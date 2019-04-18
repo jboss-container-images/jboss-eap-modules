@@ -76,9 +76,11 @@ EOF
   [[ "${output}" =~ "No password defined for JGroups cluster." ]]
 }
 
+# note openshift.KUBE_PING is aliased to kubernetes.KUBE_PING
 @test "Generate JGroups ping config - openshift.KUBE_PING" {
     expected=$(cat <<EOF
-<protocol type="openshift.KUBE_PING" />
+WARN Ping protocol openshift.KUBE_PING is deprecated, replacing with kubernetes.KUBE_PING instead.
+<protocol type="kubernetes.KUBE_PING" />
 EOF
 )
   ping_protocol="openshift.KUBE_PING"
@@ -88,9 +90,11 @@ EOF
   [ "${output}" = "${expected}" ]
 }
 
+# note openshift.DNS_PING is aliased to dns.DNS_PING
 @test "Generate JGroups ping config - openshift.DNS_PING" {
     expected=$(cat <<EOF
-<protocol type="openshift.DNS_PING" ></protocol>
+WARN Ping protocol openshift.DNS_PING is deprecated, replacing with dns.DNS_PING instead.
+<protocol type="dns.DNS_PING" ><property name="dns_query"></property><property name="async_discovery_use_separate_thread_per_request">true</property></protocol>
 EOF
 )
   ping_protocol="openshift.DNS_PING"
@@ -100,9 +104,11 @@ EOF
   [ "${output}" = "${expected}" ]
 }
 
+# note openshift.DNS_PING is aliased to dns.DNS_PING
 @test "Generate JGroups ping config - openshift.DNS_PING with socket binding" {
     expected=$(cat <<EOF
-<protocol type="openshift.DNS_PING" socket-binding="sb_value"></protocol>
+WARN Ping protocol openshift.DNS_PING is deprecated, replacing with dns.DNS_PING instead.
+<protocol type="dns.DNS_PING" socket-binding="sb_value"><property name="dns_query"></property><property name="async_discovery_use_separate_thread_per_request">true</property></protocol>
 EOF
 )
   ping_protocol="openshift.DNS_PING"
@@ -189,6 +195,7 @@ EOF
   [ "${result}" = "${expected}" ]
 }
 
+# note openshift.DNS_PING will be replaced with dns.DNS_PING now
 @test "Test HA configuration file - openshift.DNS_PING" {
     echo "<!-- ##JGROUPS_AUTH## -->" > $CONFIG_FILE
     echo "<!-- ##JGROUPS_PING_PROTOCOL## -->" >> $CONFIG_FILE
@@ -200,7 +207,7 @@ EOF
  </digest-token>
  </auth-protocol>
 
-<protocol type="openshift.DNS_PING" ></protocol>
+<protocol type="dns.DNS_PING" ><property name="dns_query"></property><property name="async_discovery_use_separate_thread_per_request">true</property></protocol>
 EOF
 )
   export JGROUPS_CLUSTER_PASSWORD="clusterpassword"
