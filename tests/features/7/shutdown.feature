@@ -1,4 +1,4 @@
-@jboss-eap-7
+@jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: Openshift EAP shutdown tests
 
   Scenario: Check if image shuts down with TERM signal

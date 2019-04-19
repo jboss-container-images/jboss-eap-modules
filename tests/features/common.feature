@@ -1,4 +1,4 @@
-@jboss-eap-7 @jboss-eap-6
+@jboss-eap-7 @jboss-eap-6 @jboss-eap-7-tech-preview
 Feature: Openshift common test
   Scenario: Check jolokia port is available
     When container is ready

@@ -1,4 +1,4 @@
-@jboss-eap-6 @jboss-eap-7
+@jboss-eap-6 @jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: tests for all openshift images
 
   Scenario: Check that labels are correctly set
