@@ -31,8 +31,8 @@ envs:
       example: "0.0.0.0"
       description: "Override the default HA bind address (default value is the result of 'hostname -i') with a specific address."
     - name: JGROUPS_PING_PROTOCOL
-      example: "openshift.DNS_PING"
-      description: "Protocol to discover other nodes in this cluster. Example values: openshift.DNS_PING, openshift.KUBE_PING, kubernetes.KUBE_PING, dns.DNS_PING"
+      example: "dns.DNS_PING"
+      description: "Protocol to discover other nodes in this cluster. Example values: dns.DNS_PING, kubernetes.KUBE_PING"
     - name: "JGROUPS_JOIN_TIMEOUT"
       example: 10000
       description: "JGroups join timeout"
