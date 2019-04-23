@@ -116,12 +116,24 @@ generate_jgroups_auth_config() {
 generate_generic_ping_config() {
     local ping_protocol="${1}"
     local socket_binding="${2}"
+
+    if [ "${ping_protocol}" = "openshift.DNS_PING" ]; then
+        ping_protocol="dns.DNS_PING" # openshift.DNS_PING is deprecated and removed, but we alias it.
+        log_warning "Ping protocol openshift.DNS_PING is deprecated, replacing with dns.DNS_PING instead."
+    fi
+
+    if [ "${ping_protocol}" = "openshift.KUBE_PING" ]; then
+        ping_protocol="kubernetes.KUBE_PING" # openshift.KUBE_PING is deprecated and removed, but aliased
+        log_warning "Ping protocol openshift.KUBE_PING is deprecated, replacing with kubernetes.KUBE_PING instead."
+    fi
+
     # for DNS_PING, the record is my-port-name._my-port-protocol.my-svc.my-namespace
     local config="<protocol type=\"${ping_protocol}\" ${socket_binding}/>"
     echo "${config}"
 }
 
 generate_dns_ping_config() {
+
     local ping_protocol="${1}"
     local ping_service_name="${2}"
     local ping_service_port="${3}"
@@ -129,6 +141,17 @@ generate_dns_ping_config() {
     local socket_binding="${5}"
     local ping_service_protocol="tcp"
     local config
+
+    if [ "${ping_protocol}" = "openshift.DNS_PING" ]; then
+        ping_protocol="dns.DNS_PING" # openshift.DNS_PING is deprecated and removed, but we alias it.
+        log_warning "Ping protocol openshift.DNS_PING is deprecated, replacing with dns.DNS_PING instead."
+    fi
+
+    if [ "${ping_protocol}" = "openshift.KUBE_PING" ]; then
+        ping_protocol="kubernetes.KUBE_PING" # openshift.KUBE_PING is deprecated and removed, but aliased
+        log_warning "Ping protocol openshift.KUBE_PING is deprecated, replacing with kubernetes.KUBE_PING instead."
+    fi
+
     # for DNS_PING, the record is ping-service-name, suffixes are determined from /etc/resolv.conf search domains.
     config="<protocol type=\"${ping_protocol}\" ${socket_binding}>"
     if [ "${ping_protocol}" = "dns.DNS_PING" ]; then
@@ -150,11 +173,22 @@ configure_ha() {
 
   JGROUPS_AUTH=$(generate_jgroups_auth_config "${JGROUPS_CLUSTER_PASSWORD}" "${JGROUPS_DIGEST_TOKEN_ALGORITHM}")
 
-  local ping_protocol=${JGROUPS_PING_PROTOCOL:-openshift.KUBE_PING}
+  local ping_protocol=${JGROUPS_PING_PROTOCOL:-kubernetes.KUBE_PING}
   local socket_binding=$(get_socket_binding_for_ping "${ping_protocol}")
   validate_ping_protocol "${ping_protocol}"
   local ping_protocol_element
-  if [ "${ping_protocol}" = "dns.DNS_PING" ] || [ "${ping_protocol}" = "openshift.DNS_PING" ]; then
+
+  if [ "${ping_protocol}" = "openshift.DNS_PING" ]; then
+    ping_protocol="dns.DNS_PING" # openshift.DNS_PING is deprecated and removed, but we alias it.
+    log_warning "Ping protocol openshift.DNS_PING is deprecated, replacing with dns.DNS_PING instead."
+  fi
+
+  if [ "${ping_protocol}" = "openshift.KUBE_PING" ]; then
+    ping_protocol="kubernetes.KUBE_PING" # openshift.KUBE_PING is deprecated and removed, but aliased
+    log_warning "Ping protocol openshift.KUBE_PING is deprecated, replacing with kubernetes.KUBE_PING instead."
+  fi
+
+  if [ "${ping_protocol}" = "dns.DNS_PING" ]; then
     ping_protocol_element=$(generate_dns_ping_config "${ping_protocol}" "${OPENSHIFT_DNS_PING_SERVICE_NAME}" "${OPENSHIFT_DNS_PING_SERVICE_PORT}" "${OPENSHIFT_DNS_PING_SERVICE_NAMESPACE}" "${socket_binding}")
   else
     ping_protocol_element=$(generate_generic_ping_config "${ping_protocol}" "${socket_binding}")
