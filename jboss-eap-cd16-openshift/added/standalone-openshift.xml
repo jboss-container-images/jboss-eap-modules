@@ -111,6 +111,7 @@
             <logger category="sun.rmi">
                 <level name="WARN"/>
             </logger>
+            <!-- ##LOGGER-CATEGORY## -->
             <root-logger>
                 <level name="INFO"/>
                 <handlers>
@@ -480,10 +481,7 @@
             <!-- ##MICROPROFILE_CONFIG_SOURCE## -->
         </subsystem>
         <subsystem xmlns="urn:wildfly:microprofile-health-smallrye:1.0"/>
-        <subsystem xmlns="urn:wildfly:microprofile-metrics-smallrye:2.0"
-            security-enabled="false"
-            exposed-subsystems="*"
-            prefix="${wildfly.metrics.prefix:jboss}"/>
+        <subsystem xmlns="urn:wildfly:microprofile-metrics-smallrye:2.0" security-enabled="false" exposed-subsystems="*" prefix="${wildfly.metrics.prefix:jboss}"/>
         <!-- ##TRACING_SUBSYSTEM## -->
         <subsystem xmlns="urn:jboss:domain:modcluster:5.0">
             <proxy name="default" advertise-socket="modcluster" listener="ajp">
