@@ -1,4 +1,3 @@
-#!/bin/sh
 # Openshift EAP launch script
 
 source ${JBOSS_HOME}/bin/launch/openshift-common.sh
@@ -43,6 +42,19 @@ function init_data_dir() {
 }
 
 function exec_cli_scripts() {
+
+  # Dump the cli script file for debugging
+  if [ "${CLI_DEBUG^^}" = "TRUE" ]; then
+    echo "================= CLI files debug ================="
+    echo "=========== ${CLI_SCRIPT_FILE} contents:"
+    cat "${CLI_SCRIPT_FILE}"
+    echo "=========== ${CLI_SCRIPT_PROPERTY_FILE} contents:"
+    cat "${CLI_SCRIPT_PROPERTY_FILE}"
+    echo "=========== ${CLI_SCRIPT_ERROR_FILE} contents:"
+    cat "${CLI_SCRIPT_ERROR_FILE}"
+    echo "==================================================="
+  fi
+
   if [ -s "${CLI_SCRIPT_FILE}" ]; then
     #Check we are able to use the jboss-cli.sh
     if ! [ -f "${JBOSS_HOME}/bin/jboss-cli.sh" ]; then
