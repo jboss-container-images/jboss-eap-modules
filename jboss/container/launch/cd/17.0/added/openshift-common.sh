@@ -29,76 +29,76 @@ CONFIGURE_SCRIPTS=(
     $JBOSS_HOME/bin/launch/passwd.sh
     );
 
-if [ -x $JBOSS_HOME/bin/launch/messaging.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/messaging.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/messaging.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/datasource.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/datasource.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/datasource.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/resource-adapter.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/resource-adapter.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/resource-adapter.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/admin.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/admin.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/admin.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/ha.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/ha.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/ha.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/jgroups.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/jgroups.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/jgroups.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/https.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/https.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/https.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/elytron.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/elytron.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/elytron.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/json_logging.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/json_logging.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/json_logging.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/configure_logger_category.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/configure_logger_category.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/configure_logger_category.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/security-domains.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/security-domains.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/security-domains.sh)
 fi
 
 CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/jboss_modules_system_pkgs.sh)
 
-if [ -x $JBOSS_HOME/bin/launch/keycloak.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/keycloak.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/keycloak.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/deploymentScanner.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/deploymentScanner.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/deploymentScanner.sh)
 fi
 
 # This is an utility script
 CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/ports.sh)
 
-if [ -x $JBOSS_HOME/bin/launch/access_log_valve.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/access_log_valve.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/access_log_valve.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/mp-config.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/mp-config.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/mp-config.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/tracing.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/tracing.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/tracing.sh)
 fi
 
-if [ -x $JBOSS_HOME/bin/launch/filters.sh ]; then
+if [ -f $JBOSS_HOME/bin/launch/filters.sh ]; then
     CONFIGURE_SCRIPTS+=($JBOSS_HOME/bin/launch/filters.sh)
 fi
 
