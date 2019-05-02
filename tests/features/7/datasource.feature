@@ -1,6 +1,7 @@
 @jboss-eap-7
 Feature: EAP Openshift datasources
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: check mysql datasource
     When container is started with env
        | variable                  | value            |
@@ -11,6 +12,7 @@ Feature: EAP Openshift datasources
        | TEST_MYSQL_SERVICE_HOST   | 10.1.1.1         |
        | TEST_MYSQL_SERVICE_PORT   | 3306             |
        | TIMER_SERVICE_DATA_STORE  | test-mysql       |
+       | JDBC_SKIP_RECOVERY        | true             |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_mysql on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 10.1.1.1 on XPath //*[local-name()='xa-datasource-property'][@name="ServerName"]
@@ -24,6 +26,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mysql on XPath //*[local-name()='database-data-store']/@database
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST_part on XPath //*[local-name()='database-data-store']/@partition
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: check mysql datasource with advanced settings
     When container is started with env
        | variable                  | value                       |
@@ -36,6 +39,7 @@ Feature: EAP Openshift datasources
        | TEST_TX_ISOLATION         | TRANSACTION_REPEATABLE_READ |
        | TEST_MYSQL_SERVICE_HOST   | 10.1.1.1                    |
        | TEST_MYSQL_SERVICE_PORT   | 3306                        |
+       | JDBC_SKIP_RECOVERY        | true                        |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_mysql on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 10.1.1.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
@@ -47,6 +51,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value hardtoguess on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value TRANSACTION_REPEATABLE_READ on XPath //*[local-name()='xa-datasource']/*[local-name()='transaction-isolation']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: check mysql datasource with partial advanced settings
     When container is started with env
        | variable                  | value                       |
@@ -57,6 +62,7 @@ Feature: EAP Openshift datasources
        | TEST_MAX_POOL_SIZE        | 10                          |
        | TEST_MYSQL_SERVICE_HOST   | 10.1.1.1                    |
        | TEST_MYSQL_SERVICE_PORT   | 3306                        |
+       | JDBC_SKIP_RECOVERY        | true                        |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_mysql on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 10.1.1.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
@@ -67,6 +73,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value hardtoguess on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
 
   # https://issues.jboss.org/browse/CLOUD-508
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: check default for timer service datastore
     When container is ready
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value default-file-store on XPath //*[local-name()='file-data-store']/@name
@@ -82,6 +89,7 @@ Feature: EAP Openshift datasources
        | TEST_POSTGRESQL_SERVICE_HOST  | 10.1.1.1                   |
        | TEST_POSTGRESQL_SERVICE_PORT  | 5432                       |
        | TIMER_SERVICE_DATA_STORE      | test-postgresql            |
+       | JDBC_SKIP_RECOVERY            | true                       |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_postgresql on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 10.1.1.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
@@ -95,6 +103,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value postgresql on XPath //*[local-name()='database-data-store']/@database
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST_part on XPath //*[local-name()='database-data-store']/@partition
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: check postgresql datasource with advanced settings
     When container is started with env
        | variable                      | value                       |
@@ -107,6 +116,7 @@ Feature: EAP Openshift datasources
        | TEST_TX_ISOLATION             | TRANSACTION_REPEATABLE_READ |
        | TEST_POSTGRESQL_SERVICE_HOST  | 10.1.1.1                    |
        | TEST_POSTGRESQL_SERVICE_PORT  | 5432                        |
+       | JDBC_SKIP_RECOVERY            | true                        |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_postgresql on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 10.1.1.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
@@ -118,6 +128,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value marek on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value hardtoguess on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test database type is extracted properly even when name contains a dash (e.g. "eap-app")
     When container is started with env
       | variable                         | value                         |
@@ -127,6 +138,7 @@ Feature: EAP Openshift datasources
       | TEST_PASSWORD                    | hardtoguess                   |
       | EAP_APP_POSTGRESQL_SERVICE_HOST  | 10.1.1.1                      |
       | EAP_APP_POSTGRESQL_SERVICE_PORT  | 5432                          |
+      | JDBC_SKIP_RECOVERY               | true                          |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/eap_app_postgresql on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value eap_app_postgresql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 10.1.1.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
@@ -135,6 +147,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value marek on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value hardtoguess on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: check mysql and postgresql datasource
     When container is started with env
        | variable                      | value                                                  |
@@ -149,6 +162,7 @@ Feature: EAP Openshift datasources
        | TEST_POSTGRESQL_PASSWORD      | hardtoguess-p                                          |
        | TEST_POSTGRESQL_SERVICE_HOST  | 10.1.1.2                                               |
        | TEST_POSTGRESQL_SERVICE_PORT  | 5432                                                   |
+       | JDBC_SKIP_RECOVERY            | true                                                   |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_postgresql on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST_POSTGRESQL on XPath //*[local-name()='xa-datasource']/@pool-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 10.1.1.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
@@ -164,6 +178,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value marek-m on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value hardtoguess-m on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: check that exampleDS is generated by default (CLOUD-7)
     When container is started with env
        | variable                      | value                                                  |
@@ -175,6 +190,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value hsql on XPath //*[local-name()='database-data-store']/@database
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value ExampleDS_part on XPath //*[local-name()='database-data-store']/@partition
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test warning no username is provided
     When container is started with env
        | variable                      | value                      |
@@ -186,6 +202,7 @@ Feature: EAP Openshift datasources
     Then container log should contain WARN The postgresql datasource for TEST service WILL NOT be configured.
     And container log should contain TEST_PASSWORD: hardtoguess
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test warning on missing database type
     When container is started with env
        | variable                      | value                |
@@ -198,6 +215,7 @@ Feature: EAP Openshift datasources
     Then container log should contain The mapping does not contain the database type.
     Then container log should contain WARN The datasource for TEST service WILL NOT be configured.
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test warning on missing driver
     When container is started with env
        | variable                       | value                                  |
@@ -212,6 +230,7 @@ Feature: EAP Openshift datasources
        | TEST_JTA                       | true                                   |
     Then container log should contain WARN DRIVER not set for datasource TEST. Datasource will not be configured.
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test postgresql xa datasource extension
     When container is started with env
        | variable                       | value                                  |
@@ -240,6 +259,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value osTestStoreNodeName on XPath //*[local-name()='jdbc-store']/*[local-name()='state']/@table-prefix
 
   @redhat-sso-7/sso71-openshift
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test postgresql xa datasource extension with TX_DATABASE_PREFIX_MAPPING
     When container is started with env
        | variable                       | value                                  |
@@ -263,6 +283,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value osTestStoreNodeName on XPath //*[local-name()='jdbc-store']/*[local-name()='communication']/@table-prefix
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value osTestStoreNodeName on XPath //*[local-name()='jdbc-store']/*[local-name()='state']/@table-prefix
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test postgresql xa datasource extension with hyphenated node name
     When container is started with env
        | variable                       | value                                  |
@@ -291,6 +312,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value osTestStoreNodeName on XPath //*[local-name()='jdbc-store']/*[local-name()='state']/@table-prefix
 
   @redhat-sso-7/sso71-openshift
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test postgresql xa datasource extension with TX_DATABASE_PREFIX_MAPPING and hyphenated node name
     When container is started with env
        | variable                       | value                                  |
@@ -314,6 +336,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value osTestStoreNodeName on XPath //*[local-name()='jdbc-store']/*[local-name()='communication']/@table-prefix
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value osTestStoreNodeName on XPath //*[local-name()='jdbc-store']/*[local-name()='state']/@table-prefix
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test postgresql non-xa datasource extension
     When container is started with env
        | variable                       | value                                  |
@@ -332,6 +355,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='password']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:postgresql://10.1.1.1:5432/pgdb on XPath //*[local-name()='datasource']/*[local-name()='connection-url']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test postgresql xa datasource extension w/URL
     When container is started with env
        | variable                        | value                                  |
@@ -349,6 +373,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:postgresql://10.1.1.1:5432/pgdb on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="URL"]
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test mysql xa datasource extension
     When container is started with env
        | variable                       | value                                  |
@@ -370,6 +395,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 3 elements on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test mysql non-xa datasource extension
     When container is started with env
        | variable                       | value                                  |
@@ -388,6 +414,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='password']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:mysql://10.1.1.1:3306/kitchensink on XPath //*[local-name()='datasource']/*[local-name()='connection-url']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test mysql xa datasource extension w/URL
     When container is started with env
        | variable                        | value                                  |
@@ -405,6 +432,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:mysql://10.1.1.1:3306/kitchensink on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="URL"]
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test external xa datasource extension
     When container is started with env
        | variable                          | value                                      |
@@ -422,6 +450,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value tombrady on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test external non-xa datasource extension
     When container is started with env
        | variable                          | value                                      |
@@ -442,6 +471,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value tombrady on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='password']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test warning no xa-connection-properties for external xa db
     When container is started with env
        | variable                       | value                                  |
@@ -457,6 +487,7 @@ Feature: EAP Openshift datasources
        | TEST_JTA                       | true                                   |
     Then container log should contain WARN At least one TEST_XA_CONNECTION_PROPERTY_property for datasource TEST is required. Datasource will not be configured.
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test warning no password is provided
     When container is started with env
        | variable                      | value                      |
@@ -469,6 +500,7 @@ Feature: EAP Openshift datasources
     And container log should contain TEST_JNDI: java:jboss/datasources/test_postgresql
     And container log should contain TEST_USERNAME: marek
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test warning no database is provided
     When container is started with env
        | variable                      | value                      |
@@ -479,6 +511,7 @@ Feature: EAP Openshift datasources
        | TEST_POSTGRESQL_SERVICE_PORT  | 5432                       |
    Then container log should contain WARN Missing configuration for datasource TEST. TEST_POSTGRESQL_SERVICE_HOST, TEST_POSTGRESQL_SERVICE_PORT, and/or TEST_DATABASE is missing. Datasource will not be configured.
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test warning on wrong mapping
     When container is started with env
        | variable                      | value                                      |
@@ -488,6 +521,7 @@ Feature: EAP Openshift datasources
    Then container log should contain WARN Missing configuration for datasource MAREK. TEST_POSTGRESQL_SERVICE_HOST, TEST_POSTGRESQL_SERVICE_PORT, and/or MAREK_DATABASE is missing. Datasource will not be configured.
    And container log should contain In order to configure mysql datasource for DB service you need to provide following environment variables: DB_USERNAME and DB_PASSWORD.
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test warning for missing postgresql xa properties
     When container is started with env
        | variable                      | value                      |
@@ -497,6 +531,7 @@ Feature: EAP Openshift datasources
        | TEST_DRIVER                   | postgresql                 |
     Then container log should contain WARN Missing configuration for XA datasource TEST. Either TEST_XA_CONNECTION_PROPERTY_URL or TEST_XA_CONNECTION_PROPERTY_ServerName, and TEST_XA_CONNECTION_PROPERTY_PortNumber, and TEST_XA_CONNECTION_PROPERTY_DatabaseName is required. Datasource will not be configured.
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test warning for missing mysql xa properties
     When container is started with env
        | variable                      | value                      |
@@ -506,6 +541,7 @@ Feature: EAP Openshift datasources
        | TEST_DRIVER                   | mysql                      |
     Then container log should contain WARN Missing configuration for XA datasource TEST. Either TEST_XA_CONNECTION_PROPERTY_URL or TEST_XA_CONNECTION_PROPERTY_ServerName, and TEST_XA_CONNECTION_PROPERTY_Port, and TEST_XA_CONNECTION_PROPERTY_DatabaseName is required. Datasource will not be configured.
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
    Scenario: Test multiple datasources with one incorrect
     When container is started with env
        | variable                      | value                                      |
@@ -528,6 +564,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mysqluser on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mysqlpass on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test tx db service mapping w/multiple datasources
     When container is started with env
        | variable                      | value                                      |
@@ -550,6 +587,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mysqluser on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mysqlpass on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='password']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test tx db service mapping w/multiple datasources and tx is first
     When container is started with env
        | variable                      | value                                      |
@@ -572,6 +610,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value pguser on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value pgpass on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='password']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test validation's default configuration
     When container is started with env
       | variable                          | value                                      |
@@ -588,6 +627,7 @@ Feature: EAP Openshift datasources
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value true on XPath //*[local-name()='validation']/*[local-name()='validate-on-match']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='validation']/*[local-name()='background-validation']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test background-validation configuration with default background-validation-milis
     When container is started with env
       | variable                          | value                                      |
@@ -606,6 +646,7 @@ Feature: EAP Openshift datasources
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value true on XPath //*[local-name()='validation']/*[local-name()='background-validation']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 10000 on XPath //*[local-name()='validation']/*[local-name()='background-validation-millis']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test background-validation configuration with custom background-validation-milis value
     When container is started with env
       | variable                          | value                                      |
@@ -625,6 +666,7 @@ Feature: EAP Openshift datasources
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value true on XPath //*[local-name()='validation']/*[local-name()='background-validation']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 3000 on XPath //*[local-name()='validation']/*[local-name()='background-validation-millis']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test invalid prefix mapping CLOUD-1743
     When container is started with env
       | variable                          | value                                      |
@@ -636,8 +678,8 @@ Feature: EAP Openshift datasources
       | TEST_PASSWORD                     | world                                      |
      Then container log should contain WARN DRIVER not set for datasource TEST. Datasource will not be configured.
      And container log should not contain sed -e expression #1
-@jboss-eap-7
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: CLOUD-2068, test timer datasource refresh-interval
     When container is started with env
       | variable                                  | value                                  |
@@ -659,6 +701,7 @@ Feature: EAP Openshift datasources
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test-TEST_part on XPath //*[local-name()='database-data-store']/@partition
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 60000 on XPath //*[local-name()='database-data-store']/@refresh-interval
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: CLOUD-2068, test timer datasource refresh-interval
     When container is started with env
       | variable                 | value                                  |
@@ -679,6 +722,7 @@ Feature: EAP Openshift datasources
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test-TEST_part on XPath //*[local-name()='database-data-store']/@partition
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value -1 on XPath //*[local-name()='database-data-store']/@refresh-interval
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Test background-validation configuration with custom background-validation-milis value
     When container is started with env
       | variable                                  | value                |

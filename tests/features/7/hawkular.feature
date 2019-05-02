@@ -1,6 +1,7 @@
 @jboss-eap-7
 Feature: OpenShift EAP Hawkular agent tests
 
+   @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
    Scenario: Check default Hawkular
      When container is ready
      Then container log should not contain -javaagent:/opt/jboss/container/hawkular/hawkular-javaagent.jar=config=/opt/jboss/container/hawkular/etc/hawkular-javaagent-config.yaml,delay=10 
@@ -28,6 +29,7 @@ Feature: OpenShift EAP Hawkular agent tests
        And file /opt/jboss/container/hawkular/etc/hawkular-javaagent-config.yaml should contain security-realm: HawkularRealm
        And file /opt/jboss/container/hawkular/etc/hawkular-javaagent-config.yaml should contain name: HawkularRealm
 
+   @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
    Scenario: Check unsecured Hawkular configuration
      When container is started with env
        | variable                            | value                           |
@@ -42,6 +44,7 @@ Feature: OpenShift EAP Hawkular agent tests
        And file /opt/jboss/container/hawkular/etc/hawkular-javaagent-config.yaml should not contain security-realm: HawkularRealm
        And file /opt/jboss/container/hawkular/etc/hawkular-javaagent-config.yaml should not contain name: HawkularRealm
 
+   @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
    Scenario: Check error on Hawkular configuration without keystore
      When container is started with env
        | variable                            | value                           |
@@ -57,6 +60,7 @@ Feature: OpenShift EAP Hawkular agent tests
        And file /opt/jboss/container/hawkular/etc/hawkular-javaagent-config.yaml should not contain security-realm: HawkularRealm
        And file /opt/jboss/container/hawkular/etc/hawkular-javaagent-config.yaml should not contain name: HawkularRealm
 
+   @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
    Scenario: Check error on Hawkular configuration with partial keystore
      When container is started with env
        | variable                            | value                           |
@@ -73,6 +77,7 @@ Feature: OpenShift EAP Hawkular agent tests
        And file /opt/jboss/container/hawkular/etc/hawkular-javaagent-config.yaml should not contain security-realm: HawkularRealm
        And file /opt/jboss/container/hawkular/etc/hawkular-javaagent-config.yaml should not contain name: HawkularRealm
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
   Scenario: CLOUD-1680 - CTF tests does not test all Hawkular related parameters
     When container is started with env
       | variable                                 | value                               |
@@ -97,6 +102,7 @@ Feature: OpenShift EAP Hawkular agent tests
     And file /opt/jboss/container/hawkular/etc/hawkular-javaagent-config.yaml should contain trust-manager-algorithm: RSA
     And file /opt/jboss/container/hawkular/etc/hawkular-javaagent-config.yaml should contain ssl-protocol: TLSv3
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
   Scenario: CLOUD-1680 - test only custom location of agent conf file
     When container is started with env
       | variable                                 | value                               |
@@ -105,3 +111,14 @@ Feature: OpenShift EAP Hawkular agent tests
       | AB_HAWKULAR_REST_PASSWORD                | QSandC77!                           |
       | AB_HAWKULAR_AGENT_CONFIG                 | /opt/jboss/container/hawkular-javaagent-config.yaml |
     Then container log should contain -javaagent:/opt/jboss/container/hawkular/hawkular-javaagent.jar=config=/opt/jboss/container/hawkular-javaagent-config.yaml,delay=10
+
+  @jboss-eap-7/eap72-openjdk11-ubi8-openshift @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
+  Scenario: JDK11 images should log a warning if Hawkular is enabled, as it is not supported
+    When container is started with env
+      | variable                                 | value                               |
+      | AB_HAWKULAR_REST_URL                     | https://hawkular:5280/hawkular      |
+      | AB_HAWKULAR_REST_USER                    | hawkW1nd                            |
+      | AB_HAWKULAR_REST_PASSWORD                | QSandC77!                           |
+      | AB_HAWKULAR_AGENT_CONFIG                 | /opt/jboss/container/hawkular-javaagent-config.yaml |
+    Then container log should contain WARN Hawkular is not supported on Java 11 and greater, the hawkular configuration will be ignored.
+
