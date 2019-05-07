@@ -246,6 +246,14 @@ function refresh_interval() {
 }
 
 function generate_external_datasource() {
+    if useDataSourcesXmlReplacement ; then
+    echo "$(generate_external_datasource_xml)"
+  else
+    echo "$(generate_external_datasource_cli)"
+  fi
+}
+
+function generate_external_datasource_xml() {
   local failed="false"
 
   if [ -n "$NON_XA_DATASOURCE" ] && [ "$NON_XA_DATASOURCE" = "true" ]; then
@@ -343,6 +351,121 @@ function generate_external_datasource() {
     echo ""
   else
     echo $ds
+  fi
+}
+
+function generate_external_datasource_cli() {
+  local failed="false"
+
+  local ds_resource="/subsystem=datasources"
+
+  local -A ds_tmp_key_values
+  ds_tmp_key_values["jndi-name"]=${jndi_name}
+  ds_tmp_key_values["enabled"]="true"
+  ds_tmp_key_values["use-java-context"]="true"
+  ds_tmp_key_values["statistics-enabled"]="\${wildfly.datasources.statistics-enabled:\${wildfly.statistics-enabled:false}}"
+  ds_tmp_key_values["driver-name"]="${driver}"
+
+  local -A ds_tmp_xa_connection_properties
+
+  if [ -n "$NON_XA_DATASOURCE" ] && [ "$NON_XA_DATASOURCE" = "true" ]; then
+    ds_resource="$ds_resource/data-source=${pool_name}"
+
+    ds_tmp_key_values["jta"]="${jta}"
+    ds_tmp_key_values['connection-url']="${url}"
+    
+  else
+    ds_resource="$ds_resource/xa-data-source=${pool_name}"
+
+        local xa_props=$(compgen -v | grep -s "${prefix}_XA_CONNECTION_PROPERTY_")
+    if [ -z "$xa_props" ] && [ "$driver" != "postgresql" ] && [ "$driver" != "mysql" ]; then
+      log_warning "At least one ${prefix}_XA_CONNECTION_PROPERTY_property for datasource ${service_name} is required. Datasource will not be configured."
+      failed="true"
+    else
+
+      for xa_prop in $(echo $xa_props); do
+        prop_name=$(echo "${xa_prop}" | sed -e "s/${prefix}_XA_CONNECTION_PROPERTY_//g")
+        prop_val=$(find_env $xa_prop)
+        if [ ! -z ${prop_val} ]; then
+          ds_tmp_xa_connection_properties["$prop_name"]="$prop_val"
+        fi
+      done
+
+      if [ -n "${tx_isolation}" ]; then
+        ds_tmp_key_values["transaction-isolation"]="${tx_isolation}"
+      fi
+    fi
+
+  fi
+
+  if [ -n "$min_pool_size" ]; then
+    ds_tmp_key_values["min-pool-size"]=$min_pool_size
+  fi
+  if [ -n "$max_pool_size" ]; then
+    ds_tmp_key_values["max-pool-size"]=$max_pool_size
+  fi
+
+  ds_tmp_key_values["user-name"]="${username}"
+  ds_tmp_key_values["password"]="${password}"
+
+  if [ "$validate" == "true" ]; then
+
+    ds_tmp_key_values["validate-on-match"]="true"
+    ds_tmp_key_values["background-validation"]="false"
+
+    if [ $(find_env "${prefix}_BACKGROUND_VALIDATION" "false") == "true" ]; then
+
+        millis=$(find_env "${prefix}_BACKGROUND_VALIDATION_MILLIS" 10000)
+        ds_tmp_key_values["validate-on-match"]="false"
+        ds_tmp_key_values["background-validation"]="true"
+        ds_tmp_key_values["background-validation-millis"]="${millis}"
+    fi
+
+    ds_tmp_key_values["valid-connection-checker-class-name"]="${checker}"
+    ds_tmp_key_values["exception-sorter-class-name"]="${sorter}"
+  fi
+
+  ###########################################
+  # Construct the CLI part
+
+  # Create the add operation
+  local ds_tmp_add="$ds_resource:add("
+  local tmp_separator=""
+  for key in "${!ds_tmp_key_values[@]}"; do 
+    ds_tmp_add="${ds_tmp_add}${tmp_separator}${key}=\"${ds_tmp_key_values[$key]}\""
+    tmp_separator=", "
+  done
+  ds_tmp_add="${ds_tmp_add})"
+  
+  # Add the xa-ds properties
+  local ds_tmp_xa_properties
+  for key in "${!ds_tmp_xa_connection_properties[@]}"; do 
+    ds_tmp_xa_properties="${ds_tmp_xa_properties}
+        $ds_resource/xa-datasource-properties=${key}:add(value=\"${ds_tmp_xa_connection_properties[$key]}\")
+    "
+  done
+
+  # We check if the datasource is there and remove it before re-adding in a batch.
+  # Otherwise we simply add it. Unfortunately CLI control flow does not work when wrapped
+  # in a batch
+
+  ds="if (outcome == success) of $ds_resource:read-resource
+      batch
+      $ds_resource:remove
+      ${ds_tmp_add}
+      ${ds_tmp_xa_properties}
+      run-batch
+    else
+      batch
+      ${ds_tmp_add}
+      ${ds_tmp_xa_properties}
+      run-batch
+    end-if
+  "
+  if [ "$failed" == "true" ]; then
+    echo ""
+  else
+    echo "$ds"
   fi
 }
 
@@ -594,6 +717,7 @@ function inject_datasource() {
         echo "${datasource}" >> ${CLI_SCRIPT_FILE}
       fi
     fi
+    
   fi
 }
 
