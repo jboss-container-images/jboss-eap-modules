@@ -420,6 +420,10 @@ function configure_client() {
   client_config="${client_config},\"publicClient\":\"false\",\"secret\":\"${SSO_SECRET}\""
   client_config="${client_config}}"
 
+  if [ -z "$SSO_SECRET" ]; then
+    log_warning "ERROR: SSO_SECRET not set. Make sure to generate a secret in the SSO/Keycloak client '$module_name' configuration and then set the SSO_SECRET variable." 
+  fi
+
   result=`$CURL -H "Content-Type: application/json" -H "Authorization: Bearer ${token}" -X POST -d "${client_config}" ${sso_service}/admin/realms/${SSO_REALM}/clients`
 
   if [ -n "$result" ]; then
