@@ -17,6 +17,15 @@ else
     source $JBOSS_HOME/bin/launch/logging.sh
 fi
 
+function useDataSourcesXmlReplacement() {
+  # TODO - Add global flag to see if we should look for markers
+  if grep -qF '<!-- ##DATASOURCES## -->' ${CONFIG_FILE}; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 function clearDatasourceEnv() {
   local prefix=$1
   local service=$2
@@ -94,7 +103,11 @@ function inject_internal_datasources() {
   if [ "${#db_backends[@]}" -eq "0" ]; then
     datasource=$(generate_datasource)
     if [ -n "$datasource" ]; then
-      sed -i "s|<!-- ##DATASOURCES## -->|${datasource}<!-- ##DATASOURCES## -->|" $CONFIG_FILE
+      if useDataSourcesXmlReplacement ; then
+        sed -i "s|<!-- ##DATASOURCES## -->|${datasource}<!-- ##DATASOURCES## -->|" $CONFIG_FILE
+      else
+        echo "${datasource}" >> ${CLI_SCRIPT_FILE}
+      fi
     fi
 
     if [ -z "$defaultDatasourceJndi" ]; then
@@ -216,7 +229,13 @@ function generate_datasource_common() {
     inject_datastore $pool_name $jndi_name $driver $refresh_interval
   fi
 
-  echo $ds | sed ':a;N;$!ba;s|\n|\\n|g'
+  if useDataSourcesXmlReplacement ; then
+    # Only do this replacement if we are replacing an xml marker
+    echo "$ds" | sed ':a;N;$!ba;s|\n|\\n|g'
+  else
+    # If using cli, return the raw string
+    echo "$ds"
+  fi
 }
 
 # Global function to configure refresh-interval, this function needs to be overridden in the datasource.sh script
@@ -328,25 +347,54 @@ function generate_external_datasource() {
 }
 
 function generate_default_datasource() {
-  ds="<datasource jta=\"true\" jndi-name=\"${jndi_name}\" pool-name=\"${pool_name}\" enabled=\"true\" use-java-context=\"true\" statistics-enabled=\"\${wildfly.datasources.statistics-enabled:\${wildfly.statistics-enabled:false}}\">"
+
+  local ds_tmp_url=""
 
   if [ -n "$url" ]; then
-    ds="$ds
-           <connection-url>${url}</connection-url>"
+    ds_tmp_url="${url}"
   else
-    ds="$ds
-           <connection-url>jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</connection-url>"
+    ds_tmp_url="jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
   fi
 
+  if useDataSourcesXmlReplacement ; then
+    echo "$(generate_default_datasource_xml $ds_tmp_url)"
+  else
+    echo "$(generate_default_datasource_cli $ds_tmp_url)"
+  fi
+}
+
+function generate_default_datasource_xml() {
+  local ds_tmp_url=$1
+
+  ds="<datasource jta=\"true\" jndi-name=\"${jndi_name}\" pool-name=\"${pool_name}\" enabled=\"true\" use-java-context=\"true\" statistics-enabled=\"\${wildfly.datasources.statistics-enabled:\${wildfly.statistics-enabled:false}}\">
+    <connection-url>${ds_tmp_url}</connection-url>"
+
   ds="$ds
-         <driver>h2</driver>
-           <security>
-             <user-name>sa</user-name>
-             <password>sa</password>
-           </security>
-         </datasource>"
+        <driver>h2</driver>
+          <security>
+            <user-name>sa</user-name>
+            <password>sa</password>
+          </security>
+        </datasource>"
 
   echo $ds
+}
+
+function generate_default_datasource_cli() {
+  local ds_tmp_url=$1
+
+  local ds_resource="/subsystem=datasources/data-source=${pool_name}"
+
+  # Here we assume that if the default DS was created any other way, we don't do anything.
+  # All the default ds parameters are hardcoded. So if it already exists, we leave it alone.
+  # TODO Double-check the ds_tmp_url parameter, it looks like it is hardcoded too
+
+  ds="
+    if (outcome != success) of $ds_resource:read-resource
+      $ds_resource:add(jta=true, jndi-name=${jndi_name}, enabled=true, use-java-context=true, statistics-enabled=\${wildfly.datasources.statistics-enabled:\${wildfly.statistics-enabled:false}}, driver-name=h2, user-name=sa, password=sa, connection-url=\"${ds_tmp_url}\")
+    end-if
+"
+  echo "$ds"
 }
 
 # Arguments:
@@ -540,7 +588,11 @@ function inject_datasource() {
     datasource=$(generate_datasource "${service,,}-${prefix}" "$jndi" "$username" "$password" "$host" "$port" "$database" "$checker" "$sorter" "$driver" "$service_name" "$jta" "$validate" "$url")
 
     if [ -n "$datasource" ]; then
-      sed -i "s|<!-- ##DATASOURCES## -->|${datasource}\n<!-- ##DATASOURCES## -->|" $CONFIG_FILE
+      if useDataSourcesXmlReplacement ; then
+        sed -i "s|<!-- ##DATASOURCES## -->|${datasource}\n<!-- ##DATASOURCES## -->|" $CONFIG_FILE
+      else
+        echo "${datasource}" >> ${CLI_SCRIPT_FILE}
+      fi
     fi
   fi
 }
