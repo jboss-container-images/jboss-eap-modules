@@ -12,6 +12,7 @@ if [ -f $JBOSS_HOME/bin/launch/logging.sh ]; then
     source $JBOSS_HOME/bin/launch/logging.sh
 fi
 
+
 function clearTxDatasourceEnv() {
   tx_backend=${TX_DATABASE_PREFIX_MAPPING}
 
@@ -44,6 +45,15 @@ function clearTxDatasourceEnv() {
 # $7 - datasource databasename
 # $8 - driver
 function generate_tx_datasource() {
+  if useDataSourcesXmlReplacement ; then
+    echo "$(generate_tx_datasource_xml $@)"
+  else
+    echo "$(generate_tx_datasource_cli $@)"
+  fi
+}
+
+# See generate_tx_datasource() for the arguments
+function generate_tx_datasource_xml() {
 
   ds="                  <datasource jta=\"false\" jndi-name=\"${2}ObjectStore\" pool-name=\"${1}ObjectStorePool\" enabled=\"true\">
                       <connection-url>jdbc:${8}://${5}:${6}/${7}</connection-url>
@@ -74,6 +84,37 @@ function generate_tx_datasource() {
                       </security>
                   </datasource>"
   echo $ds | sed ':a;N;$!ba;s|\n|\\n|g'
+}
+
+# See generate_tx_datasource() for the arguments
+function generate_tx_datasource_cli() {
+  local ds_resource="/subsystem=datasources/data-source=${1}ObjectStorePool"
+  local ds_tmp_add="$ds_resource:add(jta=false, jndi-name=${2}ObjectStore, enabled=true, connection-url=jdbc:${8}://${5}:${6}/${7}, driver-name=$8"
+  ds_tmp_add="${ds_tmp_add}, user-name=${3}, password=${4}"
+  if [ -n "$tx_isolation" ]; then
+    ds_tmp_add="${ds_tmp_add}, transaction-isolation=$tx_isolation"
+  fi
+  if [ -n "$min_pool_size" ]; then
+    ds_tmp_add="$d{ds_tmp_add}, min-pool-size=$min_pool_size"
+  fi
+  if [ -n "$max_pool_size" ]; then
+    ds_tmp_add="$d{ds_tmp_add}, min-pool-size=$max_pool_size"
+  fi
+  ds_tmp_add="${ds_tmp_add})"
+
+  # We check if the datasource is there and remove it before re-adding in a batch.
+  # Otherwise we simply add it. Unfortunately CLI control flow does not work when wrapped
+  # in a batch
+  ds="if (outcome == success) of $ds_resource:read-resource
+      batch
+      $ds_resource:remove
+      $ds_tmp_add
+      run-batch
+    else
+      $ds_tmp_add
+    end-if"
+
+  echo "${ds}"
 }
 
 function inject_jdbc_store() {
@@ -166,7 +207,16 @@ function inject_tx_datasource() {
         datasource=""
         ;;
     esac
-    echo ${datasource} | sed ':a;N;$!ba;s|\n|\\n|g'
+
+    if useDataSourcesXmlReplacement ; then
+      # Only do this replacement if we are replacing an xml marker
+      echo ${datasource} | sed ':a;N;$!ba;s|\n|\\n|g'
+    else
+      # If using cli, return the raw string, preserving line breaks
+      echo "${datasource}"
+    fi
+
+
   else
     if [ -n "$JDBC_STORE_JNDI_NAME" ]; then
       inject_jdbc_store "${JDBC_STORE_JNDI_NAME}"

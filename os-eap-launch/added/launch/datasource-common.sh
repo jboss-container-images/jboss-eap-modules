@@ -82,7 +82,12 @@ function inject_datasources_common() {
 
   tx_datasource="$(inject_tx_datasource)"
   if [ -n "$tx_datasource" ]; then
-    sed -i "s|<!-- ##DATASOURCES## -->|${tx_datasource}<!-- ##DATASOURCES## -->|" $CONFIG_FILE
+    if useDataSourcesXmlReplacement ; then
+      sed -i "s|<!-- ##DATASOURCES## -->|${tx_datasource}<!-- ##DATASOURCES## -->|" $CONFIG_FILE
+    else
+      echo "${tx_datasource}" >> ${CLI_SCRIPT_FILE}
+    fi
+
   fi
 
   inject_external_datasources
@@ -233,7 +238,7 @@ function generate_datasource_common() {
     # Only do this replacement if we are replacing an xml marker
     echo "$ds" | sed ':a;N;$!ba;s|\n|\\n|g'
   else
-    # If using cli, return the raw string
+    # If using cli, return the raw string, preserving line breaks
     echo "$ds"
   fi
 }
