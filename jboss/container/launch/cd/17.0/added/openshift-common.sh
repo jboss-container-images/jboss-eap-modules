@@ -21,6 +21,9 @@ CLI_SCRIPT_ERROR_FILE=/tmp/cli-script-error-${systime}.cli
 #The property file used to pass variables to jboss-cli.sh
 CLI_SCRIPT_PROPERTY_FILE=/tmp/cli-script-property-${systime}.cli
 
+# Whether or not we should ignore xml markers
+CLI_SCRIPT_ONLY_IGNORE_MARKERS=false
+
 echo "error_file=${CLI_SCRIPT_ERROR_FILE}" > ${CLI_SCRIPT_PROPERTY_FILE}
 
 CONFIGURE_SCRIPTS=(
@@ -103,3 +106,17 @@ if [ -f $JBOSS_HOME/bin/launch/filters.sh ]; then
 fi
 
 CONFIGURE_SCRIPTS+=(/opt/run-java/proxy-options)
+
+function isConfigurationViaMarkerReplacement() {
+  local marker="${1}"
+  if [ -n "${CLI_SCRIPT_ONLY_IGNORE_MARKERS}" ] && [ "${CLI_SCRIPT_ONLY_IGNORE_MARKERS^^}" = "TRUE" ]; then
+    # If the variable is set to true, then return 0 so we do CLI only and no marker replacement
+    echo "0"
+  fi
+
+  if grep -Fq "${marker}" $CONFIG_FILE; then
+    echo "1"
+  else
+    echo "0"
+  fi
+}

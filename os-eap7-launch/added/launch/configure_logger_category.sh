@@ -30,6 +30,8 @@ add_logger_category() {
     # Plus JBoss logging levels
     local allowed_log_levels=("ALL" "SEVERE" "ERROR" "WARNING" "INFO" "CONFIG" "FINE" "DEBUG" "FINER" "FINEST" "TRACE")
 
+    local xml_replacement=$(isConfigurationViaMarkerReplacement "<!-- ##LOGGER-CATEGORY## -->")
+
     local IFS=","
     if [ "x${LOGGER_CATEGORIES}" != "x" ]; then
         for i in ${LOGGER_CATEGORIES}; do
@@ -38,7 +40,7 @@ add_logger_category() {
             logger_level=$(echo $logger | awk -F':' '{print $2}')
             if [[ ! "${allowed_log_levels[@]}" =~ " ${logger_level}" ]]; then
                  log_warning "Log Level ${logger_level} is not allowed, the allowed levels are ${allowed_log_levels[@]}"
-            elif grep -qF '<!-- ##LOGGER-CATEGORY## -->' ${CONFIG_FILE}; then
+            elif [ "$xml_replacement" -eq 1 ]; then
                 log_info "Configuring logger category ${logger_category} with level ${logger_level:-FINE}"
                 logger="<logger category=\"${logger_category}\">\n                \
 <level name=\"${logger_level:-FINE}\"/>\n\            \

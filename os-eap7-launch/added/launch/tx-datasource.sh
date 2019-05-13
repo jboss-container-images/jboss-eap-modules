@@ -45,7 +45,7 @@ function clearTxDatasourceEnv() {
 # $7 - datasource databasename
 # $8 - driver
 function generate_tx_datasource() {
-  if useDataSourcesXmlReplacement ; then
+  if [ $(useDataSourcesXmlReplacement) -eq 1 ]; then
     echo "$(generate_tx_datasource_xml $@)"
   else
     echo "$(generate_tx_datasource_cli $@)"
@@ -208,7 +208,7 @@ function inject_tx_datasource() {
         ;;
     esac
 
-    if useDataSourcesXmlReplacement ; then
+    if [ $(useDataSourcesXmlReplacement) -eq 1 ]; then
       # Only do this replacement if we are replacing an xml marker
       echo ${datasource} | sed ':a;N;$!ba;s|\n|\\n|g'
     else

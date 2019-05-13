@@ -1,7 +1,7 @@
 # only processes a single environment as the placeholder is not preserved
 
 configure() {
-  if grep -qF "<!-- ##TRACING_EXTENSION## -->" $CONFIG_FILE || grep -qF "<!-- ##TRACING_SUBSYSTEM## -->" $CONFIG_FILE; then
+  if [ $(isConfigurationViaMarkerReplacement "<!-- ##TRACING_EXTENSION## -->") -eq 1 ] || [ $(isConfigurationViaMarkerReplacement "<!-- ##TRACING_SUBSYSTEM## -->")  -eq 1 ]; then
     configureByMarkers
   else
     configureByCLI

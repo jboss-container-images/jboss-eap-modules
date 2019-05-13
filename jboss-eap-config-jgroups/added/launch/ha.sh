@@ -29,12 +29,12 @@ configure() {
 
 preConfigure() {
   CONF_AUTH_BY_CLI=1
-  if grep -qF "<!-- ##JGROUPS_AUTH## -->" ${CONFIG_FILE}; then
+  if [ $(isConfigurationViaMarkerReplacement "<!-- ##JGROUPS_AUTH## -->") -eq 1 ]; then
     CONF_AUTH_BY_CLI=0
   fi
 
   CONF_PING_BY_CLI=1
-  if grep -qF "<!-- ##JGROUPS_PING_PROTOCOL## -->" ${CONFIG_FILE}; then
+  if [ $(isConfigurationViaMarkerReplacement "<!-- ##JGROUPS_PING_PROTOCOL## -->") -eq 1 ]; then
     CONF_PING_BY_CLI=0
   fi
 }

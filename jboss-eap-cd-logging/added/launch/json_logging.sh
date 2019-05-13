@@ -4,8 +4,8 @@ function configure() {
 
 function configure_json_logging() {
   sed -i "s|^.*\.module=org\.jboss\.logmanager\.ext$||" $LOGGING_FILE
-
-  if grep -Fq "##CONSOLE-FORMATTER##" $CONFIG_FILE; then
+  
+  if [ $(isConfigurationViaMarkerReplacement "##CONSOLE-FORMATTER##") -eq 1 ]; then
     configureByMarkers
   else
     configureByCLI

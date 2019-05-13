@@ -24,7 +24,7 @@ function configure_administration() {
         exit
     fi
 
-    if grep -qF "<!-- ##MGMT_IFACE_REALM## -->" $CONFIG_FILE; then
+    if [ $(isConfigurationViaMarkerReplacement "<!-- ##MGMT_IFACE_REALM## -->") -eq 1 ]; then
       local mgmt_iface_replace_str="security-realm=\"ManagementRealm\""
       sed -i "s|><!-- ##MGMT_IFACE_REALM## -->| ${mgmt_iface_replace_str}>|" "$CONFIG_FILE"
     else
