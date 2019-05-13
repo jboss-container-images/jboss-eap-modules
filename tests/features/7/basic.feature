@@ -37,16 +37,24 @@ Feature: Common EAP tests
     Then container log should contain WFLYSRV0025
      And available container log should not contain No security realm defined for http management service; all access will be unrestricted.
 
+  @ignore @jboss-eap-7-tech-preview/eap72-openjdk11-openshift @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   Scenario: Java 1.8 is installed and set as default one
     When container is ready
-    Then run java -version in container and check its output for openjdk version "1.8.0
+    Then run java -version in container and check its output for openjdk version "1.8.0"
     Then run javac -version in container and check its output for javac 1.8.0
+
+  @jboss-eap-7-tech-preview/eap72-openjdk11-openshift @jboss-eap-7/eap72-openjdk11-ubi8-openshift
+  Scenario: Java 11 is installed and set as default one
+    When container is ready
+    Then run java -version in container and check its output for openjdk version "11.0.
+    Then run javac -version in container and check its output for javac 11.0.
 
   Scenario: readinessProbe runs successfully
     When container is ready
     Then run /opt/eap/bin/readinessProbe.sh in container once
     Then run /opt/eap/bin/livenessProbe.sh in container once
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   # https://issues.jboss.org/browse/CLOUD-204
   Scenario: Check if kube ping protocol is used by default
     When container is ready
@@ -54,6 +62,7 @@ Feature: Common EAP tests
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()='protocol'][@type='openshift.KUBE_PING']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath //*[local-name()='protocol'][@type='openshift.DNS_PING']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   # https://issues.jboss.org/browse/CLOUD-1958
   Scenario: Check if kube ping protocol is used when specified
     When container is started with env
@@ -63,6 +72,7 @@ Feature: Common EAP tests
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()='protocol'][@type='openshift.KUBE_PING']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath //*[local-name()='protocol'][@type='openshift.DNS_PING']
 
+  @ignore @jboss-eap-7/eap72-openjdk11-ubi8-openshift
   # https://issues.jboss.org/browse/CLOUD-1958
   Scenario: Check if dns ping protocol is used when specified
     When container is started with env
