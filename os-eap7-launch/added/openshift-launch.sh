@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Openshift EAP launch script
 
 source ${JBOSS_HOME}/bin/launch/openshift-common.sh
