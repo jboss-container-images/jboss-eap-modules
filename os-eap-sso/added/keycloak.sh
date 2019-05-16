@@ -477,7 +477,7 @@ function get_application_routes {
 
 # Tries to discover the route using the pod's hostname
 function discover_routes() {
-  local podsuffix=$(python -c "a='${HOSTNAME}'.split('-'); print '-'.join(a[0:len(a)-2])")
+  local podsuffix=$(python -c "a='${HOSTNAME}'.split('-'); print('-'.join(a[0:len(a)-2]))")
   echo $(query_routes_from_service $podsuffix)
 }
 
