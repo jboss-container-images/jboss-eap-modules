@@ -28,20 +28,13 @@ configure() {
 }
 
 preConfigure() {
-  CONF_AUTH_BY_CLI=1
-  if [ $(isConfigurationViaMarkerReplacement "<!-- ##JGROUPS_AUTH## -->") -eq 1 ]; then
-    CONF_AUTH_BY_CLI=0
-  fi
-
-  CONF_PING_BY_CLI=1
-  if [ $(isConfigurationViaMarkerReplacement "<!-- ##JGROUPS_PING_PROTOCOL## -->") -eq 1 ]; then
-    CONF_PING_BY_CLI=0
-  fi
+  CONF_AUTH_MODE=$(getConfigurationMode "<!-- ##JGROUPS_AUTH## -->")
+  CONF_PING_MODE=$(getConfigurationMode "<!-- ##JGROUPS_PING_PROTOCOL## -->")
 }
 
 postConfigure() {
-  unset CONF_AUTH_BY_CLI
-  unset CONF_PING_BY_CLI
+  unset CONF_AUTH_MODE
+  unset CONF_PING_MODE
 }
 
 check_view_pods_permission() {
@@ -106,9 +99,9 @@ get_socket_binding_for_ping() {
           "${protocol}" = "kubernetes.KUBE_PING" -o \
           "${protocol}" = "dns.DNS_PING" ]; then
         echo ""
-    elif [ $CONF_PING_BY_CLI -eq 0 ]; then
+    elif [ "${CONF_PING_MODE}" = "xml" ]; then
         echo "socket-binding=\"jgroups-mping\""
-    else
+    elif [ "${CONF_PING_MODE}" = "cli" ]; then
       echo "jgroups-mping"
     fi
 }
@@ -122,13 +115,13 @@ generate_jgroups_auth_config() {
   if [ -z "${cluster_password}" ]; then
       log_warning "No password defined for JGroups cluster. AUTH protocol will be disabled. Please define JGROUPS_CLUSTER_PASSWORD."
       config="<!--WARNING: No password defined for JGroups cluster. AUTH protocol has been disabled. Please define JGROUPS_CLUSTER_PASSWORD. -->"
-  elif [ ${CONF_AUTH_BY_CLI} -eq 0 ]; then
+  elif [ "${CONF_AUTH_MODE}" = "xml" ]; then
       config="\n <auth-protocol type=\"AUTH\">\n\
                     <digest-token algorithm=\"${digest_algorithm:-SHA-512}\">\n\
                         <shared-secret-reference clear-text=\"${cluster_password}\"/>\n\
                     </digest-token>\n\
                 </auth-protocol>\n"
-  else
+  elif [ "${CONF_AUTH_MODE}" = "cli" ]; then
     #TODO: :add-protocol is a deprecated operation, should be replace by a non-deprecated version
     config=$(cat <<EOF
         batch
@@ -156,9 +149,9 @@ generate_generic_ping_config() {
     fi
 
     # for DNS_PING, the record is my-port-name._my-port-protocol.my-svc.my-namespace
-    if [ ${CONF_AUTH_BY_CLI} -eq 0 ]; then
+    if [ "${CONF_AUTH_MODE}" = "xml" ]; then
       config="<protocol type=\"${ping_protocol}\" ${socket_binding}/>"
-    else
+    elif [ "${CONF_AUTH_MODE}" = "cli" ]; then
       local op="/subsystem=jgroups/stack=tcp:add-protocol(type=${ping_protocol})"
       if [ "${socket_binding}x" == "x" ]; then
         op="/subsystem=jgroups/stack=tcp:add-protocol(type=${ping_protocol}, socket-binding=${socket_binding})"
@@ -194,14 +187,14 @@ generate_dns_ping_config() {
     fi
 
     # for DNS_PING, the record is ping-service-name, suffixes are determined from /etc/resolv.conf search domains.
-    if [ $CONF_PING_BY_CLI -eq 0 ]; then
+    if [ "${CONF_PING_MODE}" = "xml" ]; then
       config="<protocol type=\"${ping_protocol}\" ${socket_binding}>"
       if [ "${ping_protocol}" = "dns.DNS_PING" ]; then
           config="${config}<property name=\"dns_query\">${ping_service_name}</property>"
           config="${config}<property name=\"async_discovery_use_separate_thread_per_request\">true</property>"
       fi
       config="${config}</protocol>"
-    else
+    elif [ "${CONF_PING_MODE}" = "cli" ]; then
       #CLI operation is expected to fail if there is already a protocol configured with the same name
       #TODO: :add-protocol is a deprecated operation, should be replace by a non-deprecated version
 
@@ -261,17 +254,17 @@ configure_ha() {
     ping_protocol_element=$(generate_generic_ping_config "${ping_protocol}" "${socket_binding}")
   fi
 
-  if [ ${CONF_AUTH_BY_CLI} -eq 0 ]; then
+  if [ "${CONF_AUTH_MODE}" = "xml" ]; then
     sed -i "s|<!-- ##JGROUPS_AUTH## -->|${JGROUPS_AUTH}|g" $CONFIG_FILE
-  else
+  elif [ "${CONF_AUTH_MODE}" = "cli" ]; then
     echo ${JGROUPS_AUTH} >> $CONFIG_FILE;
   fi
 
   log_info "Configuring JGroups discovery protocol to ${ping_protocol}"
 
-  if [ ${CONF_PING_BY_CLI} -eq 0 ]; then
+  if [ "${CONF_PING_MODE}" = "xml" ]; then
     sed -i "s|<!-- ##JGROUPS_PING_PROTOCOL## -->|${ping_protocol_element}|g" $CONFIG_FILE
-  else
+  elif [ "${CONF_PING_MODE}" = "cli" ]; then
     echo ${ping_protocol_element} >> $CONFIG_FILE;
   fi
 }

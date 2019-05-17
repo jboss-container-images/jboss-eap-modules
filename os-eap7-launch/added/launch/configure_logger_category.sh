@@ -30,7 +30,7 @@ add_logger_category() {
     # Plus JBoss logging levels
     local allowed_log_levels=("ALL" "SEVERE" "ERROR" "WARNING" "INFO" "CONFIG" "FINE" "DEBUG" "FINER" "FINEST" "TRACE")
 
-    local xml_replacement=$(isConfigurationViaMarkerReplacement "<!-- ##LOGGER-CATEGORY## -->")
+    local configMode=$(getConfigurationMode "<!-- ##LOGGER-CATEGORY## -->")
 
     local IFS=","
     if [ "x${LOGGER_CATEGORIES}" != "x" ]; then
@@ -40,14 +40,14 @@ add_logger_category() {
             logger_level=$(echo $logger | awk -F':' '{print $2}')
             if [[ ! "${allowed_log_levels[@]}" =~ " ${logger_level}" ]]; then
                  log_warning "Log Level ${logger_level} is not allowed, the allowed levels are ${allowed_log_levels[@]}"
-            elif [ "$xml_replacement" -eq 1 ]; then
+            elif [ "${configMode}" = "xml" ]; then
                 log_info "Configuring logger category ${logger_category} with level ${logger_level:-FINE}"
                 logger="<logger category=\"${logger_category}\">\n                \
 <level name=\"${logger_level:-FINE}\"/>\n\            \
 </logger>\n            \
 <!-- ##LOGGER-CATEGORY## -->"
                 sed -i "s|<!-- ##LOGGER-CATEGORY## -->|${logger}|" $CONFIG_FILE
-            else
+            elif [ "${configMode}" = "cli" ]; then
               log_info "Adding logger category ${logger_category} with level ${logger_level:-FINE} to server CLI configuration script"
               cat << EOF >> ${CLI_SCRIPT_FILE}
               if (outcome == success) of /subsystem=logging/logger=${logger_category}:read-resource

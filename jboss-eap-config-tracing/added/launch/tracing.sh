@@ -1,11 +1,16 @@
 # only processes a single environment as the placeholder is not preserved
 
 configure() {
-  if [ $(isConfigurationViaMarkerReplacement "<!-- ##TRACING_EXTENSION## -->") -eq 1 ] || [ $(isConfigurationViaMarkerReplacement "<!-- ##TRACING_SUBSYSTEM## -->")  -eq 1 ]; then
+  local configureExtensionMode=$(getConfigurationMode "<!-- ##TRACING_EXTENSION## -->")
+  local configureSubsystemMode=$(getConfigurationMode "<!-- ##TRACING_SUBSYSTEM## -->")
+  
+  if [ "${configureExtensionMode}" = "xml" ] && [ "${configureSubsystemMode}" = "xml" ]; then
     configureByMarkers
-  else
+  elif [ -n "${configureExtensionMode}" ] && [ -n "${configureSubsystemMode}" ]; then
+    # As long as we did not turn off configuration we will end up here if one or both of the markers
+    # were removed
     configureByCLI
-  fi
+  fi  
 }
 
 function configureByMarkers() {

@@ -17,12 +17,12 @@ else
     source $JBOSS_HOME/bin/launch/logging.sh
 fi
 
-function useDataSourcesXmlReplacement() {
-  if [ -z ${CONFIGURE_DS_VIA_MARKER} ]; then 
-    CONFIGURE_DS_VIA_MARKER=$(isConfigurationViaMarkerReplacement "<!-- ##DATASOURCES## -->")
+function getDataSourceConfigureMode() {
+  if [ -z ${DS_CONFIGURE_MODE} ]; then 
+    DS_CONFIGURE_MODE=$(getConfigurationMode "<!-- ##DATASOURCES## -->")
   fi
 
-  echo "${CONFIGURE_DS_VIA_MARKER}"
+  echo "${DS_CONFIGURE_MODE}"
 }
 
 function clearDatasourceEnv() {
@@ -71,7 +71,7 @@ function clearDatasourcesEnv() {
   done
   unset DATASOURCES
   unset JDBC_STORE_JNDI_NAME
-  unset CONFIGURE_DS_VIA_MARKER
+  unset DS_CONFIGURE_MODE
 }
 
 # Finds the name of the database services and generates data sources
@@ -82,9 +82,10 @@ function inject_datasources_common() {
 
   tx_datasource="$(inject_tx_datasource)"
   if [ -n "$tx_datasource" ]; then
-    if [ $(useDataSourcesXmlReplacement) -eq 1 ]; then
+    local dsConfMode="$(getDataSourceConfigureMode)"
+    if [ "${dsConfMode}" = "xml" ]; then
       sed -i "s|<!-- ##DATASOURCES## -->|${tx_datasource}<!-- ##DATASOURCES## -->|" $CONFIG_FILE
-    else
+    elif [ "${dsConfMode}" = "cli" ]; then
       echo "${tx_datasource}" >> ${CLI_SCRIPT_FILE}
     fi
 
@@ -108,9 +109,10 @@ function inject_internal_datasources() {
   if [ "${#db_backends[@]}" -eq "0" ]; then
     datasource=$(generate_datasource)
     if [ -n "$datasource" ]; then
-      if [ $(useDataSourcesXmlReplacement) -eq 1 ]; then
+      local dsConfMode="$(getDataSourceConfigureMode)"
+      if [ "${dsConfMode}" = "xml" ]; then
         sed -i "s|<!-- ##DATASOURCES## -->|${datasource}<!-- ##DATASOURCES## -->|" $CONFIG_FILE
-      else
+      elif [ "${dsConfMode}" = "cli" ]; then
         echo "${datasource}" >> ${CLI_SCRIPT_FILE}
       fi
     fi
@@ -234,10 +236,11 @@ function generate_datasource_common() {
     inject_datastore $pool_name $jndi_name $driver $refresh_interval
   fi
 
-  if [ $(useDataSourcesXmlReplacement) -eq 1 ]; then
+  local dsConfMode="$(getDataSourceConfigureMode)"
+  if [ "${dsConfMode}" = "xml" ]; then
     # Only do this replacement if we are replacing an xml marker
     echo "$ds" | sed ':a;N;$!ba;s|\n|\\n|g'
-  else
+  elif [ "${dsConfMode}" = "cli" ]; then
     # If using cli, return the raw string, preserving line breaks
     echo "$ds"
   fi
@@ -251,9 +254,10 @@ function refresh_interval() {
 }
 
 function generate_external_datasource() {
-    if [ $(useDataSourcesXmlReplacement) -eq 1 ]; then
+  local dsConfMode="$(getDataSourceConfigureMode)"
+  if [ "${dsConfMode}" = "xml" ]; then
     echo "$(generate_external_datasource_xml)"
-  else
+  elif [ "${dsConfMode}" = "cli" ]; then
     echo "$(generate_external_datasource_cli)"
   fi
 }
@@ -484,9 +488,10 @@ function generate_default_datasource() {
     ds_tmp_url="jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
   fi
 
-  if [ $(useDataSourcesXmlReplacement) -eq 1 ]; then
+  local dsConfMode="$(getDataSourceConfigureMode)"
+  if [ "${dsConfMode}" = "xml" ]; then
     echo "$(generate_default_datasource_xml $ds_tmp_url)"
-  else
+  elif [ "${dsConfMode}" = "cli" ]; then
     echo "$(generate_default_datasource_cli $ds_tmp_url)"
   fi
 }
@@ -716,9 +721,10 @@ function inject_datasource() {
     datasource=$(generate_datasource "${service,,}-${prefix}" "$jndi" "$username" "$password" "$host" "$port" "$database" "$checker" "$sorter" "$driver" "$service_name" "$jta" "$validate" "$url")
 
     if [ -n "$datasource" ]; then
-      if [ $(useDataSourcesXmlReplacement) -eq 1 ]; then
+      local dsConfMode="$(getDataSourceConfigureMode)"
+      if [ "${dsConfMode}" = "xml" ]; then
         sed -i "s|<!-- ##DATASOURCES## -->|${datasource}\n<!-- ##DATASOURCES## -->|" $CONFIG_FILE
-      else
+      elif [ "${dsConfMode}" = "cli" ]; then
         echo "${datasource}" >> ${CLI_SCRIPT_FILE}
       fi
     fi

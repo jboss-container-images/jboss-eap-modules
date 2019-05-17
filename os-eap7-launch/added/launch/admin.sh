@@ -24,10 +24,11 @@ function configure_administration() {
         exit
     fi
 
-    if [ $(isConfigurationViaMarkerReplacement "<!-- ##MGMT_IFACE_REALM## -->") -eq 1 ]; then
+    local configMode=$(getConfigurationMode "<!-- ##MGMT_IFACE_REALM## -->")
+    if [ "${configMode}" = "xml" ]; then
       local mgmt_iface_replace_str="security-realm=\"ManagementRealm\""
       sed -i "s|><!-- ##MGMT_IFACE_REALM## -->| ${mgmt_iface_replace_str}>|" "$CONFIG_FILE"
-    else
+    elif [ "${configMode}" = "cli" ]; then
       cat << 'EOF' >> ${CLI_SCRIPT_FILE}
       if ( (outcome == success) && (result != undefined) && (result != ManagementRealm)) of /core-service=management/management-interface=http-interface:read-attribute(name=security-realm)
         echo "Cannot configure ManagementRealm http security realm. The http interface security realm is already configured." >> ${error_file}

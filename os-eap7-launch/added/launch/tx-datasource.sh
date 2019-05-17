@@ -45,9 +45,10 @@ function clearTxDatasourceEnv() {
 # $7 - datasource databasename
 # $8 - driver
 function generate_tx_datasource() {
-  if [ $(useDataSourcesXmlReplacement) -eq 1 ]; then
+  local dsConfMode="$(getDataSourceConfigureMode)"
+  if [ "${dsConfMode}" = "xml" ]; then
     echo "$(generate_tx_datasource_xml $@)"
-  else
+  elif [ "${dsConfMode}" = "cli" ]; then
     echo "$(generate_tx_datasource_cli $@)"
   fi
 }
@@ -208,10 +209,11 @@ function inject_tx_datasource() {
         ;;
     esac
 
-    if [ $(useDataSourcesXmlReplacement) -eq 1 ]; then
+    local dsConfMode="$(getDataSourceConfigureMode)"
+    if [ "${dsConfMode}" = "xml" ]; then
       # Only do this replacement if we are replacing an xml marker
       echo ${datasource} | sed ':a;N;$!ba;s|\n|\\n|g'
-    else
+    elif [ "${dsConfMode}" = "cli" ]; then
       # If using cli, return the raw string, preserving line breaks
       echo "${datasource}"
     fi
