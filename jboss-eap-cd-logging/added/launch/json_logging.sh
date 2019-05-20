@@ -4,7 +4,8 @@ function configure() {
 
 function configure_json_logging() {
   sed -i "s|^.*\.module=org\.jboss\.logmanager\.ext$||" $LOGGING_FILE
-  local configureMode=$(getConfigurationMode "##CONSOLE-FORMATTER##")
+  local configureMode
+  getConfigurationMode "##CONSOLE-FORMATTER##" "configureMode"
   if [ "${configureMode}" = "xml" ]; then
     configureByMarkers
   elif [ "${configureMode}" = "cli" ]; then

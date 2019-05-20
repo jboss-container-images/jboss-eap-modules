@@ -1,8 +1,10 @@
 # only processes a single environment as the placeholder is not preserved
 
 configure() {
-  local configureExtensionMode=$(getConfigurationMode "<!-- ##TRACING_EXTENSION## -->")
-  local configureSubsystemMode=$(getConfigurationMode "<!-- ##TRACING_SUBSYSTEM## -->")
+  local configureExtensionMode
+  getConfigurationMode "<!-- ##TRACING_EXTENSION## -->" "configureExtensionMode"
+  local configureSubsystemMode
+  getConfigurationMode "<!-- ##TRACING_SUBSYSTEM## -->" "configureSubsystemMode"
   
   if [ "${configureExtensionMode}" = "xml" ] && [ "${configureSubsystemMode}" = "xml" ]; then
     configureByMarkers

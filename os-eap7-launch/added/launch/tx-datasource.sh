@@ -45,7 +45,8 @@ function clearTxDatasourceEnv() {
 # $7 - datasource databasename
 # $8 - driver
 function generate_tx_datasource() {
-  local dsConfMode="$(getDataSourceConfigureMode)"
+  local dsConfMode
+  getDataSourceConfigureMode "dsConfMode"
   if [ "${dsConfMode}" = "xml" ]; then
     echo "$(generate_tx_datasource_xml $@)"
   elif [ "${dsConfMode}" = "cli" ]; then
@@ -130,6 +131,7 @@ function inject_jdbc_store() {
   sed -i "s|<!-- ##JDBC_STORE## -->|${jdbcStore}|" $CONFIG_FILE
 }
 
+
 function inject_tx_datasource() {
   tx_backend=${TX_DATABASE_PREFIX_MAPPING}
 
@@ -209,7 +211,8 @@ function inject_tx_datasource() {
         ;;
     esac
 
-    local dsConfMode="$(getDataSourceConfigureMode)"
+    local dsConfMode
+    getDataSourceConfigureMode "dsConfMode"
     if [ "${dsConfMode}" = "xml" ]; then
       # Only do this replacement if we are replacing an xml marker
       echo ${datasource} | sed ':a;N;$!ba;s|\n|\\n|g'

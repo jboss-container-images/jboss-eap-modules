@@ -28,8 +28,10 @@ configure() {
 }
 
 preConfigure() {
-  CONF_AUTH_MODE=$(getConfigurationMode "<!-- ##JGROUPS_AUTH## -->")
-  CONF_PING_MODE=$(getConfigurationMode "<!-- ##JGROUPS_PING_PROTOCOL## -->")
+  CONF_AUTH_MODE=""
+  getConfigurationMode "<!-- ##JGROUPS_AUTH## -->" "CONF_AUTH_MODE"
+  CONF_PING_MODE=""
+  getConfigurationMode "<!-- ##JGROUPS_PING_PROTOCOL## -->" "CONF_PING_MODE"
 }
 
 postConfigure() {

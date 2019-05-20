@@ -30,7 +30,8 @@ add_logger_category() {
     # Plus JBoss logging levels
     local allowed_log_levels=("ALL" "SEVERE" "ERROR" "WARNING" "INFO" "CONFIG" "FINE" "DEBUG" "FINER" "FINEST" "TRACE")
 
-    local configMode=$(getConfigurationMode "<!-- ##LOGGER-CATEGORY## -->")
+    local configMode
+    getConfigurationMode "<!-- ##LOGGER-CATEGORY## -->" "configMode"
 
     local IFS=","
     if [ "x${LOGGER_CATEGORIES}" != "x" ]; then

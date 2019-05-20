@@ -24,7 +24,8 @@ function configure_administration() {
         exit
     fi
 
-    local configMode=$(getConfigurationMode "<!-- ##MGMT_IFACE_REALM## -->")
+    local configMode
+    getConfigurationMode "<!-- ##MGMT_IFACE_REALM## -->" "configMode"
     if [ "${configMode}" = "xml" ]; then
       local mgmt_iface_replace_str="security-realm=\"ManagementRealm\""
       sed -i "s|><!-- ##MGMT_IFACE_REALM## -->| ${mgmt_iface_replace_str}>|" "$CONFIG_FILE"
