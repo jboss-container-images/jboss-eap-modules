@@ -12,7 +12,7 @@ function link {
 
 link /usr/share/java/mysql-connector-java.jar $JBOSS_HOME/modules/system/layers/openshift/com/mysql/main/mysql-connector-java.jar
 link /usr/share/java/postgresql-jdbc.jar $JBOSS_HOME/modules/system/layers/openshift/org/postgresql/main/postgresql-jdbc.jar
-link /opt/rh/rh-mongodb32/root/usr/share/java/mongo-java-driver/mongo.jar $JBOSS_HOME/modules/system/layers/openshift/org/mongodb/main/mongo.jar
+link /opt/rh/rh-mongodb36/root/usr/share/java/mongo-java-driver/mongo.jar $JBOSS_HOME/modules/system/layers/openshift/org/mongodb/main/mongo.jar
 
 # module definitions for MySQL, PostgreSQL, MongoDB
 # Remove any existing destination files first (which might be symlinks)
