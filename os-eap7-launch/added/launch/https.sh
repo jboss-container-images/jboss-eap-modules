@@ -37,9 +37,12 @@ function configure_https() {
 
 function configureSsl() {
   local valid="${1}"
-  if [ $(isConfigurationViaMarkerReplacement "<!-- ##SSL## -->") -eq 1 ]; then
+  local configureMode
+  getConfigurationMode "<!-- ##SSL## -->" "configureMode"
+
+  if [ ${configureMode} = "xml" ]; then
     configureSslXml "${valid}"
-  else
+  elif [ ${configureMode} = "cli" ]; then
     configureSslCli "${valid}"
   fi
 }
@@ -83,15 +86,18 @@ function configureSslCli() {
   end-if
   "
   cat << EOF >> ${CLI_SCRIPT_FILE}
-	  ${ssl}
+    ${ssl}
 EOF
 }
 
 function configureHttps() {
   local valid="${1}"
-  if [ $(isConfigurationViaMarkerReplacement "<!-- ##HTTPS_CONNECTOR## -->") -eq 1 ]; then
+  local configureMode
+  getConfigurationMode "<!-- ##HTTPS_CONNECTOR## -->" "configureMode"
+
+  if [ ${configureMode} = "xml" ]; then
     configureHttpsXml "${valid}"
-  else
+  elif [ ${configureMode} = "cli" ]; then
     configureHttpsCli "${valid}"
   fi
 }
