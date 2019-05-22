@@ -26,14 +26,14 @@ envs:
 
 artifacts:
 - name: openshift-ping-common
-  target: openshift-ping-common-1.2.5.Final-redhat-1.jar
-  md5: 12b4f1e021e8d5b8ba199ee60faca008
+  target: openshift-ping-common-1.2.6.Final-redhat-1.jar
+  md5: 94f0bd57b1990b556890d99290bdd847
 - name: openshift-ping-dns
-  target: openshift-ping-dns-1.2.5.Final-redhat-1.jar
-  md5: df89212d776cdd3c64bc578c60173788
+  target: openshift-ping-dns-1.2.6.Final-redhat-1.jar
+  md5: 59925c951d904b7734c2d10dc41a6515
 - name: openshift-ping-kube
-  target: openshift-ping-kube-1.2.5.Final-redhat-1.jar
-  md5: 1cbb306ba252a71ee2c4309910b459fc
+  target: openshift-ping-kube-1.2.6.Final-redhat-1.jar
+  md5: 0e4dc6aa494395dddf0f645b38ef4e54
 - name: oauth
   target: oauth-20100527.jar
   md5: 91c7c70579f95b7ddee95b2143a49b41
