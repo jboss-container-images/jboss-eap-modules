@@ -20,9 +20,27 @@ function configureEnv() {
 }
 
 function inject_datasources() {
+  # Since inject_datasources_common ends up executing in a sub-shell for where I want
+  # to grab the value, use a temp file
+  DEFAULT_JOB_REPOSITORY_FILE_NAME="$(mktemp /tmp/default-job-repo.XXXXXX)"
+
   inject_datasources_common
 
-  inject_default_job_repositories
+  local default_job_repository_pool_name
+  while IFS= read -r line
+  do
+    default_job_repository_pool_name="${line}"
+  done < "${DEFAULT_JOB_REPOSITORY_FILE_NAME}"
+
+  if [ -n "${default_job_repository_pool_name}" ]; then
+    inject_job_repository "${default_job_repository_pool_name}"
+    inject_default_job_repository "${default_job_repository_pool_name}"
+  else
+    inject_default_job_repositories
+  fi
+
+  rm "${DEFAULT_JOB_REPOSITORY_FILE_NAME}"
+  unset DEFAULT_JOB_REPOSITORY_FILE_NAME
 }
 
 function generate_datasource() {
@@ -51,15 +69,12 @@ function generate_datasource() {
     fi
   fi
 
-  if [ -n "$DEFAULT_JOB_REPOSITORY" -a "$DEFAULT_JOB_REPOSITORY" = "${service_name}" ]; then
-    inject_default_job_repository $pool_name
-    inject_job_repository $pool_name
+  if [ -n ${DEFAULT_JOB_REPOSITORY_FILE_NAME} ]; then
+    # $DEFAULT_JOB_REPOSITORY_FILE_NAME will only be set for internal datasources
+    if [ -n "$DEFAULT_JOB_REPOSITORY" -a "$DEFAULT_JOB_REPOSITORY" = "${service_name}" ]; then
+      echo "${pool_name}" >> "${DEFAULT_JOB_REPOSITORY_FILE_NAME}"
+    fi
   fi
-
-  if [ -z "$DEFAULT_JOB_REPOSITORY" ]; then
-    inject_default_job_repository in-memory
-  fi
-
 }
 
 # $1 - refresh-interval
@@ -68,24 +83,63 @@ function refresh_interval() {
 }
 
 function inject_default_job_repositories() {
-  defaultjobrepo="     <default-job-repository name=\"in-memory\"/>"
-
-  sed -i "s|<!-- ##DEFAULT_JOB_REPOSITORY## -->|${defaultjobrepo%$'\n'}|g" $CONFIG_FILE
+  inject_default_job_repository "in-memory" "hardcoded"
 }
 
 # Arguments:
 # $1 - default job repository name
 function inject_default_job_repository() {
-  defaultjobrepo="     <default-job-repository name=\"${1}\"/>"
+  local hardcoded="${2}"
+  local dsConfMode
+  getConfigurationMode "<!-- ##DEFAULT_JOB_REPOSITORY## -->" "dsConfMode"
+  if [ "${dsConfMode}" = "xml" ]; then
+    local defaultjobrepo="     <default-job-repository name=\"${1}\"/>"
+    sed -i "s|<!-- ##DEFAULT_JOB_REPOSITORY## -->|${defaultjobrepo%$'\n'}|" $CONFIG_FILE
+  elif [ "${dsConfMode}" = "cli" ]; then
 
-  sed -i "s|<!-- ##DEFAULT_JOB_REPOSITORY## -->|${defaultjobrepo%$'\n'}|" $CONFIG_FILE
+    local resourceAddr="/subsystem=batch-jberet"
+    if [ -z "${hardcoded}" ] ; then
+      # We only need to do something when the user has explicitly set a default job repository.
+      # This is because the base configuration needs to have a job repository set up for CLI 
+      # replacement to work as the CLI embedded server will not even boot if it is not there.
+      # (in the xml marker replacement it works differently as we replace the marker with the xml
+      # for the default repo).
+      # The hardcoded default-job-repository should only be set if there is a batch-jberet
+      # subsystem
+      echo "
+      if (outcome == success) of ${resourceAddr}:read-resource
+        ${resourceAddr}:write-attribute(name=default-job-repository, value=${1})
+      end-if
+      " >> ${CLI_SCRIPT_FILE}
+    fi
+  fi
 }
 
+# Arguments:
+# $1 - job repository name
 function inject_job_repository() {
-  jobrepo="     <job-repository name=\"${1}\">\
-      <jdbc data-source=\"${1}\"/>\
-    </job-repository>\
-    <!-- ##JOB_REPOSITORY## -->"
+  local dsConfMode
+  getConfigurationMode "<!-- ##JOB_REPOSITORY## -->" "dsConfMode"
+  if [ "${dsConfMode}" = "xml" ]; then
+    local jobrepo="     <job-repository name=\"${1}\">\
+        <jdbc data-source=\"${1}\"/>\
+      </job-repository>\
+      <!-- ##JOB_REPOSITORY## -->"
 
-  sed -i "s|<!-- ##JOB_REPOSITORY## -->|${jobrepo%$'\n'}|" $CONFIG_FILE
+    sed -i "s|<!-- ##JOB_REPOSITORY## -->|${jobrepo%$'\n'}|" $CONFIG_FILE
+  elif [ "${dsConfMode}" = "cli" ]; then
+    local resourceAddr="/subsystem=batch-jberet/jdbc-job-repository=${1}"
+    local jobrepo="
+      if (outcome == success) of ${resourceAddr}:read-resource
+        batch
+        ${resourceAddr}:remove
+        ${resourceAddr}:add(data-source=${1})
+        run-batch
+      else
+        ${resourceAddr}:add(data-source=${1})
+      end-if
+    "
+    echo "${jobrepo}" >> ${CLI_SCRIPT_FILE}
+  fi
+
 }

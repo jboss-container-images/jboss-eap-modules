@@ -93,6 +93,7 @@ function inject_datasources_common() {
   fi
 
   inject_external_datasources
+
 }
 
 function inject_internal_datasources() {
