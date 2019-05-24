@@ -1,11 +1,19 @@
 #!/bin/bash
 
+if [ "${SCRIPT_DEBUG}" = "true" ] ; then
+    set -x
+    log_info "Script debugging is enabled, allowing bash commands and their arguments to be printed as they are executed"
+fi
+
 LOCAL_SOURCE_DIR=/tmp/src
 
 # Resulting WAR files will be deployed to /opt/eap/standalone/deployments
 DEPLOY_DIR=$JBOSS_HOME/standalone/deployments
 
 CONFIG_FILE=${JBOSS_HOME}/standalone/configuration/standalone-openshift.xml
+CLI_DRIVERS_FILE=${JBOSS_HOME}/bin/launch/drivers.cli
+
+source ${JBOSS_HOME}/bin/launch/adjustment-mode.sh
 
 function find_env() {
   var=${!1}
@@ -44,6 +52,9 @@ function configure_drivers(){
 
     drivers=
     if [ -n "$DRIVERS" ]; then
+      local configMode
+      getConfigurationMode "<!-- ##DRIVERS## -->" "configMode"
+
       for driver_prefix in $(echo $DRIVERS | sed "s/,/ /g"); do
         driver_module=$(find_env "${driver_prefix}_DRIVER_MODULE")
         if [ -z "$driver_module" ]; then
@@ -64,20 +75,42 @@ function configure_drivers(){
           continue
         fi
 
-        drivers="${drivers} <driver name=\"$driver_name\" module=\"$driver_module\">"
-        if [ -n "$datasource_class" ]; then
-          drivers="${drivers}<xa-datasource-class>${datasource_class}</xa-datasource-class>"
-        fi
+        if [ "${configMode}" = "xml" ]; then
+          drivers="${drivers} <driver name=\"$driver_name\" module=\"$driver_module\">"
+          if [ -n "$datasource_class" ]; then
+            drivers="${drivers}<xa-datasource-class>${datasource_class}</xa-datasource-class>"
+          fi
 
-        if [ -n "$driver_class" ]; then
-          drivers="${drivers}<driver-class>${driver_class}</driver-class>"
+          if [ -n "$driver_class" ]; then
+            drivers="${drivers}<driver-class>${driver_class}</driver-class>"
+          fi
+          drivers="${drivers}</driver>"
+        elif [ "${configMode}" = "cli" ]; then
+          drivers="${drivers}
+            if (outcome == success) of /subsystem=datasources/jdbc-driver=${driver_name}:read-resource
+              echo \"Cannot add the drive with name ${driver_name}. There is a drive with the same name already configured.\" >> \${error_file}
+              quit
+            else
+              /subsystem=datasources/jdbc-driver=${driver_name}:add(driver-name=\"${driver_name}\", driver-module-name=\"${driver_module}\""
+            if [ -n "$datasource_class" ]; then
+              drivers="${drivers}, driver-xa-datasource-class-name=\"${datasource_class}\""
+            fi
+            if [ -n "$driver_class" ]; then
+              drivers="${drivers}, driver-class-name=\"${driver_class}\""
+            fi
+            drivers="${drivers})
+            end-if
+          "
         fi
-        drivers="${drivers}</driver>"
-      
       done
 
-      if [ -n "$drivers" ]; then
-        sed -i "s|<!-- ##DRIVERS## -->|${drivers}<!-- ##DRIVERS## -->|" $CONFIG_FILE
+      if [ -n "$drivers" ] ; then
+        if [ "${configMode}" = "xml" ]; then
+          sed -i "s|<!-- ##DRIVERS## -->|${drivers}<!-- ##DRIVERS## -->|" $CONFIG_FILE
+        elif [ "${configMode}" = "cli" ]; then
+          echo "${drivers}" > ${CLI_DRIVERS_FILE}
+          cat ${CLI_DRIVERS_FILE}
+        fi
       fi
     fi
   )
