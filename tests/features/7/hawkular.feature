@@ -1,4 +1,4 @@
-@jboss-eap-7
+@jboss-eap-7 @jboss-eap-7-tech-preview
 # JDK 11 images don't use hawkular
 Feature: OpenShift EAP Hawkular agent tests
 

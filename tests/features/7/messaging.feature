@@ -1,4 +1,4 @@
-@jboss-eap-7
+@jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: Openshift EAP Messaging Tests
 
   @ignore @jboss-eap-7-tech-preview/eap72-openjdk11-openshift

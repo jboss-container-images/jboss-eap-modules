@@ -1,4 +1,4 @@
-@jboss-eap-7
+@jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: Check correct variable expansion used
   Scenario: Set EAP_ADMIN_USERNAME to null
     When container is started with env

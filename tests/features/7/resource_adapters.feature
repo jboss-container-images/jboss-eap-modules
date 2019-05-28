@@ -1,4 +1,4 @@
-@jboss-eap-7
+@jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: EAP Openshift resource adapters
 
   Scenario: Test resource adapter extension

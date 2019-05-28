@@ -1,4 +1,4 @@
-@jboss-eap-7
+@jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: EAP 7 Openshift filters
 
   Scenario: CLOUD-2877, RHDM-520, RHPAM-1434, test default filter ref name

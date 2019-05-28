@@ -1,4 +1,4 @@
-@jboss-eap-7
+@jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: Check HTTPS configuration
 
   Scenario: Configure HTTPS
