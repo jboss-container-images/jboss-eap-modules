@@ -452,7 +452,7 @@ function read_web_dot_xml {
 }
 
 function get_application_routes {
-
+  
   if [ -n "$HOSTNAME_HTTP" ]; then
     route="http://${HOSTNAME_HTTP}"
   fi
@@ -461,12 +461,60 @@ function get_application_routes {
     secureroute="https://${HOSTNAME_HTTPS}"
   fi
 
-  if [ -n "$route" ] && [ -n "$secureroute" ]; then
-    APPLICATION_ROUTES="${route};${secureroute}"
-  elif [ -n "$route" ]; then
-    APPLICATION_ROUTES="${route}"
-  elif [ -n "$secureroute" ]; then
-    APPLICATION_ROUTES="${secureroute}"
+  if [ -z "$HOSTNAME_HTTP" ] && [ -z "$HOSTNAME_HTTPS" ]; then
+    log_warning "HOSTNAME_HTTP and HOSTNAME_HTTPS are not set, trying to discover secure route by querying internal APIs"
+    APPLICATION_ROUTES=$(discover_routes)
+  else
+    if [ -n "$route" ] && [ -n "$secureroute" ]; then
+      APPLICATION_ROUTES="${route};${secureroute}"
+    elif [ -n "$route" ]; then
+      APPLICATION_ROUTES="${route}"
+    elif [ -n "$secureroute" ]; then
+      APPLICATION_ROUTES="${secureroute}"
+    fi
   fi
+}
 
+# Tries to discover the route using the pod's hostname
+function discover_routes() {
+  local podsuffix=$(python -c "a='${HOSTNAME}'.split('-'); print('-'.join(a[0:len(a)-2]))")
+  echo $(query_routes_from_service $podsuffix)
+}
+
+# Verify if the container is on OpenShift. The variable K8S_ENV could be set to emulate this behavior
+function is_running_on_openshift() {
+  if [ -e /var/run/secrets/kubernetes.io/serviceaccount/token ] || [ "${K8S_ENV}" = true ] ; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Queries the Routes from the Kubernetes API based on the service name
+# ${1} - service name
+# see: https://docs.openshift.com/container-platform/3.11/rest_api/apis-route.openshift.io/v1.Route.html#Get-apis-route.openshift.io-v1-routes
+function query_routes_from_service() {
+  local serviceName=${1}
+  # only execute the following lines if this container is running on OpenShift
+  if is_running_on_openshift; then
+    local namespace=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+    local token=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+    local response=$(curl -s -w "%{http_code}" --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+        -H "Authorization: Bearer $token" \
+        -H 'Accept: application/json' \
+        ${KUBERNETES_SERVICE_PROTOCOL:-https}://${KUBERNETES_SERVICE_HOST:-kubernetes.default.svc}:${KUBERNETES_SERVICE_PORT:-443}/apis/route.openshift.io/v1/namespaces/${namespace}/routes?fieldSelector=spec.to.name=${serviceName})
+    if [[ "${response: -3}" = "200" && "${response::- 3},," = *"items"* ]]; then
+      routes=$(echo ${response::- 3} | \
+          python -c 'import json,sys;obj=json.load(sys.stdin); \
+            routes = [ "https://" + item["spec"]["host"] if "tls" in item["spec"] else "http://" + item["spec"]["host"] for item in obj["items"] ]; \
+            print(";".join("{}".format(route) for route in routes));')
+      echo $routes
+    else
+      log_warning "Fail to query the Route using the Kubernetes API, the Service Account might not have the necessary privileges."
+      
+      if [ ! -z "${response}" ]; then
+        log_warning "Response message: ${response::- 3} - HTTP Status code: ${response: -3}"
+      fi
+    fi
+  fi
 }
