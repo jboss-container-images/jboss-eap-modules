@@ -109,7 +109,6 @@ function configure_drivers(){
           sed -i "s|<!-- ##DRIVERS## -->|${drivers}<!-- ##DRIVERS## -->|" $CONFIG_FILE
         elif [ "${configMode}" = "cli" ]; then
           echo "${drivers}" > ${CLI_DRIVERS_FILE}
-          cat ${CLI_DRIVERS_FILE}
         fi
       fi
     fi
