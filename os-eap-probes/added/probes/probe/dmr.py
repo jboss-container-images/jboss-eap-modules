@@ -94,11 +94,11 @@ class DmrProbe(BatchingProbe):
             response because one of the test steps failed, in which case we pass the
             response to the tests to let them decide how to handle things
             """
-            self.failUnusableResponse(response)
+            self.failUnusableResponse(response, request, url)
 
         return response.json(object_pairs_hook = OrderedDict)
 
-    def failUnusableResponse(self, response):
+    def failUnusableResponse(self, response, request, url):
         respDict = None
         try:
             respDict = response.json(object_pairs_hook = OrderedDict)
