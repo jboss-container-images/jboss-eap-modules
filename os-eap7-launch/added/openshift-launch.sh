@@ -5,6 +5,8 @@
 source ${JBOSS_HOME}/bin/launch/openshift-common.sh
 source $JBOSS_HOME/bin/launch/logging.sh
 
+
+
 # TERM signal handler
 function clean_shutdown() {
   log_error "*** JBossAS wrapper process ($$) received TERM signal ***"
@@ -100,7 +102,7 @@ function exec_cli_scripts() {
 }
 
 if [ "${SPLIT_DATA^^}" = "TRUE" ]; then
-  # SPLIT_DATA defines shared volume for multiple pods mounted at partitioned_data where server saves data 
+  # SPLIT_DATA defines shared volume for multiple pods mounted at partitioned_data where server saves data
   #  migration pod is started to supervise the shared volume and cleaning it
   source /opt/partition/partitionPV.sh
 

@@ -1,5 +1,4 @@
 #!/bin/bash
-# kabir
 # Openshift EAP launch script
 
 source ${JBOSS_HOME}/bin/launch/openshift-common.sh
@@ -15,8 +14,9 @@ function clean_shutdown() {
 function runServer() {
   local instanceDir=$1
 
-  source $JBOSS_HOME/bin/launch/configure.sh
-  exec_cli_scripts
+  #source $JBOSS_HOME/bin/launch/configure.sh
+  #exec_cli_scripts
+  adjust_server_config
 
   log_info "Running $JBOSS_IMAGE_NAME image, version $JBOSS_IMAGE_VERSION"
 
@@ -43,61 +43,40 @@ function init_data_dir() {
   fi
 }
 
-function exec_cli_scripts() {
-
-  # Dump the cli script file for debugging
-  if [ "${CLI_DEBUG^^}" = "TRUE" ]; then
-    echo "================= CLI files debug ================="
-    echo "=========== ${CLI_DRIVERS_FILE} contents:"
-    cat "${CLI_DRIVERS_FILE}"
-    echo "=========== ${CLI_SCRIPT_FILE} contents:"
-    cat "${CLI_SCRIPT_FILE}"
-    echo "=========== ${CLI_SCRIPT_PROPERTY_FILE} contents:"
-    cat "${CLI_SCRIPT_PROPERTY_FILE}"
-    echo "==================================================="
-  fi
-
-  if [ -s "${CLI_SCRIPT_FILE}" ]; then
-    #Check we are able to use the jboss-cli.sh
-    if ! [ -f "${JBOSS_HOME}/bin/jboss-cli.sh" ]; then
-      echo "Cannot find ${JBOSS_HOME}/bin/jboss-cli.sh. Scripts cannot be applied"
-      exit 1
-    fi
-
-    systime=$(date +%s)
-    CLI_SCRIPT_FILE_FOR_EMBEDDED=/tmp/cli-configuration-script-${systime}.cli
-    echo "embed-server --timeout=30 --server-config=standalone-openshift.xml --std-out=echo" > ${CLI_SCRIPT_FILE_FOR_EMBEDDED}
-    if [ -f "${CLI_DRIVERS_FILE}" ]; then
-      cat ${CLI_DRIVERS_FILE} >> ${CLI_SCRIPT_FILE_FOR_EMBEDDED}
-    fi
-    cat ${CLI_SCRIPT_FILE} >> ${CLI_SCRIPT_FILE_FOR_EMBEDDED}
-    echo "" >> ${CLI_SCRIPT_FILE_FOR_EMBEDDED}
-    echo "stop-embedded-server" >> ${CLI_SCRIPT_FILE_FOR_EMBEDDED}
-
-    echo "Configuring the server using embedded server"
-    start=$(date +%s%3N)
-    ${JBOSS_HOME}/bin/jboss-cli.sh --file=${CLI_SCRIPT_FILE_FOR_EMBEDDED} --properties=${CLI_SCRIPT_PROPERTY_FILE}
-    cli_result=$?
-    end=$(date +%s%3N)
-
-    echo "Duration: " $((end-start)) " milliseconds"
-
-
-    if [ $cli_result -ne 0 ]; then
-      echo "Error applying ${CLI_SCRIPT_FILE_FOR_EMBEDDED} CLI script. Embedded server cannot start or the operations to configure the server failed."
-      exit 1
-    elif [ -s "${CLI_SCRIPT_ERROR_FILE}" ]; then
-      echo "Error applying ${CLI_SCRIPT_FILE_FOR_EMBEDDED} CLI script. Embedded server started successful. The Operations were executed but there were unexpected values. See list of errors in ${CLI_SCRIPT_ERROR_FILE}"
-      exit 1
-    elif [ "${SCRIPT_DEBUG}" != "true" ] ; then
-      rm ${CLI_SCRIPT_FILE} 2> /dev/null
-      rm ${CLI_SCRIPT_PROPERTY_FILE} 2> /dev/null
-      rm ${CLI_SCRIPT_ERROR_FILE} 2> /dev/null
-      rm ${CLI_SCRIPT_FILE_FOR_EMBEDDED} 2> /dev/null
-      rm ${CLI_DRIVERS_FILE} 2> /dev/null
-    fi
-  fi
+function adjust_server_config() {
+  source $JBOSS_HOME/bin/launch/configure-main.sh
+  source ${JBOSS_HOME}/bin/launch/openshift-env-modules.sh
+  source $JBOSS_HOME/bin/launch/configure-modules.sh
+  configureEnvModules
 }
+
+# These should probably be somewhere else. They control what is happening in wildfly-cekit-modules
+CLI_SCRIPT_CANDIDATES=(
+  $JBOSS_HOME/bin/launch/backward-compatibility.sh
+  $JBOSS_HOME/bin/launch/configure_extensions.sh
+  $JBOSS_HOME/bin/launch/passwd.sh
+  $JBOSS_HOME/bin/launch/messaging.sh
+  $JBOSS_HOME/bin/launch/datasource.sh
+  $JBOSS_HOME/bin/launch/resource-adapter.sh
+  $JBOSS_HOME/bin/launch/admin.sh
+  $JBOSS_HOME/bin/launch/ha.sh
+  $JBOSS_HOME/bin/launch/jgroups.sh
+  $JBOSS_HOME/bin/launch/https.sh
+  $JBOSS_HOME/bin/launch/elytron.sh
+  $JBOSS_HOME/bin/launch/json_logging.sh
+  $JBOSS_HOME/bin/launch/configure_logger_category.sh
+  $JBOSS_HOME/bin/launch/security-domains.sh
+  $JBOSS_HOME/bin/launch/keycloak.sh
+  $JBOSS_HOME/bin/launch/deploymentScanner.sh
+  $JBOSS_HOME/bin/launch/ports.sh
+  $JBOSS_HOME/bin/launch/access_log_valve.sh
+  $JBOSS_HOME/bin/launch/filters.sh
+)
+ENV_SCRIPT_CANDIDATES=(
+  /opt/run-java/proxy-options
+  $JBOSS_HOME/bin/launch/jboss_modules_system_pkgs.sh
+)
+WILDFLY_SERVER_CONFIGURATION=standalone-openshift.xml
 
 if [ "${SPLIT_DATA^^}" = "TRUE" ]; then
   # SPLIT_DATA defines shared volume for multiple pods mounted at partitioned_data where server saves data
@@ -117,8 +96,9 @@ elif [ -n "${TX_DATABASE_PREFIX_MAPPING}" ]; then
   startApplicationServer "${DATA_DIR}" "${SPLIT_LOCK_TIMEOUT:-30}"
 else
   # no migration pod is run
-  source $JBOSS_HOME/bin/launch/configure.sh
-  exec_cli_scripts
+  # source $JBOSS_HOME/bin/launch/configure.sh
+  # exec_cli_scripts
+  adjust_server_config
 
   log_info "Running $JBOSS_IMAGE_NAME image, version $JBOSS_IMAGE_VERSION"
 
@@ -143,5 +123,4 @@ else
   PID=$!
   wait $PID 2>/dev/null
   wait $PID 2>/dev/null
-
 fi
