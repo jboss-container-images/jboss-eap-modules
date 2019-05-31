@@ -15,16 +15,30 @@ if [ $# -gt 0 ] ; then
     COUNT=$1
 fi
 
-if [ $# -gt 1 ] ; then
-    SLEEP=$2
-fi
+if [[ -n "$COUNT" && ( $COUNT = "true" || $COUNT = "false" ) ]]; then
+  COUNT=1
+  SLEEP=0
 
-if [ $# -gt 2 ] ; then
-    DEBUG=$3
-fi
+  if [ $# -gt 1 ] ; then
+     DEBUG=$2
+  fi
 
-if [ $# -gt 3 ] ; then
-    PROBE_IMPL=$4
+  if [ $# -gt 2 ] ; then
+        PROBE_IMPL=$3
+  fi
+else
+# deprecated support for count / sleep
+    if [ $# -gt 1 ] ; then
+        SLEEP=$2
+    fi
+
+    if [ $# -gt 2 ] ; then
+        DEBUG=$3
+    fi
+
+    if [ $# -gt 3 ] ; then
+        PROBE_IMPL=$4
+    fi
 fi
 
 if [ "$DEBUG" = "true" ]; then

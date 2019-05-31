@@ -16,26 +16,54 @@ COUNT=30
 SLEEP=5
 DEBUG_SCRIPT=false
 PROBE_IMPL="probe.eap.dmr.EapProbe probe.eap.dmr.HealthCheckProbe"
+INITIAL_SLEEP_SECONDS=5
 
 if [ $# -gt 0 ] ; then
     COUNT=$1
 fi
 
-if [ $# -gt 1 ] ; then
-    SLEEP=$2
+# setting the first parameter to false, gets you the new default behaviour of
+# count = 1, sleep = 0 and inital sleep seconds = 0
+# setting it to a numeric value, or nothing falls through to the old behaviour
+
+if [[ -n "$COUNT" && ( $COUNT = "true" || $COUNT = "false" ) ]]; then
+  COUNT=1
+  SLEEP=0
+  INITIAL_SLEEP_SECONDS=0
+
+  if [ $# -gt 1 ] ; then
+     DEBUG_SCRIPT=$2
+  fi
+
+  if [ $# -gt 2 ] ; then
+     PROBE_IMPL=$3
+  fi
+else
+# deprecated support for count / sleep / initial sleep of 5s
+    if [ $# -gt 1 ] ; then
+        SLEEP=$2
+    fi
+
+    if [ $# -gt 2 ] ; then
+        DEBUG_SCRIPT=$3
+    fi
+
+    if [ $# -gt 3 ] ; then
+        PROBE_IMPL=$4
+    fi
+
+    if [ $# -gt 4 ] ; then
+        INITIAL_SLEEP_SECONDS=$5
+    fi
 fi
 
-if [ $# -gt 2 ] ; then
-    DEBUG_SCRIPT=$3
-fi
+if [ ${INITIAL_SLEEP_SECONDS} -gt 0 ]; then
+    # Sleep for INITIAL_SLEEP_SECONDS (default legacy value 5) to avoid launching readiness and liveness probes
+    # at the same time
+    # this preserves the legacy probe behaviour when using templates that have not been updated.
 
-if [ $# -gt 3 ] ; then
-    PROBE_IMPL=$4
+    sleep ${INITIAL_SLEEP_SECONDS}
 fi
-
-# Sleep for 5 seconds to avoid launching readiness and liveness probes
-# at the same time
-sleep 5
 
 if [ "$DEBUG_SCRIPT" = "true" ]; then
     DEBUG_OPTIONS="--debug --logfile $LOG --loglevel DEBUG"
