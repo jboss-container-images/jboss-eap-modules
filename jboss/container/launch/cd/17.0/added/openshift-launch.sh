@@ -1,8 +1,11 @@
 #!/bin/bash
 # Openshift EAP launch script
 
-source ${JBOSS_HOME}/bin/launch/openshift-common.sh
 source $JBOSS_HOME/bin/launch/logging.sh
+# Pull in the launch configuration and set up the common parts
+source ${JBOSS_HOME}/bin/launch/launch-config.sh
+source ${JBOSS_HOME}/bin/launch/openshift-common.sh
+
 
 # TERM signal handler
 function clean_shutdown() {
@@ -14,8 +17,6 @@ function clean_shutdown() {
 function runServer() {
   local instanceDir=$1
 
-  #source $JBOSS_HOME/bin/launch/configure.sh
-  #exec_cli_scripts
   adjust_server_config
 
   log_info "Running $JBOSS_IMAGE_NAME image, version $JBOSS_IMAGE_VERSION"
@@ -50,33 +51,7 @@ function adjust_server_config() {
   configureEnvModules
 }
 
-# These should probably be somewhere else. They control what is happening in wildfly-cekit-modules
-CLI_SCRIPT_CANDIDATES=(
-  $JBOSS_HOME/bin/launch/backward-compatibility.sh
-  $JBOSS_HOME/bin/launch/configure_extensions.sh
-  $JBOSS_HOME/bin/launch/passwd.sh
-  $JBOSS_HOME/bin/launch/messaging.sh
-  $JBOSS_HOME/bin/launch/datasource.sh
-  $JBOSS_HOME/bin/launch/resource-adapter.sh
-  $JBOSS_HOME/bin/launch/admin.sh
-  $JBOSS_HOME/bin/launch/ha.sh
-  $JBOSS_HOME/bin/launch/jgroups.sh
-  $JBOSS_HOME/bin/launch/https.sh
-  $JBOSS_HOME/bin/launch/elytron.sh
-  $JBOSS_HOME/bin/launch/json_logging.sh
-  $JBOSS_HOME/bin/launch/configure_logger_category.sh
-  $JBOSS_HOME/bin/launch/security-domains.sh
-  $JBOSS_HOME/bin/launch/keycloak.sh
-  $JBOSS_HOME/bin/launch/deploymentScanner.sh
-  $JBOSS_HOME/bin/launch/ports.sh
-  $JBOSS_HOME/bin/launch/access_log_valve.sh
-  $JBOSS_HOME/bin/launch/filters.sh
-)
-ENV_SCRIPT_CANDIDATES=(
-  /opt/run-java/proxy-options
-  $JBOSS_HOME/bin/launch/jboss_modules_system_pkgs.sh
-)
-WILDFLY_SERVER_CONFIGURATION=standalone-openshift.xml
+
 
 if [ "${SPLIT_DATA^^}" = "TRUE" ]; then
   # SPLIT_DATA defines shared volume for multiple pods mounted at partitioned_data where server saves data
@@ -96,8 +71,6 @@ elif [ -n "${TX_DATABASE_PREFIX_MAPPING}" ]; then
   startApplicationServer "${DATA_DIR}" "${SPLIT_LOCK_TIMEOUT:-30}"
 else
   # no migration pod is run
-  # source $JBOSS_HOME/bin/launch/configure.sh
-  # exec_cli_scripts
   adjust_server_config
 
   log_info "Running $JBOSS_IMAGE_NAME image, version $JBOSS_IMAGE_VERSION"
