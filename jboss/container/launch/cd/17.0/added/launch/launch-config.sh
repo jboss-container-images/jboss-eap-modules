@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CLI_SCRIPT_CANDIDATES=(
+CONFIG_SCRIPT_CANDIDATES=(
   $JBOSS_HOME/bin/launch/backward-compatibility.sh
   $JBOSS_HOME/bin/launch/configure_extensions.sh
   $JBOSS_HOME/bin/launch/passwd.sh
