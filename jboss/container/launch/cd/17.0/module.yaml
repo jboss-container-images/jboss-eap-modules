@@ -1,0 +1,7 @@
+schema_version: 1
+name: jboss.container.launch.cd
+version: '17.0'
+description: Module that enables CLI configuration for standalone-openshift.xml file
+execute:
+- script: configure.sh
+  user: '185'
