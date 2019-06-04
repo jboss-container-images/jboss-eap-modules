@@ -61,8 +61,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "Executes the specified probes returning cleanly if probe status matches desired status")
     parser.add_argument("-c", "--check", required = True, type = toStatus, action = "append", help = "The acceptable probe statuses, may be: READY, NOT_READY.")
     parser.add_argument("-d", "--debug", action = "store_true", help = "Enable debugging")
-    parser.add_argument("-r", "--maxruns", default = 1, type = int, help = "Number of runs to try without success before exiting.")
-    parser.add_argument("-s", "--sleep", default = 1, type = int, help = "Number of seconds to sleep between runs.")
     parser.add_argument("--logfile", help = "Log file.")
     parser.add_argument("--loglevel", default = "CRITICAL", choices = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], help = "Log level.")
     parser.add_argument("probes", nargs = argparse.REMAINDER, help = "The probes to execute.")
@@ -87,35 +85,25 @@ if __name__ == "__main__":
         probeModule = importlib.import_module(probe.rsplit(".", 1)[0])
         probeClass = getattr(probeModule, probe.rsplit(".", 1)[1])
         runner.addProbe(probeClass())
-    
-    maxruns = args.maxruns
+
     okStatus = set(args.check)
     
     logger.info("Probes will fail for the following states: [%s]", ", ".join(str(status) for status in set(Status) - okStatus))
 
     probeStatus = set()
     output = {}
-    while True:
-        maxruns -= 1
-        logger.info("Running probes")
-        (probeStatus, output) = runner.executeProbes()
-        if okStatus >= probeStatus:
-            logger.info("Probes succeeded")
-            if args.debug:
-                print(json.dumps(output, indent=4, separators=(',', ': ')))
-            exit(0)
+    logger.info("Running probes")
+    (probeStatus, output) = runner.executeProbes()
+    if okStatus >= probeStatus:
+        logger.info("Probes succeeded")
+        if args.debug:
+            print(json.dumps(output, indent=4, separators=(',', ': ')))
+        exit(0)
         if Status.HARD_FAILURE in probeStatus:
-            logger.error("Probes detected HARD_FAILURE.  Exiting retry loop.")
-            break
-        if maxruns > 0:
-            logger.error("Probes failed.  Retries remaining: %s.", maxruns)
-            logger.info("Retrying probes in %ss", args.sleep)
-            time.sleep(args.sleep)
-        else:
-            break
+            logger.error("Probes detected HARD_FAILURE.")
 
     # we didn't succeed
-    logger.error("Probe failure.  Probes did not succeed after %s attempts.", args.maxruns - maxruns)
+    logger.error("Probe failure.  Probes did not succeed.")
     # print so the output is available to users in the OpenShift event log
     print(json.dumps(output, indent=4, separators=(',', ': ')))
     exit(1)
