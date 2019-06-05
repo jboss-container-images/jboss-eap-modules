@@ -15,5 +15,6 @@ execute:
 
 modules:
   install:
+  - name: jboss.container.common.s2i.bash
   - name: jboss.container.maven.s2i.bash
   - name: jboss.container.util.logging.bash
