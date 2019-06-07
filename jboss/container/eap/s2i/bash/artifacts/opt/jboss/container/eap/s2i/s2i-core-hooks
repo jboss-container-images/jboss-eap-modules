@@ -17,6 +17,7 @@ function s2i_core_copy_artifacts_hook() {
 # Override target data directory
 # Initialize variables for source/target directories for modules
 function eap_s2i_env_init() {
+  WILDFLY_SERVER_CONFIGURATION=standalone-openshift.xml
   S2I_TARGET_CONFIGURATION_DIR="${S2I_TARGET_CONFIGURATION_DIR:-${JBOSS_HOME}/standalone/configuration}"
   S2I_TARGET_DATA_DIR="${S2I_TARGET_DATA_DIR:-${DATA_DIR:-${JBOSS_HOME}/standalone/data}}"
 
