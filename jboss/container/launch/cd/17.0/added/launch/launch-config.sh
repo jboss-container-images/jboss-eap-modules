@@ -24,10 +24,6 @@ CONFIG_SCRIPT_CANDIDATES=(
   $JBOSS_HOME/bin/launch/ports.sh
   $JBOSS_HOME/bin/launch/access_log_valve.sh
   $JBOSS_HOME/bin/launch/filters.sh
-)
-# Scripts that modify the runtime environment variables.
-# wildfly-cekit-modules will look for each of the listed files and run them if they exist.
-ENV_SCRIPT_CANDIDATES=(
   /opt/run-java/proxy-options
   $JBOSS_HOME/bin/launch/jboss_modules_system_pkgs.sh
 )
