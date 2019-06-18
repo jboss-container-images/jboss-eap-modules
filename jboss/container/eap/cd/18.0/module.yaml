@@ -1,0 +1,15 @@
+schema_version: 1
+name: jboss.container.eap.cd
+version: '18.0'
+description:  "JBoss Enterprise Application Platform CD 18"
+envs:
+    - name: MAVEN_LOCAL_REPO
+      value: "$HOME/.m2/repository"
+    - name: "WILDFLY_VERSION"
+      value: "17.0.0.Final"
+modules:
+    install:
+        - name: eap-cd-env
+          version: "18.0"
+        - name: jboss.container.eap.setup
+        - name: eap-install-cleanup
