@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+
+<config xmlns="urn:jboss:galleon:config:1.0" name="standalone-full-ha.xml" model="standalone">
+    <layers>
+        <!-- to call CLI with runtime scripts -->
+        <include name="core-tools"/>
+        <!-- we already have all required in default config -->
+        <exclude name="operator-required"/>
+    </layers>
+    <!-- remove opentracing extension and subsystem -->
+    <exclude spec="subsystem.microprofile-opentracing-smallrye"/>
+</config>
