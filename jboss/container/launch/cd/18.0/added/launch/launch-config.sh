@@ -19,13 +19,15 @@ CONFIG_SCRIPT_CANDIDATES=(
   $JBOSS_HOME/bin/launch/json_logging.sh
   $JBOSS_HOME/bin/launch/configure_logger_category.sh
   $JBOSS_HOME/bin/launch/security-domains.sh
+  $JBOSS_HOME/bin/launch/jboss_modules_system_pkgs.sh
   $JBOSS_HOME/bin/launch/keycloak.sh
   $JBOSS_HOME/bin/launch/deploymentScanner.sh
   $JBOSS_HOME/bin/launch/ports.sh
   $JBOSS_HOME/bin/launch/access_log_valve.sh
+  $JBOSS_HOME/bin/launch/mp-config.sh
+  $JBOSS_HOME/bin/launch/tracing.sh
   $JBOSS_HOME/bin/launch/filters.sh
   /opt/run-java/proxy-options
-  $JBOSS_HOME/bin/launch/jboss_modules_system_pkgs.sh
 )
 # The server configuration file to use. If not set, wildfly-cekit-modules defaults to standalone.xml.
 # For EAP we want standalone-openshift.xml
