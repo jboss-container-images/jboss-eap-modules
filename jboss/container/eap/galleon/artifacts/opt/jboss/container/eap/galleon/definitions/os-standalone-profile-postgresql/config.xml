@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<config xmlns="urn:jboss:galleon:config:1.0" name="standalone-full-ha.xml" model="standalone">
+    <layers>
+        <include name="postgresql-driver"/>
+    </layers>
+
+</config>
