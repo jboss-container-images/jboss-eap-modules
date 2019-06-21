@@ -28,10 +28,12 @@ teardown() {
 }
 
 @test "Generate Datasource Common" {
-
+  expected='<datasource jta="jtaVal" jndi-name="jndi_nameVal" pool-name="pool_nameVal" enabled="true" use-java-context="true" statistics-enabled="${wildfly.datasources.statistics-enabled:${wildfly.statistics-enabled:false}}"> <connection-url>urlVal</connection-url> <driver>driverVal</driver> <security> <user-name>usernameVal</user-name> <password>passwordVal</password> </security> </datasource>'
+  export NON_XA_DATASOURCE=true
   run generate_datasource_common "pool_nameVal" "jndi_nameVal" "usernameVal" "passwordVal" "hostVal" "portVal" "databasenameVal" \
     "checkerVal" "sorterVal" "driverVal" "servicenameVal" "jtaVal" "validateVal" "urlVal"
-  echo ${result}
+  expected=$(echo "${expected}" | sed 's|\\n||g' | xmllint --format --noblanks -)
+  result=$(echo "${output}" | sed 's|\\n||g' | xmllint --format --noblanks -)
   echo "Result: ${result}"
   echo "Expected: ${expected}"
   [ "${result}" = "${expected}" ]
