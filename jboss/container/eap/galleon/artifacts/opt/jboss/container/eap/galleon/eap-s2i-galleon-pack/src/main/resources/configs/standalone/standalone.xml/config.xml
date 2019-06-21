@@ -1,0 +1,237 @@
+<?xml version="1.0" ?>
+
+<config xmlns="urn:jboss:galleon:config:1.0" name="standalone.xml" model="standalone">
+    <layers>
+        <!-- we already have all required in default config -->
+        <exclude name="operator-required"/>
+    </layers>
+    
+    <!-- management -->
+    <exclude spec="subsystem.core-management"/>
+    <exclude feature-id="core-service.management.security-realm.server-identity.ssl:security-realm=ApplicationRealm"/>
+    <feature spec="core-service.management.management-interface.http-interface">
+        <unset param="security-realm"/>
+        <param name="console-enabled" value="false"/>
+    </feature>
+
+    <!-- exclude distributable web -->
+    <exclude spec="subsystem.distributable-web"/>
+
+    <!-- singleton -->
+    <feature-group name="singleton"/>
+    
+    <!-- jgroups -->
+    <feature-group name="jgroups">
+        <exclude spec="subsystem.jgroups.channel"/>
+        <feature spec="subsystem.jgroups.channel">
+            <param name="channel" value="ee"/>
+            <param name="stack" value="tcp"/>
+            <unset param="cluster"/>
+        </feature>
+        <feature spec="subsystem.jgroups.stack.protocol.FD_SOCK">
+            <param name="stack" value="udp"/>
+            <unset param="socket-binding"/>
+        </feature>
+        <feature spec="subsystem.jgroups.stack.protocol.FD_SOCK">
+            <param name="stack" value="tcp"/>
+            <unset param="socket-binding"/>
+        </feature>
+        <exclude feature-id="subsystem.jgroups.stack.protocol:stack=udp,protocol=PING"/>
+        <exclude feature-id="subsystem.jgroups.stack.protocol.MPING:stack=tcp"/>
+    </feature-group>
+    
+    <!-- mod-cluster -->
+    <!-- required by modcluster -->
+    <feature spec="subsystem.undertow">
+        <feature spec="subsystem.undertow.server">
+            <param name="server" value="default-server"/>
+            <feature spec="subsystem.undertow.server.ajp-listener">
+                <param name="ajp-listener" value="ajp"/>
+                <param name="socket-binding" value="ajp"/>
+                <unset param="worker"/>
+                <unset param="buffer-pool"/>
+            </feature>
+        </feature>
+    </feature>
+    <feature-group name="modcluster"/>
+
+    <!-- messaging -->
+    <feature spec="subsystem.messaging-activemq"/>
+    <feature spec="socket-binding-group.remote-destination-outbound-socket-binding">
+        <param name="socket-binding-group" value="standard-sockets" />
+        <param name="remote-destination-outbound-socket-binding" value="http-messaging"/>
+        <param name="host" value="${jboss.messaging.host:localhost}"/>
+        <param name="port" value="${jboss.http.port:8080}"/>
+    </feature>
+    
+    <!-- logging -->
+    <exclude feature-id="subsystem.logging.pattern-formatter:pattern-formatter=PATTERN"/>
+    <exclude feature-id="subsystem.logging.periodic-rotating-file-handler:periodic-rotating-file-handler=FILE"/>
+    <feature spec="subsystem.logging.root-logger.ROOT">
+        <param name="level" value="INFO"/>
+        <param name="handlers" value="[CONSOLE]"/>
+    </feature>
+    <feature spec="subsystem.logging.console-handler">
+        <param name="console-handler" value="CONSOLE"/>
+        <unset param="level"/>
+    </feature>
+    <feature spec="subsystem.logging.json-formatter">
+        <param name="json-formatter" value="OPENSHIFT"/>
+        <param name="exception-output-type" value="formatted"/>
+        <feature spec="subsystem.logging.json-formatter.key-overrides">
+            <param name="timestamp" value="@timestamp"/>
+        </feature>
+        <param name="meta-data" value="{@version=1}"/>
+    </feature>
+    
+    <!-- jberet We can't remove it... needs a default job repository -->
+    <!--<feature spec="subsystem.batch-jberet">
+        <unset param="default-job-repository"/>
+    </feature>-->
+    
+    <!-- datasources -->
+    <!-- We are not keeping the ExampleDS in the config -->
+    <exclude feature-id="subsystem.datasources.data-source:data-source=ExampleDS"/>
+    <!-- For now keep it until we don't add ExampleDS by default -->
+    <!--<exclude feature-id="subsystem.datasources.jdbc-driver:jdbc-driver=h2"/>-->
+    <feature spec="subsystem.ee.service.default-bindings">
+        <unset param="datasource"/>
+    </feature>
+
+    <!-- ejb3 -->
+    <feature spec="subsystem.ejb3">
+        <param name="default-sfsb-cache" value="distributable"/>
+        <param name="default-sfsb-passivation-disabled-cache" value="simple"/>
+        <param name="default-mdb-instance-pool" value="mdb-strict-max-pool"/>
+        <param name="default-resource-adapter-name" value="${ejb.resource-adapter-name:activemq-ra.rar}"/>
+    </feature>
+    <exclude spec="subsystem.ejb3.service.timer-service"/>
+    <feature spec="subsystem.ejb3.service.remote">
+        <feature spec="subsystem.ejb3.service.remote.channel-creation-options">
+            <param name="channel-creation-options" value="READ_TIMEOUT"/>
+            <param name="value" value="${prop.remoting-connector.read.timeout:20}"/>
+            <param name="type" value="xnio"/>
+        </feature>
+    </feature>
+
+    <!-- elytron -->
+    <feature spec="subsystem.elytron.http-authentication-factory">
+        <param name="http-authentication-factory" value="application-http-authentication"/>
+        <param name="http-server-mechanism-factory" value="global"/>
+        <param name="security-domain" value="ApplicationDomain"/>
+        <param name="mechanism-configurations" value="[{mechanism-name=BASIC,mechanism-realm-configurations=[{realm-name=ApplicationRealm}]},{mechanism-name=FORM}]"/>
+    </feature>
+    
+    <!-- infinispan -->
+    <exclude spec="subsystem.infinispan"/>
+    <feature-group name="infinispan-dist">
+        <exclude feature-id="subsystem.infinispan.cache-container.replicated-cache:cache-container=web,replicated-cache=sso"/>
+        <exclude feature-id="subsystem.infinispan.cache-container.distributed-cache:cache-container=web,distributed-cache=routing"/>
+        <include feature-id="subsystem.infinispan.cache-container:cache-container=web">
+            <param name="default-cache" value="repl"/>
+            <feature spec="subsystem.infinispan.cache-container.replicated-cache">
+                <param name="replicated-cache" value="repl"/>
+                <feature spec="subsystem.infinispan.cache-container.replicated-cache.component.locking">
+                    <param name="isolation" value="REPEATABLE_READ"/>
+                </feature>
+                <feature spec="subsystem.infinispan.cache-container.replicated-cache.component.transaction">
+                    <param name="mode" value="BATCH"/>
+                </feature>
+                <feature spec="subsystem.infinispan.cache-container.replicated-cache.store.file">
+                    <unset param="relative-to"/>
+                </feature>
+            </feature>
+        </include>
+        <include feature-id="subsystem.infinispan.cache-container:cache-container=ejb">
+            <param name="default-cache" value="repl"/>
+            <feature spec="subsystem.infinispan.cache-container.replicated-cache">
+                <param name="replicated-cache" value="repl"/>
+                <feature spec="subsystem.infinispan.cache-container.replicated-cache.memory.object">
+                    <param name="size" value="10000"/>
+                </feature>
+                <feature spec="subsystem.infinispan.cache-container.replicated-cache.component.locking">
+                    <param name="isolation" value="REPEATABLE_READ"/>
+                </feature>
+                <feature spec="subsystem.infinispan.cache-container.replicated-cache.component.transaction">
+                    <param name="mode" value="BATCH"/>
+                </feature>
+                <feature spec="subsystem.infinispan.cache-container.replicated-cache.store.file">
+                    <unset param="relative-to"/>
+                </feature>
+            </feature>
+        </include>
+        <include feature-id="subsystem.infinispan.cache-container:cache-container=hibernate">
+            <param name="default-cache" value="local-query"/>
+        </include>
+    </feature-group>
+    
+    <!-- micro-profile -->
+    <feature spec="subsystem.microprofile-metrics-smallrye">
+        <param name="prefix" value="${wildfly.metrics.prefix:jboss}"/>
+    </feature>
+    <feature spec="subsystem.microprofile-health-smallrye">
+        <unset param="security-enabled"/>
+    </feature>
+    <exclude spec="subsystem.microprofile-opentracing-smallrye"/>
+    
+    <!-- legacy security -->
+    <exclude feature-id="subsystem.security.security-domain:security-domain=jaspitest"/>
+    
+    <!-- transactions -->
+    <feature spec="subsystem.transactions">
+        <param name="node-identifier" value="${jboss.node.name}"/>
+        <param name="recovery-listener" value="true"/>
+        <!-- useless, it is added by default -->
+        <!--<unset param="object-store-path"/>
+        <unset param="object-store-relative-to"/>-->
+    </feature>
+    
+    <!-- undertow -->
+    <exclude feature-id="subsystem.undertow.server.https-listener:server=default-server,https-listener=https"/>
+    
+    <!-- web-services -->
+    <feature spec="subsystem.webservices">
+        <param name="modify-wsdl-address" value="true"/>
+        <param name="wsdl-host" value="jbossws.undefined.host"/>
+    </feature>
+    
+    <!-- interfaces -->
+    <!-- required by jgroups-->
+    <feature spec="interface">
+        <param name="interface" value="private"/>
+        <param name="inet-address" value="${jboss.bind.address.private:127.0.0.1}"/>
+    </feature>
+    <feature spec="interface">
+        <param name="interface" value="bindall"/>
+        <param name="inet-address" value="0.0.0.0"/>
+    </feature>
+    
+    <!-- sockets -->
+    <feature spec="socket-binding-group">
+        <param name="socket-binding-group" value="standard-sockets" />
+        <feature-group name="ha-sockets">
+            <exclude feature-id="socket-binding-group.socket-binding:name=standard-sockets,socket-binding=jgroups-udp-fd"/>
+            <exclude feature-id="socket-binding-group.socket-binding:name=standard-sockets,socket-binding=jgroups-tcp-fd"/>
+        </feature-group>
+    </feature>
+    <feature spec="socket-binding-group">
+        <param name="socket-binding-group" value="standard-sockets" />
+        <param name="port-offset" value="0"/>
+    </feature>
+    <feature spec="socket-binding-group.socket-binding">
+        <param name="socket-binding-group" value="standard-sockets" />
+        <param name="socket-binding" value="ajp"/>
+        <param name="interface" value="bindall"/>
+    </feature>
+    <feature spec="socket-binding-group.socket-binding">
+        <param name="socket-binding-group" value="standard-sockets" />
+        <param name="socket-binding" value="http"/>
+        <param name="interface" value="bindall"/>
+    </feature>
+    <feature spec="socket-binding-group.socket-binding">
+        <param name="socket-binding-group" value="standard-sockets" />
+        <param name="socket-binding" value="https"/>
+        <param name="interface" value="bindall"/>
+    </feature>
+    
+</config>

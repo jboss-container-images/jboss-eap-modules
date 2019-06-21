@@ -65,7 +65,7 @@
                                     <inherit-configs>false</inherit-configs>
                                     <included-configs>
                                         <configuration-id>
-                                            <name>standalone-full-ha.xml</name>
+                                            <name>standalone.xml</name>
                                             <model>standalone</model>
                                         </configuration-id>
                                     </included-configs>
