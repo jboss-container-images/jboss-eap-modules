@@ -9,3 +9,8 @@ execute:
 modules:
   install:
   - name: jboss.container.wildfly.s2i.bash
+
+# required by save-artifacts
+packages:
+  install: 
+   - diffutils
