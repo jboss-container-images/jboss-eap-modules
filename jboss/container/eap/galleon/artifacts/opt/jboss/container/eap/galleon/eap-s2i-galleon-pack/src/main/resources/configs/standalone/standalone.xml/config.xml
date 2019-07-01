@@ -4,8 +4,12 @@
     <layers>
         <!-- we already have all required in default config -->
         <exclude name="operator-required"/>
+        <include name="amq6-rar"/>
     </layers>
     
+     <!-- sso packages -->
+    <feature-group name="sso"/>
+
     <!-- management -->
     <exclude spec="subsystem.core-management"/>
     <exclude feature-id="core-service.management.security-realm.server-identity.ssl:security-realm=ApplicationRealm"/>
@@ -181,9 +185,6 @@
     <feature spec="subsystem.transactions">
         <param name="node-identifier" value="${jboss.node.name}"/>
         <param name="recovery-listener" value="true"/>
-        <!-- useless, it is added by default -->
-        <!--<unset param="object-store-path"/>
-        <unset param="object-store-relative-to"/>-->
     </feature>
     
     <!-- undertow -->
