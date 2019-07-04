@@ -182,10 +182,7 @@
     <exclude feature-id="subsystem.security.security-domain:security-domain=jaspitest"/>
     
     <!-- transactions -->
-    <feature spec="subsystem.transactions">
-        <param name="node-identifier" value="${jboss.node.name}"/>
-        <param name="recovery-listener" value="true"/>
-    </feature>
+    <feature-group name="tx-recovery"/>
     
     <!-- undertow -->
     <exclude feature-id="subsystem.undertow.server.https-listener:server=default-server,https-listener=https"/>
