@@ -74,7 +74,7 @@
                                  <feature-pack>
                                     <groupId>org.wildfly</groupId>
                                     <artifactId>wildfly-datasources-galleon-pack</artifactId>
-                                    <version>1.0.2.Final</version>
+                                    <version>1.0.3.Final</version>
                                     <inherit-packages>false</inherit-packages>
                                     <inherit-configs>false</inherit-configs>
                                 </feature-pack>
