@@ -1,8 +1,7 @@
 <?xml version="1.0" ?>
 <layer-spec xmlns="urn:jboss:galleon:layer-spec:1.0" name="sso">
     <dependencies>
-        <layer name="legacy-security"/>
+        <layer name="keycloak"/>
     </dependencies>
-    <feature-group name="sso"/>
 </layer-spec>
 
