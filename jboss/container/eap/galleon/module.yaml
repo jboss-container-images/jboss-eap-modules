@@ -25,13 +25,13 @@ envs:
 - name: GALLEON_PROVISON_FP_MAVEN_ARGS_APPEND
   value: *mvnArgs
 - name: DEBUG_GALLEON_FP_SRC
-  value: true
+  value: "true"
 - name: GALLEON_S2I_FP_GROUP_ID
   value: org.jboss.eap.galleon.s2i
 - name: GALLEON_S2I_FP_ARTIFACT_ID
   value: eap-s2i-galleon-pack
 - name: GALLEON_ADD_DS_FP
-  value: true
+  value: "true"
 - name: GALLEON_WF_EXTRAS_DS_VERSION
   value: 1.0.3.Final
 
