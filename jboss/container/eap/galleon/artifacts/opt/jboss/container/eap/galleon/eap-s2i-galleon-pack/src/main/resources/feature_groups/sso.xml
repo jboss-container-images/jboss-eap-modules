@@ -1,19 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature-group-spec name="sso" xmlns="urn:jboss:galleon:feature-group:1.0">
-    <packages>
-        <package name="org.keycloak.keycloak-adapter-subsystem"/>
-        <package name="org.keycloak.keycloak-saml-adapter-subsystem"/>
-        
-        <!--Used by keycloak, this is an alias -->
-        <package name="layers.conf"/>
-        <package name="org.infinispan.cachestore.remote"/>
-        <!-- this is the alias target -->
-        <package name="org.infinispan.persistence.remote"/>
-        
-        <!-- injected, not referenced from extensions -->
-        <package name="org.keycloak.keycloak-jboss-adapter-core"/>
-        <package name="org.keycloak.keycloak-wildfly-adapter"/>
-        <package name="org.keycloak.keycloak-saml-wildfly-adapter"/>
-        <package name="org.keycloak.keycloak-servlet-oauth-client"/>
-    </packages>
+    <feature-group name="keycloak"/>
 </feature-group-spec>
