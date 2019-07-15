@@ -26,7 +26,7 @@
     <artifactId>all-configs</artifactId>
     <packaging>pom</packaging>
     <name>EAP Galleon definitions</name>
-  
+
     <description>EAP Galleon definitions</description>
 
     <licenses>
@@ -36,11 +36,9 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    
+
     <modules>
-        <module>cloud-profile</module>
-        <module>jaxrs</module>
         <module>os-standalone-profile</module>
     </modules>
-    
+
 </project>
