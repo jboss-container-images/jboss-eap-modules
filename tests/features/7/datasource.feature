@@ -1,17 +1,6 @@
 @jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: EAP Openshift datasources
 
-  # TODO add a few tests to test the different drivers get provisioned. The syntax to start the server
-  # changes from the usual When to the following Given
-  # Given s2i build https://github.com/openshift/openshift-jee-sample
-  #     | variable                  | value                        |
-  #     | GALLEON_PROVISION_DEFAULT_CONFIG_LAYERS  | mysql-driver  |
-  #
-  # GALLEON_PROVISION_DEFAULT_CONFIG_LAYERS can take several values separated by a comma
-  # and some valid values are
-  # - mysql-driver
-  # - postgresql-driver
-
   Scenario: check mysql datasource
     When container is started with env
        | variable                  | value                        |
@@ -732,3 +721,4 @@ Feature: EAP Openshift datasources
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value true on XPath //*[local-name()='validation']/*[local-name()='background-validation']
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 3000 on XPath //*[local-name()='validation']/*[local-name()='background-validation-millis']
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 60000 on XPath //*[local-name()='database-data-store']/@refresh-interval
+
