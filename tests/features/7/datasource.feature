@@ -242,10 +242,8 @@ Feature: EAP Openshift datasources
     Then container log should contain WARN DRIVER not set for datasource TEST. Datasource will not be configured.
 
   Scenario: Test postgresql xa datasource extension
-    # This one needs the driver provisioned
-    Given s2i build https://github.com/openshift/openshift-jee-sample
-       | variable                  | value                        |
-       | GALLEON_PROVISION_DEFAULT_CONFIG_LAYERS  | mysql-driver  |
+    When container is started with env
+       | variable                       | value                                  |
        | DATASOURCES                    | TEST                                   |
        | TEST_JNDI                      | java:/jboss/datasources/testds         |
        | TEST_DRIVER                    | postgresql                             |
@@ -254,17 +252,14 @@ Feature: EAP Openshift datasources
        | TEST_SERVICE_HOST              | 10.1.1.1                               |
        | TEST_SERVICE_PORT              | 5432                                   |
        | TEST_DATABASE                  | pgdb                                   |
-       | TEST_NONXA                     | false                                  |
-       | TEST_JTA                       | true                                   |
+       | TEST_NONXA                     | true                                  |
+       | TEST_JTA                       | false                                   |
        | JDBC_STORE_JNDI_NAME           | java:/jboss/datasources/testds         |
        | NODE_NAME                      | TestStoreNodeName                      |
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='xa-datasource']/@jndi-name
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value 10.1.1.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value 5432 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="PortNumber"]
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value pgdb on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="DatabaseName"]
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value tombrady on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='user-name']
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 3 elements on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='datasource']/@jndi-name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:postgresql://10.1.1.1:5432/pgdb on XPath //*[local-name()='datasource']/*[local-name()='connection-url']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value tombrady on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='user-name']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='password']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='jdbc-store']/@datasource-jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value osTestStoreNodeName on XPath //*[local-name()='jdbc-store']/*[local-name()='action']/@table-prefix
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value osTestStoreNodeName on XPath //*[local-name()='jdbc-store']/*[local-name()='communication']/@table-prefix
@@ -296,10 +291,8 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value osTestStoreNodeName on XPath //*[local-name()='jdbc-store']/*[local-name()='state']/@table-prefix
 
   Scenario: Test postgresql xa datasource extension with hyphenated node name
-    # This one needs the driver provisioned
-    Given s2i build https://github.com/openshift/openshift-jee-sample
-       | variable                  | value                        |
-       | GALLEON_PROVISION_DEFAULT_CONFIG_LAYERS  | mysql-driver  |
+    When container is started with env
+       | variable                  | value                                       |
        | DATASOURCES                    | TEST                                   |
        | TEST_JNDI                      | java:/jboss/datasources/testds         |
        | TEST_DRIVER                    | postgresql                             |
@@ -308,18 +301,15 @@ Feature: EAP Openshift datasources
        | TEST_SERVICE_HOST              | 10.1.1.1                               |
        | TEST_SERVICE_PORT              | 5432                                   |
        | TEST_DATABASE                  | pgdb                                   |
-       | TEST_NONXA                     | false                                  |
-       | TEST_JTA                       | true                                   |
+       | TEST_NONXA                     | true                                   |
+       | TEST_JTA                       | false                                  |
        | JDBC_STORE_JNDI_NAME           | java:/jboss/datasources/testds         |
        | NODE_NAME                      | Test-Store-Node-Name                   |
        | JDBC_SKIP_RECOVERY             | true                                   |
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='xa-datasource']/@jndi-name
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value 10.1.1.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value 5432 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="PortNumber"]
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value pgdb on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="DatabaseName"]
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value tombrady on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='user-name']
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 3 elements on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='datasource']/@jndi-name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:postgresql://10.1.1.1:5432/pgdb on XPath //*[local-name()='datasource']/*[local-name()='connection-url']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value tombrady on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='user-name']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='password']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='jdbc-store']/@datasource-jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value osTestStoreNodeName on XPath //*[local-name()='jdbc-store']/*[local-name()='action']/@table-prefix
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value osTestStoreNodeName on XPath //*[local-name()='jdbc-store']/*[local-name()='communication']/@table-prefix
