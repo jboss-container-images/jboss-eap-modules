@@ -10,8 +10,10 @@ Feature: Common EAP tests
     When container is started with env
       | variable          | value                 |
       | ENABLE_ACCESS_LOG | true                  |
-    Then file /opt/eap/standalone/configuration/standalone-openshift.xml should contain <access-log use-server-log="true" pattern="%h %l %u %t %{i,X-Forwarded-Host} &quot;%r&quot; %s %b"/>
+    Then file /opt/eap/standalone/configuration/standalone-openshift.xml should contain <access-log pattern="%h %l %u %t %{i,X-Forwarded-Host} &quot;%r&quot; %s %b" use-server-log="true"/>
 
+  # Un-ignore when https://issues.jboss.org/browse/WFCORE-4521 is fixed
+  @ignore
   Scenario: Management interface is secured and JAVA_OPTS is modified
     When container is started with env
        | variable                | value             |
