@@ -14,7 +14,7 @@ source $BATS_TEST_DIRNAME/../../../added/launch/configure_logger_category.sh
 
 setup() {
   mkdir -p $JBOSS_HOME/standalone/configuration
-  cp $BATS_TEST_DIRNAME/../../../../os-eap71-openshift/added/standalone-openshift.xml $JBOSS_HOME/standalone/configuration
+  cp $BATS_TEST_DIRNAME/../../../.././jboss-eap72-openshift/added/standalone-openshift.xml $JBOSS_HOME/standalone/configuration
 }
 
 teardown() {
