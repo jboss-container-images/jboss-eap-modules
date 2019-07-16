@@ -106,7 +106,8 @@
             </logger>
             <logger category="sun.rmi">
                 <level name="WARN"/>
-            </logger>
+	     </logger>
+            <!-- ##LOGGER-CATEGORY## -->
             <root-logger>
                 <level name="INFO"/>
                 <handlers>
