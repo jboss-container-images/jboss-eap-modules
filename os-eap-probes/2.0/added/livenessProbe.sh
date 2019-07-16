@@ -16,26 +16,62 @@ COUNT=30
 SLEEP=5
 DEBUG_SCRIPT=false
 PROBE_IMPL="probe.eap.dmr.EapProbe probe.eap.dmr.HealthCheckProbe"
+INITIAL_SLEEP_SECONDS=5
+TMPLOC=${TMPDIR:-/tmp}
 
 if [ $# -gt 0 ] ; then
     COUNT=$1
 fi
 
-if [ $# -gt 1 ] ; then
-    SLEEP=$2
+# setting the first parameter to true/false, gets you the new default behaviour of
+# count = 1, sleep = 0 and initial sleep seconds = 0
+# setting it to a numeric value, or nothing falls through to the old behaviour
+
+if [[ -n "$COUNT" && ( $COUNT = "true" || $COUNT = "false" ) ]]; then
+  COUNT=1
+  SLEEP=0
+  INITIAL_SLEEP_SECONDS=0
+
+  if [ $# -gt 1 ] ; then
+     DEBUG_SCRIPT=$2
+  fi
+
+  if [ $# -gt 2 ] ; then
+     PROBE_IMPL=$3
+  fi
+else
+    if [[ $# -gt 0 ]]; then
+        # deprecated support for count / sleep / initial sleep of 5s
+        if [ ! -f ${TMPLOC}/probe_deprecation_warning ]; then
+            # log a warning the first time this happens, and at least parameter has been specified.
+            touch ${TMPLOC}/probe_deprecation_warning
+            echo "WARN: Support for count / sleep has been deprecated in probes and may be removed in a future release."
+        fi
+    fi
+
+    if [ $# -gt 1 ] ; then
+        SLEEP=$2
+    fi
+
+    if [ $# -gt 2 ] ; then
+        DEBUG_SCRIPT=$3
+    fi
+
+    if [ $# -gt 3 ] ; then
+        PROBE_IMPL=$4
+    fi
+
+    if [ $# -gt 4 ] ; then
+        INITIAL_SLEEP_SECONDS=$5
+    fi
 fi
 
-if [ $# -gt 2 ] ; then
-    DEBUG_SCRIPT=$3
+if [ ${INITIAL_SLEEP_SECONDS} -gt 0 ]; then
+    # Sleep for INITIAL_SLEEP_SECONDS (default legacy value 5) to avoid launching readiness and liveness probes
+    # at the same time
+    # this preserves the legacy probe behaviour when using templates that have not been updated.
+    sleep ${INITIAL_SLEEP_SECONDS}
 fi
-
-if [ $# -gt 3 ] ; then
-    PROBE_IMPL=$4
-fi
-
-# Sleep for 5 seconds to avoid launching readiness and liveness probes
-# at the same time
-sleep 5
 
 if [ "$DEBUG_SCRIPT" = "true" ]; then
     DEBUG_OPTIONS="--debug --logfile $LOG --loglevel DEBUG"
@@ -46,7 +82,7 @@ if python $JBOSS_HOME/bin/probes/runner.py -c READY -c NOT_READY --maxruns $COUN
 fi
 
 if [ "$DEBUG_SCRIPT" == "true" ]; then
-    jps -v | grep standalone | awk '{print $1}' | xargs kill -3
+  ps -ef | grep java | grep standalone | awk '{ print $2 }' | xargs kill -3
 fi
 
 exit 1

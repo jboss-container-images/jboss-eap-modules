@@ -10,21 +10,44 @@ COUNT=30
 SLEEP=5
 DEBUG=${SCRIPT_DEBUG:-false}
 PROBE_IMPL="probe.eap.dmr.EapProbe probe.eap.dmr.HealthCheckProbe"
+TMPLOC=${TMPDIR:-/tmp}
 
 if [ $# -gt 0 ] ; then
     COUNT=$1
 fi
 
-if [ $# -gt 1 ] ; then
-    SLEEP=$2
-fi
+if [[ -n "$COUNT" && ( $COUNT = "true" || $COUNT = "false" ) ]]; then
+  COUNT=1
+  SLEEP=0
 
-if [ $# -gt 2 ] ; then
-    DEBUG=$3
-fi
+  if [ $# -gt 1 ] ; then
+     DEBUG=$2
+  fi
 
-if [ $# -gt 3 ] ; then
-    PROBE_IMPL=$4
+  if [ $# -gt 2 ] ; then
+        PROBE_IMPL=$3
+  fi
+else
+    if [ $# -gt 0 ]; then
+        # deprecated support for count / sleep
+        if [ ! -f ${TMPLOC}/probe_deprecation_warning ]; then
+            # log a warning the first time this happens and at least one parameter has been specified.
+            touch ${TMPLOC}/probe_deprecation_warning
+            echo "WARN: Support for count / sleep has been deprecated in probes and may be removed in a future release."
+        fi
+    fi
+
+    if [ $# -gt 1 ] ; then
+        SLEEP=$2
+    fi
+
+    if [ $# -gt 2 ] ; then
+        DEBUG=$3
+    fi
+
+    if [ $# -gt 3 ] ; then
+        PROBE_IMPL=$4
+    fi
 fi
 
 if [ "$DEBUG" = "true" ]; then
