@@ -34,7 +34,8 @@ envs:
   value: "true"
 - name: GALLEON_WF_EXTRAS_DS_VERSION
   value: 1.0.3.Final
-
+- name: GALLEON_S2I_PRODUCER_NAME
+  value: eap-cd-s2i
 
 execute:
 - script: configure.sh
