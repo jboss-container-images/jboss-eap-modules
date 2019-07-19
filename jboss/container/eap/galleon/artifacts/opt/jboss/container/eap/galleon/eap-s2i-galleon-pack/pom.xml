@@ -18,12 +18,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.jboss.eap.galleon.s2i</groupId>
-        <artifactId>eap-galleon-s2i-parent</artifactId>
-        <version>17.0.0.Final</version>
-    </parent>
+    <groupId>org.jboss.eap.galleon.s2i</groupId>
     <artifactId>eap-s2i-galleon-pack</artifactId>
+    <version>17.0.0.Final</version>
     <packaging>pom</packaging>
     <name>EAP Galleon feature-pack for OpenShift</name>
   
@@ -36,6 +33,11 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    
+    <properties>
+        <version.org.wildfly>${env.WILDFLY_VERSION}</version.org.wildfly>
+        <version.org.wildfly.galleon-plugins>${env.GALLEON_WILDFLY_VERSION}</version.org.wildfly.galleon-plugins>
+    </properties>
     
     <dependencies>
         <dependency>
@@ -51,6 +53,7 @@
             <plugin>
                 <groupId>org.wildfly.galleon-plugins</groupId>
                 <artifactId>wildfly-galleon-maven-plugin</artifactId>
+                <version>${version.org.wildfly.galleon-plugins}</version>
                 <executions>
                     <execution>
                         <id>eap-openshift-feature-pack-build</id>
