@@ -21,6 +21,8 @@ if ! $IS_SPLIT_DATA_DEFINED && [ "x$FORBID_TX_JDBC_RECOVERY_MARKER" = "xtrue" ];
     log_warning "[`date`] Forbidden to use jdbc for recovery marker by use of variable FORBID_TX_JDBC_RECOVERY_MARKER while SPLIT_DATA is not enabled."
     log_warning "The transaction recovery marker algorithm is not capable to save recovery data and won't work."
 fi
+# when not capable to connect to JDBC recovery storage retrying n-times before exiting the container
+[[ $TX_JDBC_RECOVERY_CONNECTION_RETRY =~ ^[0-9]+$ ]] || TX_JDBC_RECOVERY_CONNECTION_RETRY=3
 
 # parameters
 # - needle to search in array
@@ -158,7 +160,14 @@ function migratePV() {
   init_pod_name
   local recoveryPodName="${POD_NAME}"
 
-  $IS_TX_SQL_BACKEND && initJdbcRecoveryMarkerProperties
+  if $IS_TX_SQL_BACKEND; then
+    initJdbcRecoveryMarkerProperties
+    log_info "[`date`] Using database transaction recovery marker saved at ${JDBC_INFO}"
+    until createRecoveryDatabaseSchema; do
+      log_error "[`date`] Cannot create schema of recovery database records. Will be retrying."
+      log_error "Database ${JDBC_INFO} is probably not available."
+    done
+  fi
 
   while true ; do
 
@@ -414,6 +423,7 @@ function initJdbcRecoveryMarkerProperties() {
   JDBC_RECOVERY_USER=$(find_env "${prefix}_USERNAME")
   JDBC_RECOVERY_PASSWORD=$(find_env "${prefix}_PASSWORD")
   JDBC_RECOVERY_NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+  JDBC_INFO="${JDBC_RECOVERY_DB_HOST}:${JDBC_RECOVERY_DB_PORT}/${JDBC_RECOVERY_DATABASE}"
 
   local jdbcTableSuffix=${TX_JDBC_RECOVERY_MARKER_TABLE_SUFFIX//-/}
   [ "x${jdbcTableSuffix}" != "x" ] && jdbcTableSuffix="_${jdbcTableSuffix}"
@@ -442,8 +452,15 @@ function initJdbcRecoveryMarkerProperties() {
   local jdbcCommand="java ${add_modules} $LOGGING_PROPERTIES -jar $JBOSS_HOME/jboss-modules.jar -mp $JBOSS_HOME/modules/ io.narayana.openshift-recovery -y ${JDBC_RECOVERY_DB_TYPE} -o ${JDBC_RECOVERY_DB_HOST} -p ${JDBC_RECOVERY_DB_PORT} -d ${JDBC_RECOVERY_DATABASE} -u ${JDBC_RECOVERY_USER} -s ${JDBC_RECOVERY_PASSWORD}"
   JDBC_COMMAND_RECOVERY_MARKER="${jdbcCommand} -t ${JDBC_RECOVERY_TABLE} -c"
   JDBC_COMMAND_PODNAME_REGISTRY="${jdbcCommand} -t ${JDBC_PODNAME_REGISTRY_TABLE} -c"
+}
 
-  # creating the database schema
+# creating the database schema
+# parameters:
+# - no params, expected to be called after the init properties is invoked
+function createRecoveryDatabaseSchema() {
   ${JDBC_COMMAND_RECOVERY_MARKER} create
+  [ $? -ne 0 ] && return 1
   ${JDBC_COMMAND_PODNAME_REGISTRY} create
+  [ $? -ne 0 ] && return 1
+  return 0
 }
