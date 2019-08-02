@@ -10,6 +10,7 @@ fi
 OUTPUT=/tmp/liveness-output
 ERROR=/tmp/liveness-error
 LOG=/tmp/liveness-log
+OCPVERS=/tmp/liveness-ocp-version
 
 # liveness failure before management interface is up will cause the probe to fail
 COUNT=30
@@ -23,11 +24,25 @@ if [ $# -gt 0 ] ; then
     COUNT=$1
 fi
 
-# setting the first parameter to true/false, gets you the new default behaviour of
-# count = 1, sleep = 0 and initial sleep seconds = 0
-# setting it to a numeric value, or nothing falls through to the old behaviour
+# check if this is OCP 4 (k8s 13+)
+# avoid querying the api every time if we can.
+is_ocp4="false"
+if [ -n "$KUBERNETES_SERVICE_HOST" ]; then
+    if [ -f ${OCPVERS} ]; then
+        is_ocp4=$(<${OCPVERS})
+    else
+        is_ocp4=$(is_ocp4_or_greater)
+        echo ${is_ocp4} > ${OCPVERS}
+    fi
+fi
 
-if [[ -n "$COUNT" && ( $COUNT = "true" || $COUNT = "false" ) ]]; then
+# setting the first parameter to true/false, gets you the new default behavior of
+# count = 1, sleep = 0 and initial sleep seconds = 0
+# setting it to a numeric value, or nothing falls through to the old behavior
+# if this is OCP 4 and it is unset, default to the new behavior
+
+# COUNT is unset, and we're running on OCP 4+ OR COUNT is set to either true or false
+if [[ ( $# -eq 0 && ${is_ocp4} = "true" ) || ( -n ${COUNT} && ( ${COUNT} = "true" || ${COUNT} = "false" )) ]]; then
   COUNT=1
   SLEEP=0
   INITIAL_SLEEP_SECONDS=0
