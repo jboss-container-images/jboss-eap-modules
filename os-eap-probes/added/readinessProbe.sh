@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 . "$JBOSS_HOME/bin/probe_common.sh"
 
 OUTPUT=/tmp/readiness-output
 ERROR=/tmp/readiness-error
 LOG=/tmp/readiness-log
+OCPVERS=/tmp/readiness-ocp-version
 
 COUNT=30
 SLEEP=5
@@ -16,7 +17,20 @@ if [ $# -gt 0 ] ; then
     COUNT=$1
 fi
 
-if [[ -n "$COUNT" && ( $COUNT = "true" || $COUNT = "false" ) ]]; then
+# check if this is OCP 4 (k8s 13+)
+# avoid querying the api every time if we can.
+is_ocp4="false"
+if [ -n "$KUBERNETES_SERVICE_HOST" ]; then
+    if [ -f ${OCPVERS} ]; then
+        is_ocp4=$(<${OCPVERS})
+    else
+        is_ocp4=$(is_ocp4_or_greater)
+        echo ${is_ocp4} > ${OCPVERS}
+    fi
+fi
+
+# COUNT is unset, and we're running on OCP 4+ OR COUNT is set to either true or false
+if [[ ( $# -eq 0 && ${is_ocp4} = "true" ) || -n "$COUNT" && ( $COUNT = "true" || $COUNT = "false" ) ]]; then
   COUNT=1
   SLEEP=0
 
