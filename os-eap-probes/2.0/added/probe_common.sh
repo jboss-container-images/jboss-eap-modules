@@ -41,3 +41,30 @@ list_failed_deployments() {
     ls -- /deployments/*failed >/dev/null 2>&1 && \
         echo /deployments/*.failed | sed "s+^/deployments/\(.*\)\.failed$+\1+"
 }
+
+is_ocp4_or_greater() {
+  CA_CERT="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+  SERVICE_PORT="${KUBERNETES_SERVICE_PORT:-443}"
+  SERVICE_HOST="${KUBERNETES_SERVICE_HOST:-kubernetes.default.svc}"
+  VERSION_URL="https://${SERVICE_HOST}:${SERVICE_PORT}/version"
+
+  if [ -f "${CA_CERT}" ]; then
+    CURL_CERT_OPTION="--cacert ${CA_CERT}"
+  else
+    CURL_CERT_OPTION="-k"
+  fi
+
+  VERSION=$(curl -s ${CURL_CERT_OPTION} "${VERSION_URL}" | python -c 'import sys, json; a=json.load(sys.stdin); print("%s.%s" % (a["major"], a["minor"]))')
+  IFS=. read -r maj min <<< "${VERSION}"
+  # drop '+' if it's present in min
+  min=${min%+}
+  if [ "${maj:-0}" -ge 1 ]; then
+    if [ "${min:-0}" -ge 13 ]; then
+      echo "true"
+      export OCP4="true"
+      return
+    fi
+  fi
+  echo "false"
+  export OCP4="false"
+}
