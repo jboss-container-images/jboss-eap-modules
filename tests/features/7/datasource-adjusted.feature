@@ -62,7 +62,7 @@ Scenario: Cannot add an xa datasource when an xa datasource already exists with 
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
-    And file /tmp/cli-validation-failures.log should contain You have set environment variables to configure the datasource 'test_mysql-B'. However, your base configuration already contains a datasource with that name.
+    And file /tmp/boot.log should contain ERROR "You have set environment variables to configure the datasource 'test_mysql-B'. However, your base configuration already contains a datasource with that name."
 
 Scenario: Cannot add an xa datasource when a non-xa datasource already exists with a clashing name
     When container is started with command bash
@@ -79,7 +79,7 @@ Scenario: Cannot add an xa datasource when a non-xa datasource already exists wi
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
-    And file /tmp/cli-validation-failures.log should contain You have set environment variables to configure the datasource 'test_mysql-A'. However, your base configuration already contains a datasource with that name.
+    And file /tmp/boot.log should contain ERROR "You have set environment variables to configure the datasource 'test_mysql-A'. However, your base configuration already contains a datasource with that name."
 
 Scenario: Cannot add a non-xa datasource when a non-xa datasource already exists with a clashing name
     When container is started with command bash
@@ -97,7 +97,7 @@ Scenario: Cannot add a non-xa datasource when a non-xa datasource already exists
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
-    And file /tmp/cli-validation-failures.log should contain You have set environment variables to configure the datasource 'test_mysql-A'. However, your base configuration already contains a datasource with that name.
+    And file /tmp/boot.log should contain ERROR "You have set environment variables to configure the datasource 'test_mysql-A'. However, your base configuration already contains a datasource with that name."
 
 Scenario: Cannot add a non-xa datasource when an xa datasource already exists with a clashing name
     When container is started with command bash
@@ -115,4 +115,4 @@ Scenario: Cannot add a non-xa datasource when an xa datasource already exists wi
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
-    And file /tmp/cli-validation-failures.log should contain You have set environment variables to configure the datasource 'test_mysql-B'. However, your base configuration already contains a datasource with that name.
+    And file /tmp/boot.log should contain ERROR "You have set environment variables to configure the datasource 'test_mysql-B'. However, your base configuration already contains a datasource with that name."
