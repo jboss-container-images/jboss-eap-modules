@@ -53,7 +53,9 @@ function runMigration() {
 
       if [ "${recoveryPort}" != "undefined" ] ; then
         local recoveryClass="com.arjuna.ats.arjuna.tools.RecoveryMonitor"
-        recoveryJar=$(find "${JBOSS_HOME}" -name \*.jar | xargs grep -l "${recoveryClass}" | xargs ls -Art | tail -n 1 )
+        # we may have > 1 jar, if that is the case we use the most recent one
+        recoveryJars=$(find "${JBOSS_HOME}" -name \*.jar | xargs grep -l "${recoveryClass}")
+        recoveryJar=$(ls -Art $recoveryJars | tail -n 1)
         if [ -n "${recoveryJar}" ] ; then
           echo "$(date): Executing synchronous recovery scan for a first time"
           java -cp "${recoveryJar}" "${recoveryClass}" -host "${recoveryHost}" -port "${recoveryPort}" -timeout 1800000
