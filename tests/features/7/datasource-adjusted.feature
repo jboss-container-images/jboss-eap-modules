@@ -1,7 +1,9 @@
 @jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: EAP Openshift datasources with adjusted base config
 
-  Scenario: ExampleDS already in config is not changed
+# This does tests where we modify the base configuration before we try to start the container
+
+Scenario: Adding ExampleDS when already in config gives an error
     #wildfly-cekit-modules has been updated to only add the default ds if ENABLE_GENERATE_DEFAULT_DATASOURCE=true
     When container is started with command bash
        | variable                           | value           |
@@ -12,6 +14,7 @@ Feature: EAP Openshift datasources with adjusted base config
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/ExampleDS-original on XPath //*[local-name()='datasource']/@jndi-name
+    And file /tmp/boot.log should contain ERROR "You have set environment variables to configure the default datasource 'ExampleDS'. However, your base configuration already contains a datasource with that name."
 
 Scenario: Can add an xa datasource when datasources already exist and the names don't clash
     When container is started with command bash
