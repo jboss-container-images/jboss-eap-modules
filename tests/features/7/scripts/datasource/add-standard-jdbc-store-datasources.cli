@@ -1,0 +1,11 @@
+embed-server --timeout=30 --std-out=echo --server-config=standalone-openshift.xml
+
+/subsystem=datasources/data-source=nonxa_postgresqlObjectStorePool:add(background-validation=false, connection-url="jdbc:mysql://10.1.1.1:3306/kitchensink", driver-name=mysql, enabled=true, jndi-name=java:jboss/datasources/test_a, jta=false, password=password, statistics-enabled="${wildfly.datasources.statistics-enabled:${wildfly.statistics-enabled:false}}", use-java-context=true, user-name=tombrady)
+batch
+/subsystem=datasources/xa-data-source=xa_postgresqlObjectStorePool:add(background-validation=false, driver-name=mysql, enabled=true, jndi-name="java:jboss/datasources/test_b", password=hardtoguess, statistics-enabled="${wildfly.datasources.statistics-enabled:${wildfly.statistics-enabled:false}}", use-java-context=true, user-name=marek)
+/subsystem=datasources/xa-data-source=xa_postgresqlObjectStorePool/xa-datasource-properties=DatabaseName:add(value="kitchensink")
+/subsystem=datasources/xa-data-source=xa_postgresqlObjectStorePool/xa-datasource-properties=Port:add(value="3306")
+/subsystem=datasources/xa-data-source=xa_postgresqlObjectStorePool/xa-datasource-properties=ServerName:add(value="10.1.1.1")
+run-batch
+
+stop-embedded-server

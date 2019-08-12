@@ -119,3 +119,62 @@ Scenario: Cannot add a non-xa datasource when an xa datasource already exists wi
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
     And file /tmp/boot.log should contain ERROR You have set environment variables to configure the datasource 'test_mysql-B'. However, your base configuration already contains a datasource with that name.
+
+Scenario: Cannot add a transactional log store datasource when an xa datasource already exists with a clashing name
+   #Although we use the name 'XA' here this does not refer to the log store we're attempting to add
+   #rather the existing datasource that is added by the cli file
+    When container is started with command bash
+       | variable                     | value                                    |
+       | TX_DATABASE_PREFIX_MAPPING   | XA_POSTGRESQL                            |
+       | XA_POSTGRESQL_JNDI           | java:/jboss/datasources/testdsa          |
+       | XA_POSTGRESQL_USERNAME       | tombrady                                 |
+       | XA_POSTGRESQL_PASSWORD       | password                                 |
+       | XA_POSTGRESQL_SERVICE_HOST   | 10.1.1.1                                 |
+       | XA_POSTGRESQL_SERVICE_PORT   | 5432                                     |
+       | XA_POSTGRESQL_DATABASE       | pgdb                                     |
+       | NODE_NAME                    | Test-Store-Node-Name                     |
+       | JDBC_SKIP_RECOVERY           | true                                     |
+    Then copy features/jboss-eap-modules/7/scripts/datasource/add-standard-jdbc-store-datasources.cli to /tmp in container
+    And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-standard-jdbc-store-datasources.cli in container once
+    And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
+    And file /tmp/boot.log should contain ERROR You have set environment variables to configure the transactional logstore datasource 'xa_postgresqlObjectStorePool'. However, your base configuration already contains a datasource with that name.
+
+Scenario: Cannot add a transaction log store datasource when a standard datasource already exists with a clashing name
+   #Although we use the name 'NONXA' here this does not refer to the log store we're attempting to add
+   #rather the existing datasource that is added by the cli file
+    When container is started with command bash
+       | variable                          | value                                    |
+       | TX_DATABASE_PREFIX_MAPPING        | NONXA_POSTGRESQL                         |
+       | NONXA_POSTGRESQL_JNDI             | java:/jboss/datasources/testdsa          |
+       | NONXA_POSTGRESQL_USERNAME         | tombrady                                 |
+       | NONXA_POSTGRESQL_PASSWORD         | password                                 |
+       | NONXA_POSTGRESQL_SERVICE_HOST     | 10.1.1.1                                 |
+       | NONXA_POSTGRESQL_SERVICE_PORT     | 5432                                     |
+       | NONXA_POSTGRESQL_DATABASE         | pgdb                                     |
+       | NODE_NAME                         | Test-Store-Node-Name                     |
+       | JDBC_SKIP_RECOVERY                | true                                     |
+    Then copy features/jboss-eap-modules/7/scripts/datasource/add-standard-jdbc-store-datasources.cli to /tmp in container
+    And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-standard-jdbc-store-datasources.cli in container once
+    And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
+    And file /tmp/boot.log should contain ERROR You have set environment variables to configure the transactional logstore datasource 'nonxa_postgresqlObjectStorePool'. However, your base configuration already contains a datasource with that name.
+
+Scenario: Cannot add a transaction log store when a conflicting transaction jdbc logstore already exists
+   When container is started with command bash
+      | variable                       | value                          |
+      | TX_DATABASE_PREFIX_MAPPING     | TEST_POSTGRESQL                |
+      | TEST_POSTGRESQL_JNDI           | java:/jboss/datasources/testds |
+      | TEST_POSTGRESQL_USERNAME       | kabir                          |
+      | TEST_POSTGRESQL_PASSWORD       | password                       |
+      | TEST_POSTGRESQL_SERVICE_HOST   | 10.1.1.1                       |
+      | TEST_POSTGRESQL_SERVICE_PORT   | 5432                           |
+      | TEST_POSTGRESQL_DATABASE       | pgdb                           |
+      | NODE_NAME                      | TestStoreNodeName              |
+      | JDBC_SKIP_RECOVERY             | true                           |
+   Then copy features/jboss-eap-modules/7/scripts/datasource/transaction-jdbc-log-store.cli to /tmp in container
+   And run /opt/eap/bin/jboss-cli.sh --file=/tmp/transaction-jdbc-log-store.cli in container once
+   And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
+   And file /tmp/boot.log should contain ERROR You have set environment variables to configure a jdbc logstore in the transactions subsystem which conflict with the values that already exist in the base configuration. Fix your configuration.
