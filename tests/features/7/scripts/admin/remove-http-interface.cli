@@ -1,0 +1,3 @@
+embed-server --timeout=30 --std-out=echo --server-config=standalone-openshift.xml
+/core-service=management/management-interface=http-interface:remove
+stop-embedded-server
