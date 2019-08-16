@@ -10,7 +10,6 @@ Feature: EAP Openshift datasources
        | TEST_PASSWORD             | hardtoguess                  |
        | TEST_MYSQL_SERVICE_HOST   | 10.1.1.1                     |
        | TEST_MYSQL_SERVICE_PORT   | 3306                         |
-       | TIMER_SERVICE_DATA_STORE  | test-mysql                   |
        | JDBC_SKIP_RECOVERY        | true                         |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_mysql on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
@@ -19,13 +18,14 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value kitchensink on XPath //*[local-name()='xa-datasource-property'][@name="DatabaseName"]
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value marek on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value hardtoguess on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST_ds on XPath //*[local-name()='timer-service']/@default-data-store
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST_ds on XPath //*[local-name()='database-data-store']/@name
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_mysql on XPath //*[local-name()='database-data-store']/@datasource-jndi-name
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mysql on XPath //*[local-name()='database-data-store']/@database
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST_part on XPath //*[local-name()='database-data-store']/@partition
     # Check defaults in other affected subsystems
     # We will not do these extra checks for the everywhere (just once for each kind of ds), but will have other tests where we set them.
+    # Timer service
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value default-file-store on XPath //*[local-name()='timer-service']/@default-data-store
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value default-file-store on XPath //*[local-name()='file-data-store']/@name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value timer-service-data on XPath //*[local-name()='file-data-store']/@path
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jboss.server.data.dir on XPath //*[local-name()='file-data-store']/@relative-to
+    # Default job repository
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value in-memory on XPath //*[local-name()='default-job-repository']/@name
 
   Scenario: check mysql datasource with advanced settings
@@ -87,7 +87,6 @@ Feature: EAP Openshift datasources
        | TEST_PASSWORD                 | hardtoguess                  |
        | TEST_POSTGRESQL_SERVICE_HOST  | 10.1.1.1                     |
        | TEST_POSTGRESQL_SERVICE_PORT  | 5432                         |
-       | TIMER_SERVICE_DATA_STORE      | test-postgresql              |
        | JDBC_SKIP_RECOVERY            | true                         |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_postgresql on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
@@ -96,13 +95,14 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value kitchensink on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="DatabaseName"]
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value marek on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value hardtoguess on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST_ds on XPath //*[local-name()='timer-service']/@default-data-store
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST_ds on XPath //*[local-name()='database-data-store']/@name
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_postgresql on XPath //*[local-name()='database-data-store']/@datasource-jndi-name
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value postgresql on XPath //*[local-name()='database-data-store']/@database
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST_part on XPath //*[local-name()='database-data-store']/@partition
     # Check defaults in other affected subsystems
     # We will not do these extra checks for the everywhere (just once for each kind of ds), but will have other tests where we set them.
+    # Timer service
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value default-file-store on XPath //*[local-name()='timer-service']/@default-data-store
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value default-file-store on XPath //*[local-name()='file-data-store']/@name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value timer-service-data on XPath //*[local-name()='file-data-store']/@path
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jboss.server.data.dir on XPath //*[local-name()='file-data-store']/@relative-to
+    # Default job repository
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value in-memory on XPath //*[local-name()='default-job-repository']/@name
 
   Scenario: check postgresql datasource with advanced settings
@@ -728,7 +728,7 @@ Feature: EAP Openshift datasources
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 3000 on XPath //*[local-name()='validation']/*[local-name()='background-validation-millis']
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 60000 on XPath //*[local-name()='database-data-store']/@refresh-interval
 
-Scenario: check mysql datasource with specified DEFAULT_JOB_REPOSITORY
+ Scenario: check mysql datasource with specified DEFAULT_JOB_REPOSITORY and TIMER_SERVICE
     # Tests settings which override the defaults we checked in the 'check mysql datasource' scenario
     When container is started with env
        | variable                  | value                        |
@@ -740,12 +740,20 @@ Scenario: check mysql datasource with specified DEFAULT_JOB_REPOSITORY
        | TEST_MYSQL_SERVICE_PORT   | 3306                         |
        | JDBC_SKIP_RECOVERY        | true                         |
        | DEFAULT_JOB_REPOSITORY    | test-mysql                   |
+       | TIMER_SERVICE_DATA_STORE  | test-mysql                   |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
     # Skip a lot of the checks done in 'check mysql datasource' anyway
     # Now for what we are after....
+    # Default job repository
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='default-job-repository']/@name
+    # Timer service
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST_ds on XPath //*[local-name()='timer-service']/@default-data-store
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST_ds on XPath //*[local-name()='database-data-store']/@name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_mysql on XPath //*[local-name()='database-data-store']/@datasource-jndi-name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mysql on XPath //*[local-name()='database-data-store']/@database
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST_part on XPath //*[local-name()='database-data-store']/@partition
 
-  Scenario: check postgresql datasource with specified DEFAULT_JOB_REPOSITORY
+  Scenario: check postgresql datasource with specified DEFAULT_JOB_REPOSITORY and TIMER_SERVICE
     # Tests settings which override the defaults we checked in the 'check posgresql datasource' scenario
     When container is started with env
        | variable                  | value                            |
@@ -757,12 +765,20 @@ Scenario: check mysql datasource with specified DEFAULT_JOB_REPOSITORY
        | TEST_POSTGRESQL_SERVICE_PORT  | 5432                         |
        | JDBC_SKIP_RECOVERY            | true                         |
        | DEFAULT_JOB_REPOSITORY        | test-postgresql              |
+       | TIMER_SERVICE_DATA_STORE      | test-postgresql              |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
     # Skip a lot of the checks done in 'check postgresql datasource' anyway
     # Now for what we are after....
+    # Default job repository
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST on XPath //*[local-name()='default-job-repository']/@name
+    # Timer service
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST_ds on XPath //*[local-name()='timer-service']/@default-data-store
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST_ds on XPath //*[local-name()='database-data-store']/@name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_postgresql on XPath //*[local-name()='database-data-store']/@datasource-jndi-name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value postgresql on XPath //*[local-name()='database-data-store']/@database
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST_part on XPath //*[local-name()='database-data-store']/@partition
 
-Scenario: check mysql datasource with a DEFAULT_JOB_REPOSITORY which does not match any added datasources
+  Scenario: check mysql datasource with a DEFAULT_JOB_REPOSITORY which does not match any added datasources
     # Tests settings which override the defaults we checked in the 'check mysql datasource' scenario
     When container is started with env
        | variable                  | value                        |
