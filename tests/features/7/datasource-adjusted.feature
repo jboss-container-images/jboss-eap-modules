@@ -315,3 +315,80 @@ Scenario: check datasource and timer service with a clashing database-data-store
    # Skip a lot of the checks done in 'check mysql datasource' anyway
    # Now for what we are after....
    And file /tmp/boot.log should contain ERROR You have set environment variables to configure a timer service database-data-store in the ejb3 subsystem which conflict with the values that already exist in the base configuration. Fix your configuration.
+
+Scenario: check guessed EE default-bindings datasource and no EE subsystem does not give error
+    When container is started with command bash
+       | variable                  | value                        |
+       | DB_SERVICE_PREFIX_MAPPING | test-mysql=TEST              |
+       | TEST_DATABASE             | kitchensink                  |
+       | TEST_USERNAME             | marek                        |
+       | TEST_PASSWORD             | hardtoguess                  |
+       | TEST_MYSQL_SERVICE_HOST   | 10.1.1.1                     |
+       | TEST_MYSQL_SERVICE_PORT   | 3306                         |
+       | JDBC_SKIP_RECOVERY        | true                         |
+   Then copy features/jboss-eap-modules/7/scripts/datasource/remove-ee-subsystem.cli to /tmp in container
+   And run /opt/eap/bin/jboss-cli.sh --file=/tmp/remove-ee-subsystem.cli in container once
+   And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
+   And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
+   # Skip a lot of the checks done in 'check mysql datasource' anyway
+   # Now for what we are after....
+   And file /tmp/boot.log should not contain ERROR EE_DEFAULT_DATASOURCE was set to
+
+Scenario: check specified EE default-bindings datasource and no EE subsystem gives error
+    When container is started with command bash
+       | variable                  | value                        |
+       | DB_SERVICE_PREFIX_MAPPING | test-mysql=TEST              |
+       | TEST_DATABASE             | kitchensink                  |
+       | TEST_USERNAME             | marek                        |
+       | TEST_PASSWORD             | hardtoguess                  |
+       | TEST_MYSQL_SERVICE_HOST   | 10.1.1.1                     |
+       | TEST_MYSQL_SERVICE_PORT   | 3306                         |
+       | JDBC_SKIP_RECOVERY        | true                         |
+       | EE_DEFAULT_DATASOURCE     | test-mysql                   |
+   Then copy features/jboss-eap-modules/7/scripts/datasource/remove-ee-subsystem.cli to /tmp in container
+   And run /opt/eap/bin/jboss-cli.sh --file=/tmp/remove-ee-subsystem.cli in container once
+   And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
+   # Skip a lot of the checks done in 'check mysql datasource' anyway
+   # Now for what we are after....
+   And file /tmp/boot.log should contain ERROR EE_DEFAULT_DATASOURCE was set to 'test-mysql' but the base configuration contains no ee subsystem. Fix your configuration.
+
+Scenario: check guessed EE default-bindings datasource when there is a conflict in existing values should give a warning
+   When container is started with command bash
+       | variable                  | value                        |
+       | DB_SERVICE_PREFIX_MAPPING | test-mysql=TEST              |
+       | TEST_DATABASE             | kitchensink                  |
+       | TEST_USERNAME             | marek                        |
+       | TEST_PASSWORD             | hardtoguess                  |
+       | TEST_MYSQL_SERVICE_HOST   | 10.1.1.1                     |
+       | TEST_MYSQL_SERVICE_PORT   | 3306                         |
+       | JDBC_SKIP_RECOVERY        | true                         |
+   Then copy features/jboss-eap-modules/7/scripts/datasource/add-standard-base-datasources.cli to /tmp in container
+   And copy features/jboss-eap-modules/7/scripts/datasource/add-clashing-base-ee-default-bindings-datasource.cli to /tmp in container
+   And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-standard-base-datasources.cli in container once
+   And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-clashing-base-ee-default-bindings-datasource.cli in container once
+   And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
+   And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
+   # Skip a lot of the checks done in 'check mysql datasource' anyway
+   # Now for what we are after....
+   And file /tmp/boot.log should contain WARN You have set environment variables to configure the datasource in the default-bindings in the ee subsystem subsystem which conflicts with the value that already exists in the base configuration. The base configuration value will be used. Fix your configuration.
+
+Scenario: check specified EE default-bindings datasource when there is a conflict in existing values should give an error
+   When container is started with command bash
+       | variable                  | value                        |
+       | DB_SERVICE_PREFIX_MAPPING | test-mysql=TEST              |
+       | TEST_DATABASE             | kitchensink                  |
+       | TEST_USERNAME             | marek                        |
+       | TEST_PASSWORD             | hardtoguess                  |
+       | TEST_MYSQL_SERVICE_HOST   | 10.1.1.1                     |
+       | TEST_MYSQL_SERVICE_PORT   | 3306                         |
+       | JDBC_SKIP_RECOVERY        | true                         |
+       | EE_DEFAULT_DATASOURCE     | test-mysql                   |
+   Then copy features/jboss-eap-modules/7/scripts/datasource/add-standard-base-datasources.cli to /tmp in container
+   And copy features/jboss-eap-modules/7/scripts/datasource/add-clashing-base-ee-default-bindings-datasource.cli to /tmp in container
+   And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-standard-base-datasources.cli in container once
+   And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-clashing-base-ee-default-bindings-datasource.cli in container once
+   And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
+   And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
+   # Skip a lot of the checks done in 'check mysql datasource' anyway
+   # Now for what we are after....
+   And file /tmp/boot.log should contain ERROR You have set environment variables to configure the datasource in the default-bindings in the ee subsystem subsystem which conflicts with the value that already exists in the base configuration. Fix your configuration.
