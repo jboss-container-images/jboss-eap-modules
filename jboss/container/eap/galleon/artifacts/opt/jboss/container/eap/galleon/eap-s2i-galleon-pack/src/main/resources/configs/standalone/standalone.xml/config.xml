@@ -96,7 +96,6 @@
     <!-- datasources -->
     <!-- We are not keeping the ExampleDS in the config -->
     <exclude feature-id="subsystem.datasources.data-source:data-source=ExampleDS"/>
-    <exclude feature-id="subsystem.datasources.jdbc-driver:jdbc-driver=h2"/>
     <feature spec="subsystem.ee.service.default-bindings">
         <unset param="datasource"/>
     </feature>
