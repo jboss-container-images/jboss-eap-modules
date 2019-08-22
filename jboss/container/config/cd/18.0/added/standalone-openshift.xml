@@ -466,9 +466,6 @@
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:request-controller:1.0"/>
         <subsystem xmlns="urn:jboss:domain:resource-adapters:5.0">
-            <resource-adapters>
-                <!-- ##RESOURCE_ADAPTERS## -->
-            </resource-adapters>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:sar:1.0"/>
         <subsystem xmlns="urn:jboss:domain:security:2.0">

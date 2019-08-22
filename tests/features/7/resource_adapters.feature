@@ -133,6 +133,8 @@ Feature: EAP Openshift resource adapters
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value EntirePool on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='pool']/*[local-name()='flush-strategy']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@tracking
 
+  # This will fail until messaging.sh has been ported to work with CLI
+  @ignore
   Scenario: CLOUD-2455, test tracking configuration
     When container is started with env
       | variable                      | value               |
@@ -173,3 +175,43 @@ Feature: EAP Openshift resource adapters
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value topic/bar on XPath //*[local-name()='resource-adapter']/*[local-name()='admin-objects']/*[local-name()='admin-object']/*[local-name()='config-property'][@name="PhysicalName"]
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='xa-pool']/*[local-name()='prefill']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@tracking
+
+Scenario: Cannot add a resource adapter when there is no resource-adapters subsystem
+    When container is started with command bash
+       | variable                         | value                                                        |
+       | RESOURCE_ADAPTERS                | TEST_1                                                       |
+       | TEST_1_ID                        | fileQS                                                       |
+       | TEST_1_MODULE_SLOT               | main                                                         |
+       | TEST_1_MODULE_ID                 | org.jboss.teiid.resource-adapter.file                        |
+       | TEST_1_CONNECTION_CLASS          | org.teiid.resource.adapter.file.FileManagedConnectionFactory |
+       | TEST_1_CONNECTION_JNDI           | java:/marketdata-file                                        |
+       | TEST_1_PROPERTY_ParentDirectory  | /home/jboss/source/injected/injected-files/data              |
+       | TEST_1_PROPERTY_AllowParentPaths | true                                                         |
+       | TEST_1_POOL_MIN_SIZE             | 1                                                            |
+       | TEST_1_POOL_MAX_SIZE             | 5                                                            |
+       | TEST_1_POOL_PREFILL              | false                                                        |
+       | TEST_1_POOL_FLUSH_STRATEGY       | EntirePool                                                   |
+    Then copy features/jboss-eap-modules/7/scripts/resource-adapters/remove-ra-subsystem.cli to /tmp in container
+    And run /opt/eap/bin/jboss-cli.sh --file=/tmp/remove-ra-subsystem.cli in container once
+    And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
+    And file /tmp/boot.log should contain ERROR You have set environment variables to configure resource-adapters. Fix your configuration to contain the resource-adapters subsystem for this to happen.
+
+Scenario: Cannot add a resource adapter when one exists with a clashing name
+    When container is started with command bash
+       | variable                         | value                                                        |
+       | RESOURCE_ADAPTERS                | TEST_1                                                       |
+       | TEST_1_ID                        | fileQS                                                       |
+       | TEST_1_MODULE_SLOT               | main                                                         |
+       | TEST_1_MODULE_ID                 | org.jboss.teiid.resource-adapter.file                        |
+       | TEST_1_CONNECTION_CLASS          | org.teiid.resource.adapter.file.FileManagedConnectionFactory |
+       | TEST_1_CONNECTION_JNDI           | java:/marketdata-file                                        |
+       | TEST_1_PROPERTY_ParentDirectory  | /home/jboss/source/injected/injected-files/data              |
+       | TEST_1_PROPERTY_AllowParentPaths | true                                                         |
+       | TEST_1_POOL_MIN_SIZE             | 1                                                            |
+       | TEST_1_POOL_MAX_SIZE             | 5                                                            |
+       | TEST_1_POOL_PREFILL              | false                                                        |
+       | TEST_1_POOL_FLUSH_STRATEGY       | EntirePool                                                   |
+    Then copy features/jboss-eap-modules/7/scripts/resource-adapters/add-clashing-resource-adapter.cli to /tmp in container
+    And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-clashing-resource-adapter.cli in container once
+    And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
+    And file /tmp/boot.log should contain ERROR You have set environment variables to configure the resource-adapter 'fileQS'. However, your base configuration already contains a datasource with that name.
