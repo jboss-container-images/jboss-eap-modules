@@ -24,6 +24,10 @@ function prepareEnv() {
   # A-MQ configuration
   IFS=',' read -a brokers <<< $MQ_SERVICE_PREFIX_MAPPING
   for broker in ${brokers[@]}; do
+
+  # TODO!!!!
+  # When porting this remember to enable Scenario: CLOUD-2455, test tracking configuration in resource_adapters.feature
+
     service_name=${broker%=*}
     service=${service_name^^}
     service=${service//-/_}
@@ -35,7 +39,7 @@ function prepareEnv() {
     protocol_env=${protocol_env^^}
     unset ${service}_${protocol_env}_SERVICE_HOST
     unset ${service}_${protocol_env}_SERVICE_PORT
-    
+
     unset ${prefix}_JNDI
     unset ${prefix}_USERNAME
     unset ${prefix}_PASSWORD
@@ -56,7 +60,7 @@ function prepareEnv() {
     done
     unset ${prefix}_TOPICS
   done
-  
+
   unset MQ_SERVICE_PREFIX_MAPPING
   unset MQ_SIMPLE_DEFAULT_PHYSICAL_DESTINATION
 }
@@ -268,7 +272,7 @@ function inject_brokers() {
       # XXX: only tcp (openwire) is supported by EAP
       # Protocol environment variable name format: [NAME]_[BROKER_TYPE]_PROTOCOL
       protocol=$(find_env "${prefix}_PROTOCOL" "tcp")
-      
+
       if [ "${protocol}" == "openwire" ]; then
         protocol="tcp"
       fi
