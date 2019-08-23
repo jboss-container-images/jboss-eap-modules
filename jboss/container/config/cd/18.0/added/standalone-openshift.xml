@@ -524,7 +524,6 @@
                 <http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true"/>
                 <host name="default-host" alias="localhost">
                     <location name="/" handler="welcome-content"/>
-                    <!-- ##ACCESS_LOG_VALVE## -->
                     <!-- ##FILTER_REFS## -->
                     <http-invoker security-realm="ApplicationRealm"/>
                 </host>
