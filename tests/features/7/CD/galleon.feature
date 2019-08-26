@@ -71,9 +71,15 @@ Feature: Openshift EAP galleon s2i tests
     | variable          | value                                                                                  |
     | GALLEON_PROVISION_DEFAULT_CONFIG_LAYERS        | postgresql-driver |
     | GALLEON_PROVISION_LAYERS        | cloud-profile |
-
-  Scenario: build the example without galleon, check that s2i-output contains the copied server
+ 
+  Scenario: build the example without galleon, check that s2i-output doesn't contain a copied server
     Given s2i build git://github.com/openshift/openshift-jee-sample
+    Then file /s2i-output/server/ should not exist
+
+  Scenario: build the example with galleon, check that s2i-output contain a copied server
+    Given s2i build git://github.com/openshift/openshift-jee-sample
+    | variable          | value                                                                                  |
+    | GALLEON_PROVISION_DEFAULT_FAT_SERVER        | true |
     Then file /s2i-output/server/ should exist
 
   Scenario: build the keycloak examples, then checks failure when applying config change on cloud-profile (no sso).
