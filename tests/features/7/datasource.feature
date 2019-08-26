@@ -427,11 +427,13 @@ Feature: EAP Openshift datasources
        | TEST_XA_CONNECTION_PROPERTY_URL   | jdbc:oracle:thin:@samplehost:1521:oracledb |
        | TEST_NONXA                        | false                                      |
        | TEST_JTA                          | true                                       |
+       | TEST_IS_SAME_RM_OVERRIDE          | false                                      |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:oracle:thin:@samplehost:1521:oracledb on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="URL"]
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value oracle on XPath //*[local-name()='xa-datasource']/*[local-name()='driver']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value tombrady on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-pool']/*[local-name()='is-same-rm-override']
 
   Scenario: Test external non-xa datasource extension
     When container is started with env
@@ -447,11 +449,13 @@ Feature: EAP Openshift datasources
        | TEST_URL                          | jdbc:oracle:thin:@samplehost:1521:oracledb |
        | TEST_NONXA                        | true                                       |
        | TEST_JTA                          | false                                      |
+       | TEST_IS_SAME_RM_OVERRIDE          | false                                      |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:oracle:thin:@samplehost:1521:oracledb on XPath //*[local-name()='connection-url']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value oracle on XPath //*[local-name()='datasource']/*[local-name()='driver']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value tombrady on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='password']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-pool']/*[local-name()='is-same-rm-override']
 
   Scenario: Test warning no xa-connection-properties for external xa db
     When container is started with env
@@ -665,6 +669,7 @@ Feature: EAP Openshift datasources
       | TEST_JTA                                  | true                                   |
       | TIMER_SERVICE_DATA_STORE                  | TEST                                   |
       | TIMER_SERVICE_DATA_STORE_REFRESH_INTERVAL | 60000                                  |
+      | TEST_IS_SAME_RM_OVERRIDE                  | false                                  |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='datasource']/@jndi-name
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:oracle:thin:@10.1.1.1:1521:testdb on XPath //*[local-name()='connection-url']
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value oracle on XPath //*[local-name()='datasource']/*[local-name()='driver']
@@ -672,6 +677,7 @@ Feature: EAP Openshift datasources
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='password']
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test-TEST_part on XPath //*[local-name()='database-data-store']/@partition
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 60000 on XPath //*[local-name()='database-data-store']/@refresh-interval
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-pool']/*[local-name()='is-same-rm-override']
 
   Scenario: CLOUD-2068, test timer datasource refresh-interval
     When container is started with env
@@ -685,6 +691,7 @@ Feature: EAP Openshift datasources
       | TEST_NONXA               | true                                   |
       | TEST_JTA                 | true                                   |
       | TIMER_SERVICE_DATA_STORE | TEST                                   |
+      | TEST_IS_SAME_RM_OVERRIDE | false                                  |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='datasource']/@jndi-name
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:oracle:thin:@10.1.1.1:1521:testdb on XPath //*[local-name()='connection-url']
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value oracle on XPath //*[local-name()='datasource']/*[local-name()='driver']
@@ -692,6 +699,7 @@ Feature: EAP Openshift datasources
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='password']
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test-TEST_part on XPath //*[local-name()='database-data-store']/@partition
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value -1 on XPath //*[local-name()='database-data-store']/@refresh-interval
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-pool']/*[local-name()='is-same-rm-override']
 
   Scenario: Test background-validation configuration with custom background-validation-milis value
     When container is started with env
