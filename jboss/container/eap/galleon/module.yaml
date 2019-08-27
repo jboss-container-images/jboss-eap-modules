@@ -30,10 +30,6 @@ envs:
   value: org.jboss.eap.galleon.s2i
 - name: GALLEON_S2I_FP_ARTIFACT_ID
   value: eap-s2i-galleon-pack
-- name: GALLEON_ADD_DS_FP
-  value: "true"
-- name: GALLEON_WF_EXTRAS_DS_VERSION
-  value: 1.0.3.Final
 - name: GALLEON_S2I_PRODUCER_NAME
   value: eap-cd-s2i
 
