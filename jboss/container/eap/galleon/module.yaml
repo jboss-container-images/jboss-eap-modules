@@ -7,7 +7,9 @@ envs:
 - name: GALLEON_DEFINITIONS
   value: /opt/jboss/container/eap/galleon/definitions
 - name: GALLEON_DEFAULT_SERVER
-  value: /opt/jboss/container/eap/galleon/definitions/os-standalone-profile
+  value: /opt/jboss/container/eap/galleon/definitions/slim-default-server
+- name: GALLEON_DEFAULT_FAT_SERVER
+  value: /opt/jboss/container/eap/galleon/definitions/fat-default-server
 - name: JBOSS_CONTAINER_EAP_GALLEON_FP_PACKAGES
   value: /opt/jboss/container/eap/galleon/eap-s2i-galleon-pack/src/main/resources/packages
   description: Modules that have packages to install must copy them there.
@@ -24,16 +26,10 @@ envs:
   value: &mvnArgs "-Dcom.redhat.xpaas.repo.jbossorg"
 - name: GALLEON_PROVISON_FP_MAVEN_ARGS_APPEND
   value: *mvnArgs
-- name: DEBUG_GALLEON_FP_SRC
-  value: "true"
 - name: GALLEON_S2I_FP_GROUP_ID
   value: org.jboss.eap.galleon.s2i
 - name: GALLEON_S2I_FP_ARTIFACT_ID
   value: eap-s2i-galleon-pack
-- name: GALLEON_ADD_DS_FP
-  value: "true"
-- name: GALLEON_WF_EXTRAS_DS_VERSION
-  value: 1.0.3.Final
 - name: GALLEON_S2I_PRODUCER_NAME
   value: eap-cd-s2i
 
