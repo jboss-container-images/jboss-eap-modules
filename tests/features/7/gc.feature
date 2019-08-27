@@ -55,15 +55,30 @@ Feature: Openshift OpenJDK GC tests
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:AdaptiveSizePolicyWeight=80\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxMetaspaceSize=256m\s
 
-  Scenario: Check GC_MAX_METASPACE_SIZE GC configuration
+  Scenario: Check GC_METASPACE_SIZE and GC_MAX_METASPACE_SIZE GC configuration
     When container is started with env
        | variable                 | value  |
+       | GC_METASPACE_SIZE        | 60     |
        | GC_MAX_METASPACE_SIZE    | 120    |
     Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelOldGC\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MinHeapFreeRatio=10\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=20\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=4\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:AdaptiveSizePolicyWeight=90\s
+      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MetaspaceSize=60m\s
+      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxMetaspaceSize=120m\s
+
+  Scenario: Check GC_METASPACE_SIZE and GC_MAX_METASPACE_SIZE GC configuration
+    When container is started with env
+       | variable                 | value  |
+       | GC_METASPACE_SIZE        | 60     |
+       | GC_MAX_METASPACE_SIZE    | 120    |
+    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelOldGC\s
+      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MinHeapFreeRatio=10\s
+      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=20\s
+      And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=4\s
+      And container log should match regex ^ *JAVA_OPTS: *.* -XX:AdaptiveSizePolicyWeight=90\s
+      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MetaspaceSize=60m\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxMetaspaceSize=120m\s
 
   Scenario: Check for adjusted heap sizes
