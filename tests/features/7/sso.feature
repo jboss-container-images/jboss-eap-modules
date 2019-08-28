@@ -16,9 +16,6 @@ Feature: OpenShift EAP SSO tests
     Then container log should contain WFLYSRV0010: Deployed "app-jsp.war"
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value demo on XPath //ns:realm/@name
 
-   # Ignored because secure-deployments are not supported. NB: The test passes because it checks for content displayed by the server at startup/
-   # Un-ignore when we have SSO to generate CLI scripts.
-   @ignore
    Scenario: deploys the keycloak examples using secure-deployments then checks if it's deployed.
      Given XML namespaces
        | prefix | url                          |
