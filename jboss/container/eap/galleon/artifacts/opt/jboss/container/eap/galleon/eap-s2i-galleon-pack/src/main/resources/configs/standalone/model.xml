@@ -6,6 +6,7 @@
     </props> 
     <packages>
         <package name="eap.s2i.common"/>
+        <package name="org.jboss.as.patching.cli"/>
     </packages>
     <layers>
         <!-- required by operator to be monitored -->
