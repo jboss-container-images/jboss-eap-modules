@@ -1,7 +1,5 @@
 @jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: Check correct variable expansion used
-  # Un-ignore when https://issues.jboss.org/browse/WFCORE-4521 is fixed
-  @ignore
   Scenario: Set EAP_ADMIN_USERNAME to null
     When container is started with env
       | variable           | value                            |
@@ -9,8 +7,6 @@ Feature: Check correct variable expansion used
       | EAP_ADMIN_USERNAME |                                  |
     Then container log should contain Added user 'eapadmin' to file '/opt/eap/standalone/configuration/mgmt-users.properties'
 
-  # Un-ignore when https://issues.jboss.org/browse/WFCORE-4521 is fixed
-  @ignore
   Scenario: Set ADMIN_USERNAME to null
     When container is started with env
       | variable           | value                            |
@@ -18,8 +14,6 @@ Feature: Check correct variable expansion used
       | ADMIN_USERNAME     |                                  |
     Then container log should contain Added user 'eapadmin' to file '/opt/eap/standalone/configuration/mgmt-users.properties'
 
-  # Un-ignore when https://issues.jboss.org/browse/WFCORE-4521 is fixed
-  @ignore
   Scenario: Set ADMIN_PASSWORD to null
     When container is started with env
       | variable           | value                            |
@@ -27,8 +21,6 @@ Feature: Check correct variable expansion used
       | ADMIN_PASSWORD     |                                  |
     Then container log should contain Added user 'eapadmin' to file '/opt/eap/standalone/configuration/mgmt-users.properties'
 
-  # Un-ignore when https://issues.jboss.org/browse/WFCORE-4521 is fixed
-  @ignore
   Scenario: Set ADMIN_PASSWORD but not ADMIN_USERNAME
     When container is started with env
       | variable           | value                            |
