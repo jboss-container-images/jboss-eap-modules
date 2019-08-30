@@ -1,6 +1,7 @@
 schema_version: 1
 
 name: jboss.eap.cd.base.installer
+version: "1.0"
 execute:
     - script: install_eap.sh
 artifacts:
