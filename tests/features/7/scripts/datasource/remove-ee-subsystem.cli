@@ -1,0 +1,5 @@
+embed-server --timeout=30 --std-out=echo --server-config=standalone-openshift.xml
+
+/subsystem=ee:remove
+
+stop-embedded-server
