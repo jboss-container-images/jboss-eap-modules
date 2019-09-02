@@ -1,0 +1,3 @@
+embed-server --timeout=30 --std-out=echo --server-config=standalone-openshift.xml
+/subsystem=deployment-scanner/scanner=x:add(path="mypath")
+stop-embedded-server
