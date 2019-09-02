@@ -1,0 +1,3 @@
+embed-server --timeout=30 --std-out=echo --server-config=standalone-openshift.xml
+/subsystem=microprofile-config-smallrye/config-source=config-map:add(dir={path=/home/jboss}, ordinal=100)
+stop-embedded-server
