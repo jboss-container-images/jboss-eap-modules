@@ -1,4 +1,4 @@
-@jboss-eap-7 @jboss-eap-7-tech-preview @wip
+@jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: EAP Openshift deployment-scanner tests
 
   Scenario: Server started with AUTO_DEPLOY_EXPLODED=true should work
