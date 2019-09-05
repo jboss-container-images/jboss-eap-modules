@@ -12,8 +12,10 @@ CONFIG_SCRIPT_CANDIDATES=(
   $JBOSS_HOME/bin/launch/datasource.sh
   $JBOSS_HOME/bin/launch/resource-adapter.sh
   $JBOSS_HOME/bin/launch/admin.sh
-  $JBOSS_HOME/bin/launch/ha.sh
+  # keep this order jgroups.sh and then ha.sh. 
+  # jgroups.sh needs to calculate where to insert a protocol, ha.sh could add one
   $JBOSS_HOME/bin/launch/jgroups.sh
+  $JBOSS_HOME/bin/launch/ha.sh
   $JBOSS_HOME/bin/launch/https.sh
   $JBOSS_HOME/bin/launch/elytron.sh
   $JBOSS_HOME/bin/launch/json_logging.sh
