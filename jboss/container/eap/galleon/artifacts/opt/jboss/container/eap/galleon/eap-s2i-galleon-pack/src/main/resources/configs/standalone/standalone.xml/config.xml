@@ -61,32 +61,12 @@
 
     <!-- messaging -->
     <feature spec="subsystem.messaging-activemq"/>
-    <feature spec="socket-binding-group.remote-destination-outbound-socket-binding">
-        <param name="socket-binding-group" value="standard-sockets" />
-        <param name="remote-destination-outbound-socket-binding" value="http-messaging"/>
-        <param name="host" value="${jboss.messaging.host:localhost}"/>
-        <param name="port" value="${jboss.http.port:8080}"/>
-    </feature>
+    <feature-group name="os-messaging"/>
     
     <!-- logging -->
     <exclude feature-id="subsystem.logging.pattern-formatter:pattern-formatter=PATTERN"/>
     <exclude feature-id="subsystem.logging.periodic-rotating-file-handler:periodic-rotating-file-handler=FILE"/>
-    <feature spec="subsystem.logging.root-logger.ROOT">
-        <param name="level" value="INFO"/>
-        <param name="handlers" value="[CONSOLE]"/>
-    </feature>
-    <feature spec="subsystem.logging.console-handler">
-        <param name="console-handler" value="CONSOLE"/>
-        <unset param="level"/>
-    </feature>
-    <feature spec="subsystem.logging.json-formatter">
-        <param name="json-formatter" value="OPENSHIFT"/>
-        <param name="exception-output-type" value="formatted"/>
-        <feature spec="subsystem.logging.json-formatter.key-overrides">
-            <param name="timestamp" value="@timestamp"/>
-        </feature>
-        <param name="meta-data" value="{@version=1}"/>
-    </feature>
+    <feature-group name="os-logging"/>
     
     <!-- jberet We can't remove it... needs a default job repository -->
     <!--<feature spec="subsystem.batch-jberet">
@@ -117,12 +97,7 @@
     </feature>
 
     <!-- elytron -->
-    <feature spec="subsystem.elytron.http-authentication-factory">
-        <param name="http-authentication-factory" value="application-http-authentication"/>
-        <param name="http-server-mechanism-factory" value="global"/>
-        <param name="security-domain" value="ApplicationDomain"/>
-        <param name="mechanism-configurations" value="[{mechanism-name=BASIC,mechanism-realm-configurations=[{realm-name=ApplicationRealm}]},{mechanism-name=FORM}]"/>
-    </feature>
+    <feature-group name="os-elytron"/>
     
     <!-- infinispan -->
     <exclude spec="subsystem.infinispan"/>
@@ -197,10 +172,8 @@
         <param name="interface" value="private"/>
         <param name="inet-address" value="${jboss.bind.address.private:127.0.0.1}"/>
     </feature>
-    <feature spec="interface">
-        <param name="interface" value="bindall"/>
-        <param name="inet-address" value="0.0.0.0"/>
-    </feature>
+    
+    <feature-group name="os-socket"/>
     
     <!-- sockets -->
     <feature spec="socket-binding-group">
@@ -210,24 +183,6 @@
             <exclude feature-id="socket-binding-group.socket-binding:name=standard-sockets,socket-binding=jgroups-tcp-fd"/>
         </feature-group>
     </feature>
-    <feature spec="socket-binding-group">
-        <param name="socket-binding-group" value="standard-sockets" />
-        <param name="port-offset" value="0"/>
-    </feature>
-    <feature spec="socket-binding-group.socket-binding">
-        <param name="socket-binding-group" value="standard-sockets" />
-        <param name="socket-binding" value="ajp"/>
-        <param name="interface" value="bindall"/>
-    </feature>
-    <feature spec="socket-binding-group.socket-binding">
-        <param name="socket-binding-group" value="standard-sockets" />
-        <param name="socket-binding" value="http"/>
-        <param name="interface" value="bindall"/>
-    </feature>
-    <feature spec="socket-binding-group.socket-binding">
-        <param name="socket-binding-group" value="standard-sockets" />
-        <param name="socket-binding" value="https"/>
-        <param name="interface" value="bindall"/>
-    </feature>
+    <feature-group name="os-undertow"/>
     
 </config>

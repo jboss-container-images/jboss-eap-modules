@@ -4,14 +4,6 @@ Feature: EAP Openshift access-log-valve and log handler tests
   # Missing tests
   # The scripts give errors on a few corner cases:
   #
-  # * No Undertow subsystem
-  # This is not possible to test because
-  # [standalone@embedded /] /subsystem=undertow:remove
-  #  {
-  #      "outcome" => "failed",
-  #      "failure-description" => "WFLYCTL0367: Cannot remove capability 'org.wildfly.undertow.listener.ajp' as it is required by other capabilities:  capability 'org.wildfly.mod_cluster.service.default' requires it for attribute 'listener' at address '/subsystem=modcluster/proxy=default'",
-  #      "rolled-back" => true
-  #  }
   #
   # * No servers/hosts
   # This is not possible to test because we cannot remove them because the subsystem references these from

@@ -3,7 +3,6 @@ Feature: Check HTTPS configuration
 
   # We are not able to test the following fail-fast error conditions
   #
-  # * No undertow subsystem - it is too 'ingrained' to remove without changing a load of stuff
   # * No undertow servers - we cannot unset the default-server attribute so we cannot remove the default-server
 
   Scenario: Configure HTTPS

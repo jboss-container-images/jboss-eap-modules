@@ -1,7 +1,7 @@
 @jboss-eap-7-tech-preview/eap-cd-openshift
 Feature: EAP Openshift security domains
   Scenario: check Elytron configuration
-    Given s2i build https://github.com/jboss-openshift/openshift-examples from security-custom-configuration with env
+    Given s2i build https://github.com/jboss-openshift/openshift-examples from security-custom-configuration with env and true using master
        | variable           | value       |
        | SECDOMAIN_NAME     | application-security     |
      Then container log should contain Running jboss-eap-

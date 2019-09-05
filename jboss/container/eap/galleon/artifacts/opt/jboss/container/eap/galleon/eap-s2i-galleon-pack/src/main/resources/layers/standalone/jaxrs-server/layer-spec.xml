@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<layer-spec xmlns="urn:jboss:galleon:layer-spec:1.0" name="jaxrs-server">
+    <dependencies>
+        <layer name="core-server"/>
+        <layer name="jaxrs"/>
+        <layer name="jpa"/>
+        <!-- to be removed when transactions layer is in WildFly -->
+        <layer name="transactions"/>
+    </dependencies>
+</layer-spec>
+

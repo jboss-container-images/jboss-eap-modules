@@ -1,6 +1,36 @@
 @jboss-eap-7-tech-preview/eap-cd-openshift
 Feature: Openshift EAP galleon s2i tests
 
+  Scenario: Galleon provision cloud-server
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
+    | variable                        | value                                                                                  |
+    | GALLEON_PROVISION_LAYERS        | cloud-server |
+    Then container log should contain WFLYSRV0025
+    Then file /s2i-output/server/.galleon/provisioning.xml should exist
+    Then file /opt/eap/.galleon/provisioning.xml should exist
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+
+  Scenario: Galleon provision jaxrs-server
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
+    | variable                        | value                                                                                  |
+    | GALLEON_PROVISION_LAYERS        | jaxrs-server |
+    Then container log should contain WFLYSRV0025
+    Then file /s2i-output/server/.galleon/provisioning.xml should exist
+    Then file /opt/eap/.galleon/provisioning.xml should exist
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value jaxrs-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value jaxrs-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+
+  Scenario: Galleon provision datasources-web-server
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
+    | variable                        | value                                                                                  |
+    | GALLEON_PROVISION_LAYERS        | datasources-web-server |
+    Then container log should contain WFLYSRV0025
+    Then file /s2i-output/server/.galleon/provisioning.xml should exist
+    Then file /opt/eap/.galleon/provisioning.xml should exist
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value datasources-web-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value datasources-web-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+
   Scenario: build the example, then check that cloud-profile and postgresql-driver are provisioned and artifacts are downloaded
     Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-postgres using EAP7-1216
     Then s2i build log should contain Downloaded
@@ -22,7 +52,7 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value postgresql-datasource on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
 
   Scenario: build the jaxrs example and jaxrs server from user defined server, then check that jaxrs is provisioned
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-jaxrs using EAP7-1216
+    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-jaxrs with env and true using EAP7-1216
     Then file /s2i-output/server/.galleon/provisioning.xml should exist
     Then file /opt/eap/.galleon/provisioning.xml should exist
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value jaxrs on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
@@ -38,7 +68,7 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value core-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
 
   Scenario: failing to build the example due to invalid user defined galleon definition
-    Given failing s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-jaxrs using EAP7-1216
+    Given failing s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-jaxrs with env and true using EAP7-1216
     | variable          | value                                                                                  |
     | GALLEON_VERSION | 0.0.0.Foo |
 
@@ -49,20 +79,20 @@ Feature: Openshift EAP galleon s2i tests
     | GALLEON_PROVISION_LAYERS        | cloud-profile |
  
   Scenario: build the example without galleon, check that s2i-output doesn't contain a copied server
-    Given s2i build git://github.com/openshift/openshift-jee-sample
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     Then file /s2i-output/server/ should not exist
 
   Scenario: build the example with galleon, check that s2i-output contain a copied server
-    Given s2i build git://github.com/openshift/openshift-jee-sample
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     | variable          | value                                                                                  |
     | GALLEON_PROVISION_DEFAULT_FAT_SERVER        | true |
     Then file /s2i-output/server/ should exist
 
   Scenario: build the keycloak examples, then checks failure when applying config change on cloud-profile (no sso).
-     Given XML namespaces
+    Given XML namespaces
        | prefix | url                          |
        | ns     | urn:jboss:domain:keycloak:1.1 |
-     Given s2i build https://github.com/redhat-developer/redhat-sso-quickstarts using 7.0.x-ose
+    Given s2i build https://github.com/redhat-developer/redhat-sso-quickstarts from . with env and true using 7.0.x-ose
        | variable               | value                                            |
        | ARTIFACT_DIR           | app-jee-jsp/target,app-profile-jee-jsp/target |
        | SSO_REALM         | demo    |
@@ -70,7 +100,7 @@ Feature: Openshift EAP galleon s2i tests
        | SSO_URL           | http://localhost:8080/auth    |
        | MAVEN_ARGS_APPEND | -Dmaven.compiler.source=1.6 -Dmaven.compiler.target=1.6 |
        | GALLEON_PROVISION_LAYERS | cloud-profile |
-    Then container log should contain Embedded server cannot start or the operations to configure the server failed.
+    Then container log should contain WFLYCTL0310: Extension module org.keycloak.keycloak-adapter-subsystem not found
 
   Scenario: failing to build the example due to invalid layer name
     Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master

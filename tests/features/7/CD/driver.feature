@@ -9,21 +9,21 @@ Feature: EAP Openshift drivers
 
 
   Scenario: check postgresql driver
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-postgres using EAP7-1216
+    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-postgres with env and true using EAP7-1216
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='drivers']/*[local-name()='driver']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value postgresql on XPath //*[local-name()='drivers']/*[local-name()='driver']/@name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.postgresql.jdbc on XPath //*[local-name()='drivers']/*[local-name()='driver']/@module
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.postgresql.xa.PGXADataSource on XPath //*[local-name()='drivers']/*[local-name()='driver']/*[local-name()='xa-datasource-class']
 
   Scenario: check mysql driver
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-prov-mysql using EAP7-1216
+    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-prov-mysql with env and true using EAP7-1216
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='drivers']/*[local-name()='driver']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value mysql on XPath //*[local-name()='drivers']/*[local-name()='driver']/@name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value com.mysql.jdbc on XPath //*[local-name()='drivers']/*[local-name()='driver']/@module
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value com.mysql.jdbc.jdbc2.optional.MysqlXADataSource on XPath //*[local-name()='drivers']/*[local-name()='driver']/*[local-name()='xa-datasource-class']
 
   Scenario: check postgresql and mysql drivers
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-prov-mysql-postgres using EAP7-1216
+    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-prov-mysql-postgres with env and true using EAP7-1216
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()='drivers']/*[local-name()='driver']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.postgresql.jdbc on XPath //*[local-name()='drivers']/*[local-name()='driver' and @name='postgresql']/@module
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.postgresql.xa.PGXADataSource on XPath //*[local-name()='drivers']/*[local-name()='driver' and @name='postgresql']/*[local-name()='xa-datasource-class']
