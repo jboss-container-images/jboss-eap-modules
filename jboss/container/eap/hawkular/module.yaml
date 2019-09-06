@@ -1,0 +1,8 @@
+schema_version: 1
+name: jboss.container.eap.hawkular
+version: '1.0'
+description: Hawkular addition to standalone.conf
+
+execute:
+- script: configure.sh
+  user: 185

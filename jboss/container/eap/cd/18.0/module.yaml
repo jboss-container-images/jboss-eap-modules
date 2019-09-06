@@ -4,7 +4,7 @@ version: '18.0'
 description:  "JBoss Enterprise Application Platform CD 18"
 envs:
     - name: "WILDFLY_VERSION"
-      value: "17.0.0.Final"
+      value: "18.0.0.Beta1"
 modules:
     install:
         - name: eap-cd-env
