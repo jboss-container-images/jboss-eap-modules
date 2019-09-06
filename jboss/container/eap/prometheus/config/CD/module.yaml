@@ -1,0 +1,13 @@
+schema_version: 1
+name: jboss.container.eap.prometheus.config
+version: 'CD'
+description: Provides Prometheus JMX Exporter configuration for use with EAP CD 18
+
+execute:
+- script: configure.sh
+  user: 185
+
+modules:
+  install:
+  - name: jboss.container.eap.prometheus.jmx-exporter-config
+    version: '7.2'

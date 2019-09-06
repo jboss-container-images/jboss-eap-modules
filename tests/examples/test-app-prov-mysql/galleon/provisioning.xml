@@ -5,7 +5,7 @@
         <default-configs inherit="false"/>
         <packages inherit="false"/>
     </feature-pack>
-    <feature-pack location="org.wildfly:wildfly-datasources-galleon-pack:1.0.3.Final">
+    <feature-pack location="org.wildfly:wildfly-datasources-galleon-pack:1.0.4.Final">
         <default-configs inherit="false"/>
         <packages inherit="false"/>
     </feature-pack>
