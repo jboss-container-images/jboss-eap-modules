@@ -18,9 +18,6 @@
         <param name="console-enabled" value="false"/>
     </feature>
 
-    <!-- exclude distributable web -->
-    <exclude spec="subsystem.distributable-web"/>
-
     <!-- singleton -->
     <feature-group name="singleton"/>
     
@@ -102,8 +99,6 @@
     <!-- infinispan -->
     <exclude spec="subsystem.infinispan"/>
     <feature-group name="infinispan-dist">
-        <exclude feature-id="subsystem.infinispan.cache-container.replicated-cache:cache-container=web,replicated-cache=sso"/>
-        <exclude feature-id="subsystem.infinispan.cache-container.distributed-cache:cache-container=web,distributed-cache=routing"/>
         <include feature-id="subsystem.infinispan.cache-container:cache-container=web">
             <param name="default-cache" value="repl"/>
             <feature spec="subsystem.infinispan.cache-container.replicated-cache">
