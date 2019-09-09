@@ -537,7 +537,6 @@
                 <http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true"/>
                 <host name="default-host" alias="localhost">
                     <location name="/" handler="welcome-content"/>
-                    <!-- ##FILTER_REFS## -->
                     <http-invoker security-realm="ApplicationRealm"/>
                 </host>
             </server>
@@ -548,7 +547,6 @@
             <handlers>
                 <file name="welcome-content" path="${jboss.home.dir}/welcome-content"/>
             </handlers>
-            <!-- ##HTTP_FILTERS_MARKER## -->
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:webservices:2.0" statistics-enabled="${wildfly.webservices.statistics-enabled:${wildfly.statistics-enabled:false}}">
             <modify-wsdl-address>true</modify-wsdl-address>
