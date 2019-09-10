@@ -4,11 +4,12 @@ Feature: EAP Openshift access-log-valve and log handler tests
   # Missing tests
   # The scripts give errors on a few corner cases:
   #
-  #
   # * No servers/hosts
   # This is not possible to test because we cannot remove them because the subsystem references these from
   # the default-virtual-host and default-server attributes. Trying to undefine these reports success,
   # but a subsequent :read-resource shows this to not actually take effect
+  # Also this is not possible to test with a s2i provisioned server with no undertow since the undertow module
+  # is missing
 
   Scenario: Standard configuration
     When container is started with env
