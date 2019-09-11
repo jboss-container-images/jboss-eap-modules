@@ -138,12 +138,7 @@
     </feature-group>
     
     <!-- micro-profile -->
-    <feature spec="subsystem.microprofile-metrics-smallrye">
-        <param name="prefix" value="${wildfly.metrics.prefix:jboss}"/>
-    </feature>
-    <feature spec="subsystem.microprofile-health-smallrye">
-        <unset param="security-enabled"/>
-    </feature>
+    <feature-group name="os-observability"/>
     <exclude spec="subsystem.microprofile-opentracing-smallrye"/>
     
     <!-- legacy security -->
