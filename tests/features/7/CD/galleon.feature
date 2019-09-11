@@ -1,4 +1,4 @@
-@jboss-eap-7-tech-preview/eap-cd-openshift
+@jboss-eap-7-tech-preview
 Feature: Openshift EAP galleon s2i tests
 
   Scenario: Galleon provision cloud-server
@@ -75,8 +75,8 @@ Feature: Openshift EAP galleon s2i tests
   Scenario: failing to build the example due to multiple env vars in conflict
     Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
     | variable          | value                                                                                  |
-    | GALLEON_PROVISION_DEFAULT_CONFIG_LAYERS        | core-server |
-    | GALLEON_PROVISION_LAYERS        | cloud-profile |
+    | GALLEON_PROVISION_SERVER        | slim-default-server |
+    | GALLEON_PROVISION_LAYERS        | cloud-profile       |
  
   Scenario: build the example without galleon, check that s2i-output doesn't contain a copied server
     Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
@@ -105,7 +105,7 @@ Feature: Openshift EAP galleon s2i tests
   Scenario: failing to build the example due to invalid layer name
     Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
     | variable          | value                                                                                  |
-    | GALLEON_PROVISION_DEFAULT_CONFIG_LAYERS        | foo |
+    | GALLEON_PROVISION_LAYERS        | foo |
 
   Scenario: failing to build the example due to invalid layer name
     Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master

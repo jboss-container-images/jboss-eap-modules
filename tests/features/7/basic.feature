@@ -43,7 +43,7 @@ Feature: Common EAP tests
     Then run java -version in container and check its output for openjdk version "1.8.0"
     Then run javac -version in container and check its output for javac 1.8.0
 
-  @ignore @jboss-eap-7-tech-preview/eap-cd-openshift
+  @ignore @jboss-eap-7-tech-preview
   @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
   Scenario: Java 11 is installed and set as default one
     When container is ready
@@ -204,7 +204,7 @@ Feature: Common EAP tests
     Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
 
   # CD doesn't have these any more
-  @ignore @jboss-eap-7-tech-preview/eap-cd-openshift
+  @ignore @jboss-eap-7-tech-preview
   Scenario: No duplicate module jars
     When container is ready
     Then files at /opt/eap/modules/system/layers/openshift/org/jgroups/main should have count of 2

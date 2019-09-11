@@ -15,4 +15,4 @@ Feature: EAP Openshift mp-config tests
        | variable                       | value           |
        | MICROPROFILE_CONFIG_DIR        | /home/jboss     |
        | GALLEON_PROVISION_LAYERS       | web-server      |
-    Then container log should contain You have set MICROPROFILE_CONFIG_DIR to configure a logger. Fix your configuration to contain the microprofile-config subsystem for this to happen.
+    Then container log should contain You have set MICROPROFILE_CONFIG_DIR to configure a config-source. Fix your configuration to contain the microprofile-config subsystem for this to happen.

@@ -1,4 +1,4 @@
-@jboss-eap-7-tech-preview/eap-cd-openshift
+@jboss-eap-7-tech-preview
 Feature: Check logging configuration
 
   Scenario: Check that EAP CD logs are json formatted
