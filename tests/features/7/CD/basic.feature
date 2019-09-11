@@ -68,3 +68,11 @@ Feature: Common EAP CD tests
   Scenario: No duplicate module jars
     When container is ready
     Then file at /opt/eap/modules/system/layers/openshift/org/jgroups/main should not exist
+
+ Scenario: readinessProbe runs successfully on cloud-server trimmed server
+   Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
+    | variable                        | value                                                                                  |
+    | GALLEON_PROVISION_LAYERS        | cloud-server |
+   Then container log should contain WFLYSRV0025
+   Then run /opt/eap/bin/readinessProbe.sh in container once
+   Then run /opt/eap/bin/livenessProbe.sh in container once
