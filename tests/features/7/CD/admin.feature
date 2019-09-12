@@ -10,3 +10,8 @@ Feature: EAP Openshift admin
     Then container log should contain WFLYSRV0025
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath  //*[local-name()='http-interface'][@security-realm="ManagementRealm"]
     And file /opt/eap/standalone/configuration/mgmt-users.properties should contain kabir
+
+  Scenario: check management realm extension
+    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-extension with env and true using EAP7-1216
+    Then container log should contain WFLYSRV0025
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath  //*[local-name()='http-interface'][@security-realm="ApplicationRealm"]

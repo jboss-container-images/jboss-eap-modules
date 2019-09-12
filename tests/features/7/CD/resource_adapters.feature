@@ -1,7 +1,6 @@
 @jboss-eap-7-tech-preview
 Feature: EAP Openshift resource adapters
 
-  # This reveals the need for legacy security subsystem to add resource-adapter
   Scenario: Test resource adapter extension, galleon s2i
     Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
        | variable                         | value                                                        |
@@ -17,7 +16,7 @@ Feature: EAP Openshift resource adapters
        | TEST_1_POOL_MAX_SIZE             | 5                                                            |
        | TEST_1_POOL_PREFILL              | false                                                        |
        | TEST_1_POOL_FLUSH_STRATEGY       | EntirePool                                                   |
-       | GALLEON_PROVISION_LAYERS         | cloud-profile,legacy-security                           |
+       | GALLEON_PROVISION_LAYERS         | cloud-server                                                 |
     Then container log should contain WFLYSRV0025
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value fileQS on XPath //*[local-name()='resource-adapter']/@id
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.jboss.teiid.resource-adapter.file on XPath //*[local-name()='resource-adapter']/*[local-name()='module']/@id
@@ -27,3 +26,5 @@ Feature: EAP Openshift resource adapters
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 5 on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='pool']/*[local-name()='max-pool-size']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='pool']/*[local-name()='prefill']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value EntirePool on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='pool']/*[local-name()='flush-strategy']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value true on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='security']/*[local-name()='elytron-enabled']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value true on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='recovery']/*[local-name()='recover-credential']/*[local-name()='elytron-enabled']
