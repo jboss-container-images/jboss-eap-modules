@@ -132,7 +132,7 @@ Feature: OpenShift EAP SSO tests
     Then copy features/jboss-eap-modules/7/scripts/sso/add-undertow-sec-domain.cli to /tmp in container
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-undertow-sec-domain.cli in container once
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-    And file /tmp/boot.log should contain Undertow already contains other application security domain. Fix your configuration or set SSO_SECURITY_DOMAIN env variable.
+    And file /tmp/boot.log should contain Undertow already contains keycloak application security domain. Fix your configuration or set SSO_SECURITY_DOMAIN env variable.
 
   Scenario: SSO, ejb3 app sec domain already exists should give error
     Given s2i build https://github.com/redhat-developer/redhat-sso-quickstarts from . with env and true using 7.0.x-ose without running
@@ -146,4 +146,4 @@ Feature: OpenShift EAP SSO tests
     Then copy features/jboss-eap-modules/7/scripts/sso/add-ejb3-sec-domain.cli to /tmp in container
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-ejb3-sec-domain.cli in container once
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-    And file /tmp/boot.log should contain ejb3 already contains other application security domain. Fix your configuration or set SSO_SECURITY_DOMAIN env variable.
+    And file /tmp/boot.log should contain ejb3 already contains keycloak application security domain. Fix your configuration or set SSO_SECURITY_DOMAIN env variable.
