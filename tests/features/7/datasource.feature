@@ -861,3 +861,45 @@ Feature: EAP Openshift datasources
     # EE default bindings
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_mysql on XPath //*[local-name()='default-bindings']/@datasource
     And container log should not contain WARN The default datasource for the ee subsystem has been guessed to be
+
+  Scenario: check datasource with a DEFAULT_JOB_REPOSITORY which does not match any added datasources
+	    # Tests settings which override the defaults we checked in the 'check mysql datasource' scenario
+	    When container is started with env
+	       | variable                  | value                        |
+	       | DB_SERVICE_PREFIX_MAPPING | test-mysql=TEST              |
+	       | TEST_DATABASE             | kitchensink                  |
+	       | TEST_USERNAME             | marek                        |
+	       | TEST_PASSWORD             | hardtoguess                  |
+	       | TEST_MYSQL_SERVICE_HOST   | 10.1.1.1                     |
+	       | TEST_MYSQL_SERVICE_PORT   | 3306                         |
+	       | JDBC_SKIP_RECOVERY        | true                         |
+	       | DEFAULT_JOB_REPOSITORY    | does-not-match-anything      |
+	    Then container log should contain ERROR The list of configured datasources does not contain a datasource matching the default job repository datasource specified with DEFAULT_JOB_REPOSITORY='does-not-match-anything'.
+
+	  Scenario: check datasource with a TIMER_SERVICE_DATA_STORE which does not match any added datasources
+	    # Tests settings which override the defaults we checked in the 'check mysql datasource' scenario
+	    When container is started with env
+	       | variable                  | value                        |
+	       | DB_SERVICE_PREFIX_MAPPING | test-mysql=TEST              |
+	       | TEST_DATABASE             | kitchensink                  |
+	       | TEST_USERNAME             | marek                        |
+	       | TEST_PASSWORD             | hardtoguess                  |
+	       | TEST_MYSQL_SERVICE_HOST   | 10.1.1.1                     |
+	       | TEST_MYSQL_SERVICE_PORT   | 3306                         |
+	       | JDBC_SKIP_RECOVERY        | true                         |
+	       | TIMER_SERVICE_DATA_STORE  | does-not-match-anything      |
+	    Then container log should contain ERROR The list of configured datasources does not contain a datasource matching the timer-service datastore datasource specified with TIMER_SERVICE_DATA_STORE='does-not-match-anything'.
+
+	  Scenario: check datasource with a EE_DEFAULT_DATASOURCE which does not match any added datasources
+	    # Tests settings which override the defaults we checked in the 'check mysql datasource' scenario
+	    When container is started with env
+	       | variable                  | value                        |
+	       | DB_SERVICE_PREFIX_MAPPING | test-mysql=TEST              |
+	       | TEST_DATABASE             | kitchensink                  |
+	       | TEST_USERNAME             | marek                        |
+	       | TEST_PASSWORD             | hardtoguess                  |
+	       | TEST_MYSQL_SERVICE_HOST   | 10.1.1.1                     |
+	       | TEST_MYSQL_SERVICE_PORT   | 3306                         |
+	       | JDBC_SKIP_RECOVERY        | true                         |
+	       | EE_DEFAULT_DATASOURCE     | does-not-match-anything      |
+	    Then container log should contain ERROR The list of configured datasources does not contain a datasource matching the ee default-bindings datasource specified with EE_DEFAULT_DATASOURCE='does-not-match-anything'.
