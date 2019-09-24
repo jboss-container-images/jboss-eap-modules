@@ -13,10 +13,7 @@
     <!-- management -->
     <exclude spec="subsystem.core-management"/>
     <exclude feature-id="core-service.management.security-realm.server-identity.ssl:security-realm=ApplicationRealm"/>
-    <feature spec="core-service.management.management-interface.http-interface">
-        <unset param="security-realm"/>
-        <param name="console-enabled" value="false"/>
-    </feature>
+    <feature-group name="os-management"/>
 
     <!-- singleton -->
     <feature-group name="singleton"/>
