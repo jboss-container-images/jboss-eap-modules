@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<layer-spec xmlns="urn:jboss:galleon:layer-spec:1.0" name="web-clustering">
+    <dependencies>
+        <layer name="web-server"/>
+        <layer name="transactions"/>
+    </dependencies>
+
+    <feature-group name="os-jgroups-all"/>
+    <feature-group name="distributable-web"/>
+    <feature-group name="os-infinispan-dist-web"/>
+</layer-spec>
