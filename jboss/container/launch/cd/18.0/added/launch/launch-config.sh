@@ -35,5 +35,5 @@ CONFIG_SCRIPT_CANDIDATES=(
 # For EAP we want standalone-openshift.xml
 WILDFLY_SERVER_CONFIGURATION=standalone-openshift.xml
 # The configuration adjustment mode. For EAP we want both xml marker replacement and CLI commands.
-# Notice that the value of this variable must be aligned with the value configured in s2i-core-hooks
+# Notice that the value of this variable must be aligned with the value configured in assemble
 export CONFIG_ADJUSTMENT_MODE="xml_cli"
