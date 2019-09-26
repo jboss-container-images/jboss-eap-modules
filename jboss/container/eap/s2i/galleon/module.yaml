@@ -5,6 +5,7 @@ description: Customization of common Maven S2I for EAP S2I images.
 
 execute:
 - script: configure.sh
+- script: backward_compatibility.sh
 
 modules:
   install:
