@@ -456,7 +456,6 @@
             </mail-session>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:messaging-activemq:7.0">
-            <!-- ##MESSAGING_SUBSYSTEM_CONFIG## -->
         </subsystem>
         <subsystem xmlns="urn:wildfly:microprofile-config-smallrye:1.0"/>
         <subsystem xmlns="urn:wildfly:microprofile-health-smallrye:2.0" empty-liveness-checks-status="${env.MP_HEALTH_EMPTY_LIVENESS_CHECKS_STATUS:UP}" empty-readiness-checks-status="${env.MP_HEALTH_EMPTY_READINESS_CHECKS_STATUS:UP}"/>
@@ -469,8 +468,6 @@
             </proxy>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:naming:2.0">
-            <!-- ##MESSAGING_REMOTE_BINDINGS## -->
-            <!-- ##AMQ_REMOTE_CONTEXT## -->
             <remote-naming/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:pojo:1.0"/>
@@ -592,7 +589,5 @@
         <outbound-socket-binding name="http-messaging">
             <remote-destination host="${jboss.messaging.host:localhost}" port="${jboss.http.port:8080}"/>
         </outbound-socket-binding>
-        <!-- ##MESSAGING_PORTS## -->
-        <!-- ##AMQ_MESSAGING_SOCKET_BINDING## -->
     </socket-binding-group>
 </server>
