@@ -131,3 +131,15 @@ Feature: Openshift EAP s2i tests
     Then container log should contain WFLYSRV0025
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()='driver']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value testpostgres on XPath //*[local-name()='drivers']/*[local-name()='driver']/@name
+
+  Scenario: Test custom settings
+    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-settings with env and true using EAP7-1216
+    Then container log should contain WFLYSRV0025
+    Then file /home/jboss/.m2/settings.xml should contain foo-repository
+
+  Scenario: Test custom settings by env
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
+     | variable                     | value                                                 |
+     | MAVEN_SETTINGS_XML           | /home/jboss/../jboss/../jboss/.m2/settings.xml |
+    Then s2i build log should contain /home/jboss/../jboss/../jboss/.m2/settings.xml
+    Then container log should contain WFLYSRV0025
