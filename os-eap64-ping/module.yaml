@@ -34,5 +34,6 @@ artifacts:
 - name: openshift-ping-kube
   target: openshift-ping-kube-1.2.5.Final-redhat-1.jar
   md5: 1cbb306ba252a71ee2c4309910b459fc
-- path: oauth-20100527.jar
+- name: oauth
+  target: oauth-20100527.jar
   md5: 91c7c70579f95b7ddee95b2143a49b41
