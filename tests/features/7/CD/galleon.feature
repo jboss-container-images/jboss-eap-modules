@@ -111,3 +111,18 @@ Feature: Openshift EAP galleon s2i tests
     Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
     | variable          | value                                                                                  |
     | GALLEON_PROVISION_LAYERS        | cloud-profile,foo |
+
+  Scenario: Test custom settings with galleon
+   Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-settings with env and true using EAP7-1216
+    | variable                     | value                                                 |
+    | GALLEON_PROVISION_LAYERS     | cloud-server  |
+    Then container log should contain WFLYSRV0025
+    Then file /home/jboss/.m2/settings.xml should contain foo-repository
+
+  Scenario: Test custom settings by env with galleon
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
+     | variable                     | value                                                 |
+     | MAVEN_SETTINGS_XML           | /home/jboss/../jboss/../jboss/.m2/settings.xml |
+     | GALLEON_PROVISION_LAYERS     | cloud-server  |
+    Then s2i build log should contain /home/jboss/../jboss/../jboss/.m2/settings.xml
+    Then container log should contain WFLYSRV0025

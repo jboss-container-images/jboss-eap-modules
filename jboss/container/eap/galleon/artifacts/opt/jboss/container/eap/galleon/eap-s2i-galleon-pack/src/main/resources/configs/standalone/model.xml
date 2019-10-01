@@ -12,6 +12,7 @@
         <package name="wildfly.s2i.java"/>
         <package name="eap.s2i.hawkular"/>
         <package name="eap.s2i.prometheus"/>
+        <package name="wildfly.s2i.mvn"/>
     </packages>
     <layers>
         <!-- required by operator to be monitored -->
