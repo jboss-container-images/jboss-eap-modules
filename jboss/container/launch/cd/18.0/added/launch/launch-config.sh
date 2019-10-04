@@ -31,6 +31,7 @@ CONFIG_SCRIPT_CANDIDATES=(
   $JBOSS_HOME/bin/launch/mp-config.sh
   $JBOSS_HOME/bin/launch/tracing.sh
   $JBOSS_HOME/bin/launch/filters.sh
+  $JBOSS_HOME/bin/launch/statefulset.sh
   /opt/run-java/proxy-options
 )
 # The server configuration file to use. If not set, wildfly-cekit-modules defaults to standalone.xml.

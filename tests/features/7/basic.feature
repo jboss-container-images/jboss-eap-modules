@@ -228,7 +228,7 @@ Feature: Common EAP tests
      And all files under /opt/eap are writeable by current user
      And all files under /deployments are writeable by current user
 
-   Scenario: HTTP proxy as java properties (CLOUD-865) and disable web console (CLOUD-1040)
+  Scenario: HTTP proxy as java properties (CLOUD-865) and disable web console (CLOUD-1040)
     When container is started with env
       | variable   | value                 |
       | HTTP_PROXY | http://localhost:1337 |
@@ -236,3 +236,11 @@ Feature: Common EAP tests
      And container log should contain VM Arguments:
      And available container log should contain http.proxyHost = localhost
      And available container log should contain http.proxyPort = 1337
+
+  Scenario: EJB transaction recovery
+    When container is started with env
+      | variable                                    | value                     |
+      | STATEFULSET_HEADLESS_SERVICE_NAME           | tx-server-headless        |
+    Then container log should contain WFLYSRV0025
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()="socket-binding"][@name="http"]/*[local-name()="client-mapping" and substring(@destination-address,string-length(@destination-address) - string-length("tx-server-headless") + 1) = "tx-server-headless"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()="socket-binding"][@name="https"]/*[local-name()="client-mapping" and substring(@destination-address,string-length(@destination-address) - string-length("tx-server-headless") + 1) = "tx-server-headless"]
