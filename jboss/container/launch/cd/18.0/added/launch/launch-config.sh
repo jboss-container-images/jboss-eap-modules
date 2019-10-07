@@ -12,8 +12,10 @@ CONFIG_SCRIPT_CANDIDATES=(
   $JBOSS_HOME/bin/launch/datasource.sh
   $JBOSS_HOME/bin/launch/resource-adapter.sh
   $JBOSS_HOME/bin/launch/admin.sh
-  # keep this order jgroups.sh and then ha.sh. 
-  # jgroups.sh needs to calculate where to insert a protocol, ha.sh could add one
+  # Keep this order, jgroups.sh before ha.sh. jgroups.sh is the script which initializes the protocol list store
+  # used to share changes in the protocol list when a protocol is added either by ha.sh or by jgroups.sh.
+  # This protocol store is just a set of files under temporal directory. We need them to be able to share changes
+  # done by the ha.sh and jgroups.sh routines which are executed in subshells
   $JBOSS_HOME/bin/launch/jgroups.sh
   $JBOSS_HOME/bin/launch/ha.sh
   $JBOSS_HOME/bin/launch/https.sh
