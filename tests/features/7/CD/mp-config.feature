@@ -6,7 +6,7 @@ Feature: EAP Openshift mp-config tests
        | variable                                | value           |
        | MICROPROFILE_CONFIG_DIR                 | /home/jboss     |
        | MICROPROFILE_CONFIG_DIR_ORDINAL         | 88              |
-       | GALLEON_PROVISION_LAYERS                | cloud-profile   |
+       | GALLEON_PROVISION_LAYERS                | cloud-server   |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value /home/jboss on XPath //*[local-name()='config-source' and @name='config-map']/*[local-name()='dir']/@path
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 88 on XPath //*[local-name()='config-source' and @name='config-map']/@ordinal
 

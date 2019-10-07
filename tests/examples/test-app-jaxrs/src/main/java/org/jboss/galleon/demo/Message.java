@@ -25,6 +25,6 @@ public class Message {
         return "JAXRS resource";
     }
     public String getServer() {
-        return "WildFly provisioned with Galleon jaxrs layer";
+        return "WildFly provisioned with Galleon jaxrs-server layer";
     }
 }
