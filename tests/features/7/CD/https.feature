@@ -6,7 +6,7 @@ Feature: Check HTTPS configuration
   Scenario: Configure HTTPS, galleon s2i
     Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
       | variable                           | value                       |
-      | GALLEON_PROVISION_LAYERS           | cloud-profile,core-server   |
+      | GALLEON_PROVISION_LAYERS           | cloud-server   |
       | EAP_HTTPS_PASSWORD                 | p@ssw0rd                    |
       | EAP_HTTPS_KEYSTORE_DIR             | /opt/eap                    |
       | EAP_HTTPS_KEYSTORE                 | keystore.jks                |
@@ -34,7 +34,7 @@ Feature: Check HTTPS configuration
       | HTTPS_KEYSTORE                | keystore.jks                |
       | HTTPS_KEYSTORE_TYPE           | JKS                         |
       | CONFIGURE_ELYTRON_SSL         | true                        |
-      | GALLEON_PROVISION_LAYERS      | core-server,cloud-profile   |
+      | GALLEON_PROVISION_LAYERS      | cloud-server   |
     Then container log should contain WFLYSRV0025
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath //*[local-name()='security-realm'][@name="ApplicationRealm"]/*[local-name()='server-identities']
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value https on XPath //*[local-name()='server'][@name="default-server"]/*[local-name()='https-listener']/@name

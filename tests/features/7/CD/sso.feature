@@ -1,7 +1,7 @@
 @jboss-eap-7-tech-preview
 Feature: OpenShift EAP SSO tests
     
-    Scenario: deploys the keycloak examples, then checks if it's deployed in cloud-profile,sso layers.
+    Scenario: deploys the keycloak examples, then checks if it's deployed in cloud-server,sso layers.
      Given XML namespaces
        | prefix | url                          |
        | ns     | urn:jboss:domain:keycloak:1.1 |
@@ -12,7 +12,7 @@ Feature: OpenShift EAP SSO tests
        | SSO_PUBLIC_KEY    | MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiLezsNQtZSaJvNZXTmjhlpIJnnwgGL5R1vkPLdt7odMgDzLHQ1h4DlfJPuPI4aI8uo8VkSGYQXWaOGUh3YJXtdO1vcym1SuP8ep6YnDy9vbUibA/o8RW6Wnj3Y4tqShIfuWf3MEsiH+KizoIJm6Av7DTGZSGFQnZWxBEZ2WUyFt297aLWuVM0k9vHMWSraXQo78XuU3pxrYzkI+A4QpeShg8xE7mNrs8g3uTmc53KR45+wW1icclzdix/JcT6YaSgLEVrIR9WkkYfEGj3vSrOzYA46pQe6WQoenLKtIDFmFDPjhcPoi989px9f+1HCIYP0txBS/hnJZaPdn5/lEUKQIDAQAB  |
        | SSO_URL           | http://localhost:8080/auth    |
        | MAVEN_ARGS_APPEND | -Dmaven.compiler.source=1.6 -Dmaven.compiler.target=1.6 |
-       | GALLEON_PROVISION_LAYERS | cloud-profile,sso |
+       | GALLEON_PROVISION_LAYERS | cloud-server,sso |
     Then container log should contain WFLYSRV0010: Deployed "app-profile-jsp.war"
     Then container log should contain WFLYSRV0010: Deployed "app-jsp.war"
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value demo on XPath //ns:realm/@name
@@ -28,15 +28,15 @@ Feature: OpenShift EAP SSO tests
        | SSO_PUBLIC_KEY    | MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiLezsNQtZSaJvNZXTmjhlpIJnnwgGL5R1vkPLdt7odMgDzLHQ1h4DlfJPuPI4aI8uo8VkSGYQXWaOGUh3YJXtdO1vcym1SuP8ep6YnDy9vbUibA/o8RW6Wnj3Y4tqShIfuWf3MEsiH+KizoIJm6Av7DTGZSGFQnZWxBEZ2WUyFt297aLWuVM0k9vHMWSraXQo78XuU3pxrYzkI+A4QpeShg8xE7mNrs8g3uTmc53KR45+wW1icclzdix/JcT6YaSgLEVrIR9WkkYfEGj3vSrOzYA46pQe6WQoenLKtIDFmFDPjhcPoi989px9f+1HCIYP0txBS/hnJZaPdn5/lEUKQIDAQAB  |
        | SSO_URL           | http://localhost:8080/auth    |
        | MAVEN_ARGS_APPEND | -Dmaven.compiler.source=1.6 -Dmaven.compiler.target=1.6 |
-       | GALLEON_PROVISION_LAYERS | cloud-profile,sso |
+       | GALLEON_PROVISION_LAYERS | cloud-server,sso |
        | SSO_SECURITY_DOMAIN | foo |
     Then container log should contain WFLYSRV0010: Deployed "app-profile-jsp.war"
     Then container log should contain WFLYSRV0010: Deployed "app-jsp.war"
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value demo on XPath //ns:realm/@name
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='application-security-domain']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()='application-security-domain']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value foo on XPath //*[local-name()='application-security-domain']/@name
     
-    Scenario: Check default keycloak config in cloud-profile,sso layers.
+    Scenario: Check default keycloak config in cloud-server,sso layers.
      Given s2i build https://github.com/redhat-developer/redhat-sso-quickstarts from . with env and true using 7.0.x-ose
        | variable               | value                                                                     |
        | ARTIFACT_DIR           | app-jee-jsp/target,service-jee-jaxrs/target,app-profile-jee-jsp/target,app-profile-saml-jee-jsp/target    |
@@ -44,7 +44,7 @@ Feature: OpenShift EAP SSO tests
        | SSO_PUBLIC_KEY         | MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiLezsNQtZSaJvNZXTmjhlpIJnnwgGL5R1vkPLdt7odMgDzLHQ1h4DlfJPuPI4aI8uo8VkSGYQXWaOGUh3YJXtdO1vcym1SuP8ep6YnDy9vbUibA/o8RW6Wnj3Y4tqShIfuWf3MEsiH+KizoIJm6Av7DTGZSGFQnZWxBEZ2WUyFt297aLWuVM0k9vHMWSraXQo78XuU3pxrYzkI+A4QpeShg8xE7mNrs8g3uTmc53KR45+wW1icclzdix/JcT6YaSgLEVrIR9WkkYfEGj3vSrOzYA46pQe6WQoenLKtIDFmFDPjhcPoi989px9f+1HCIYP0txBS/hnJZaPdn5/lEUKQIDAQAB  |
        | SSO_URL                | http://localhost:8080/auth    |
        | MAVEN_ARGS_APPEND      | -Dmaven.compiler.source=1.6 -Dmaven.compiler.target=1.6 |
-       | GALLEON_PROVISION_LAYERS | cloud-profile,sso |
+       | GALLEON_PROVISION_LAYERS | cloud-server,sso |
     Then container log should contain Deployed "service.war"
     And container log should contain Deployed "app-profile-jsp.war"
     And container log should contain Deployed "app-jsp.war"
@@ -63,7 +63,7 @@ Feature: OpenShift EAP SSO tests
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value true on XPath //*[local-name()='secure-deployment'][@name="app-profile-saml.war"]/*[local-name()='SP']/*[local-name()='Keys']/*[local-name()='Key']/@signing 
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value idp on XPath //*[local-name()='secure-deployment'][@name="app-profile-saml.war"]/*[local-name()='SP']/*[local-name()='IDP']/@entityID 
 
-  Scenario: Check custom keycloak config in cloud-profile,sso layers.
+  Scenario: Check custom keycloak config in cloud-server,sso layers.
      Given s2i build https://github.com/redhat-developer/redhat-sso-quickstarts from . with env and true using 7.0.x-ose
        | variable               | value                                                                     |
        | ARTIFACT_DIR           | app-jee-jsp/target,service-jee-jaxrs/target,app-profile-jee-jsp/target,app-profile-saml-jee-jsp/target    |
@@ -74,7 +74,7 @@ Feature: OpenShift EAP SSO tests
        | SSO_BEARER_ONLY        | true                          |
        | SSO_SAML_LOGOUT_PAGE   | /tombrady                     |
        | MAVEN_ARGS_APPEND      | -Dmaven.compiler.source=1.6 -Dmaven.compiler.target=1.6 |
-       | GALLEON_PROVISION_LAYERS | cloud-profile,sso |
+       | GALLEON_PROVISION_LAYERS | cloud-server,sso |
     Then container log should contain Deployed "service.war"
     And container log should contain Deployed "app-profile-jsp.war"
     And container log should contain Deployed "app-jsp.war"
@@ -127,7 +127,7 @@ Feature: OpenShift EAP SSO tests
        | SSO_PUBLIC_KEY    | MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiLezsNQtZSaJvNZXTmjhlpIJnnwgGL5R1vkPLdt7odMgDzLHQ1h4DlfJPuPI4aI8uo8VkSGYQXWaOGUh3YJXtdO1vcym1SuP8ep6YnDy9vbUibA/o8RW6Wnj3Y4tqShIfuWf3MEsiH+KizoIJm6Av7DTGZSGFQnZWxBEZ2WUyFt297aLWuVM0k9vHMWSraXQo78XuU3pxrYzkI+A4QpeShg8xE7mNrs8g3uTmc53KR45+wW1icclzdix/JcT6YaSgLEVrIR9WkkYfEGj3vSrOzYA46pQe6WQoenLKtIDFmFDPjhcPoi989px9f+1HCIYP0txBS/hnJZaPdn5/lEUKQIDAQAB  |
        | SSO_URL           | http://localhost:8080/auth    |
        | MAVEN_ARGS_APPEND | -Dmaven.compiler.source=1.6 -Dmaven.compiler.target=1.6 |
-       | GALLEON_PROVISION_LAYERS   | cloud-profile,sso   |
+       | GALLEON_PROVISION_LAYERS   | cloud-server,sso   |
     When container integ- is started with command bash
     Then copy features/jboss-eap-modules/7/scripts/sso/add-undertow-sec-domain.cli to /tmp in container
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-undertow-sec-domain.cli in container once

@@ -13,7 +13,7 @@
     </feature-pack>
     <config model="standalone" name="standalone.xml">
         <layers>
-            <include name="cloud-profile"/>
+            <include name="cloud-server"/>
             <include name="postgresql-datasource"/>
         </layers>
     </config>

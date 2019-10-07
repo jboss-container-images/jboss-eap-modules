@@ -9,7 +9,7 @@
     </feature-pack>
     <config model="standalone" name="standalone.xml">
         <layers>
-            <include name="jaxrs"/>
+            <include name="jaxrs-server"/>
         </layers>
     </config>
     <options>
