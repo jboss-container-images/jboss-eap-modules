@@ -138,3 +138,12 @@ Feature: Openshift EAP galleon s2i tests
      | GALLEON_PROVISION_LAYERS     | cloud-server  |
     Then s2i build log should contain /home/jboss/../jboss/../jboss/.m2/settings.xml
     Then container log should contain WFLYSRV0025
+
+ Scenario: Galleon provision cloud-server with user redefined MAVEN_ARGS
+    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-empty with env and true using EAP7-1216
+    | variable                        | value        |
+    | MAVEN_ARGS                      | foo          |
+    | GALLEON_PROVISION_LAYERS        | cloud-server |
+    Then container log should contain WFLYSRV0025
+    Then file /opt/eap/.galleon/provisioning.xml should exist
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
