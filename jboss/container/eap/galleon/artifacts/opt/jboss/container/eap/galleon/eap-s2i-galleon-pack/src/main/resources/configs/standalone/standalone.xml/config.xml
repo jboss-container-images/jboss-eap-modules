@@ -6,7 +6,12 @@
         <exclude name="operator-required"/>
         <include name="amq6-rar"/>
     </layers>
-    
+
+    <!-- ejb tx recovery package -->
+    <packages>
+        <package name="wildfly.s2i.ejb.tx.recovery"/>
+    </packages>
+
      <!-- sso packages -->
     <feature-group name="sso"/>
 
@@ -17,10 +22,10 @@
 
     <!-- singleton -->
     <feature-group name="singleton"/>
-    
+
     <!-- jgroups -->
     <feature-group name="os-jgroups"/>
-    
+
     <!-- mod-cluster -->
     <!-- required by modcluster -->
     <feature spec="subsystem.undertow">
@@ -39,17 +44,17 @@
     <!-- messaging -->
     <feature spec="subsystem.messaging-activemq"/>
     <feature-group name="os-messaging"/>
-    
+
     <!-- logging -->
     <exclude feature-id="subsystem.logging.pattern-formatter:pattern-formatter=PATTERN"/>
     <exclude feature-id="subsystem.logging.periodic-rotating-file-handler:periodic-rotating-file-handler=FILE"/>
     <feature-group name="os-logging"/>
-    
+
     <!-- jberet We can't remove it... needs a default job repository -->
     <!--<feature spec="subsystem.batch-jberet">
         <unset param="default-job-repository"/>
     </feature>-->
-    
+
     <!-- datasources -->
     <!-- We are not keeping the ExampleDS in the config -->
     <exclude feature-id="subsystem.datasources.data-source:data-source=ExampleDS"/>
@@ -75,7 +80,7 @@
 
     <!-- elytron -->
     <feature-group name="os-elytron"/>
-    
+
     <!-- infinispan -->
     <exclude spec="subsystem.infinispan"/>
     <feature-group name="infinispan-dist-server"/>
@@ -104,28 +109,28 @@
 
     <feature-group name="infinispan-dist-hibernate"/>
     <feature-group name="os-infinispan-hibernate"/>
-    
+
     <!-- micro-profile -->
     <feature-group name="os-observability"/>
     <exclude spec="subsystem.microprofile-opentracing-smallrye"/>
-    
+
     <!-- legacy security -->
     <exclude feature-id="subsystem.security.security-domain:security-domain=jaspitest"/>
-    
+
     <!-- transactions -->
     <feature-group name="tx-recovery"/>
-    
+
     <!-- undertow -->
     <exclude feature-id="subsystem.undertow.server.https-listener:server=default-server,https-listener=https"/>
-    
+
     <!-- web-services -->
     <feature spec="subsystem.webservices">
         <param name="modify-wsdl-address" value="true"/>
         <param name="wsdl-host" value="jbossws.undefined.host"/>
     </feature>
-    
+
     <feature-group name="os-socket"/>
-    
+
     <!-- sockets -->
     <feature spec="socket-binding-group">
         <param name="socket-binding-group" value="standard-sockets" />
@@ -135,5 +140,5 @@
         </feature-group>
     </feature>
     <feature-group name="os-undertow"/>
-    
+
 </config>
