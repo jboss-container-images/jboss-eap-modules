@@ -31,6 +31,18 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value datasources-web-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value datasources-web-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
 
+  Scenario: Galleon provision web-clustering
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
+    | variable                        | value                                                                                  |
+    | GALLEON_PROVISION_LAYERS        | cloud-server,web-clustering            |
+    Then container log should contain WFLYSRV0025
+    Then file /s2i-output/server/.galleon/provisioning.xml should exist
+    Then file /opt/eap/.galleon/provisioning.xml should exist
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value web-clustering on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value web-clustering on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+  
   Scenario: build the example, then check that cloud-server and postgresql-driver are provisioned and artifacts are downloaded
     Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-postgres using EAP7-1216
     Then s2i build log should contain Downloaded
