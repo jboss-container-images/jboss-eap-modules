@@ -5,3 +5,7 @@ description:  "JBoss Enterprise Application Platform setup JBOSS_HOME"
 
 execute:
 - script: configure.sh
+
+envs:
+- name: SSO_FORCE_LEGACY_SECURITY
+  value: "true"

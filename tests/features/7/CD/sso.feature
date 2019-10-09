@@ -142,6 +142,7 @@ Feature: OpenShift EAP SSO tests
        | SSO_PUBLIC_KEY    | MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiLezsNQtZSaJvNZXTmjhlpIJnnwgGL5R1vkPLdt7odMgDzLHQ1h4DlfJPuPI4aI8uo8VkSGYQXWaOGUh3YJXtdO1vcym1SuP8ep6YnDy9vbUibA/o8RW6Wnj3Y4tqShIfuWf3MEsiH+KizoIJm6Av7DTGZSGFQnZWxBEZ2WUyFt297aLWuVM0k9vHMWSraXQo78XuU3pxrYzkI+A4QpeShg8xE7mNrs8g3uTmc53KR45+wW1icclzdix/JcT6YaSgLEVrIR9WkkYfEGj3vSrOzYA46pQe6WQoenLKtIDFmFDPjhcPoi989px9f+1HCIYP0txBS/hnJZaPdn5/lEUKQIDAQAB  |
        | SSO_URL           | http://localhost:8080/auth    |
        | MAVEN_ARGS_APPEND | -Dmaven.compiler.source=1.6 -Dmaven.compiler.target=1.6 |
+       | SSO_FORCE_LEGACY_SECURITY   | false                     |
     When container integ- is started with command bash
     Then copy features/jboss-eap-modules/7/scripts/sso/add-ejb3-sec-domain.cli to /tmp in container
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-ejb3-sec-domain.cli in container once
