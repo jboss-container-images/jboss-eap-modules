@@ -446,13 +446,8 @@ function initJdbcRecoveryMarkerProperties() {
   # do not reduce logging when debug is enabled
   [ "x${SCRIPT_DEBUG}" = "xtrue" ] && LOGGING_PROPERTIES=""
 
-  local add_modules=""
-  if [ "${JAVA_VERSION}" = "11.0" ]; then
-    add_modules=" --add-modules java.se "
-  fi
-
   # one table works as storage for recovery markers, other stores information about started pods
-  local jdbcCommand="java ${add_modules} $LOGGING_PROPERTIES -jar $JBOSS_HOME/jboss-modules.jar -mp $JBOSS_HOME/modules/ io.narayana.openshift-recovery -y ${JDBC_RECOVERY_DB_TYPE} -o ${JDBC_RECOVERY_DB_HOST} -p ${JDBC_RECOVERY_DB_PORT} -d ${JDBC_RECOVERY_DATABASE} -u ${JDBC_RECOVERY_USER} -s ${JDBC_RECOVERY_PASSWORD}"
+  local jdbcCommand="java $LOGGING_PROPERTIES -jar $JBOSS_HOME/jboss-modules.jar -mp $JBOSS_HOME/modules/ io.narayana.openshift-recovery -y ${JDBC_RECOVERY_DB_TYPE} -o ${JDBC_RECOVERY_DB_HOST} -p ${JDBC_RECOVERY_DB_PORT} -d ${JDBC_RECOVERY_DATABASE} -u ${JDBC_RECOVERY_USER} -s ${JDBC_RECOVERY_PASSWORD}"
   JDBC_COMMAND_RECOVERY_MARKER="${jdbcCommand} -t ${JDBC_RECOVERY_TABLE} -c"
   JDBC_COMMAND_PODNAME_REGISTRY="${jdbcCommand} -t ${JDBC_PODNAME_REGISTRY_TABLE} -c"
 }
