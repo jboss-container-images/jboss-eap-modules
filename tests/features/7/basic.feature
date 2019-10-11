@@ -164,8 +164,10 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_SECRET                       | jdg_jgroups_encrypt_secret              |
-       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
+       | JGROUPS_PING_PROTOCOL                        | dns.DNS_PING                            |
+       | OPENSHIFT_DNS_PING_SERVICE_NAME              | ping-service                            |
+       | JGROUPS_CLUSTER_PASSWORD                     | P@ssw0rd                                |
+    Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster will be encrypted using a deprecated version of ASYM_ENCRYPT protocol. You need to set all of these variables to configure ASYM_ENCRYPT using the Elytron keysore: JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_NAME defined
@@ -173,8 +175,10 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_NAME                         | jboss                                   |
-       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
+       | JGROUPS_PING_PROTOCOL                        | dns.DNS_PING                            |
+       | OPENSHIFT_DNS_PING_SERVICE_NAME              | ping-service                            |
+       | JGROUPS_CLUSTER_PASSWORD                     | P@ssw0rd                                |
+    Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster will be encrypted using a deprecated version of ASYM_ENCRYPT protocol. You need to set all of these variables to configure ASYM_ENCRYPT using the Elytron keysore: JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_PASSWORD defined
@@ -182,8 +186,10 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_PASSWORD                     | mykeystorepass                          |
-       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
+       | JGROUPS_PING_PROTOCOL                        | dns.DNS_PING                            |
+       | OPENSHIFT_DNS_PING_SERVICE_NAME              | ping-service                            |
+       | JGROUPS_CLUSTER_PASSWORD                     | P@ssw0rd                                |
+    Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster will be encrypted using a deprecated version of ASYM_ENCRYPT protocol. You need to set all of these variables to configure ASYM_ENCRYPT using the Elytron keysore: JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_KEYSTORE_DIR defined
@@ -191,8 +197,10 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_KEYSTORE_DIR                 | /etc/jgroups-encrypt-secret-volume      |
-       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
+       | JGROUPS_PING_PROTOCOL                        | dns.DNS_PING                            |
+       | OPENSHIFT_DNS_PING_SERVICE_NAME              | ping-service                            |
+       | JGROUPS_CLUSTER_PASSWORD                     | P@ssw0rd                                |
+    Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster will be encrypted using a deprecated version of ASYM_ENCRYPT protocol. You need to set all of these variables to configure ASYM_ENCRYPT using the Elytron keysore: JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_KEYSTORE file defined
@@ -200,9 +208,10 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_KEYSTORE                     | keystore.jks                            |
-       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
-
+       | JGROUPS_PING_PROTOCOL                        | dns.DNS_PING                            |
+       | OPENSHIFT_DNS_PING_SERVICE_NAME              | ping-service                            |
+       | JGROUPS_CLUSTER_PASSWORD                     | P@ssw0rd                                |
+    Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster will be encrypted using a deprecated version of ASYM_ENCRYPT protocol. You need to set all of these variables to configure ASYM_ENCRYPT using the Elytron keysore: JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE.
   # CD doesn't have these any more
   @ignore @jboss-eap-7-tech-preview
   Scenario: No duplicate module jars
