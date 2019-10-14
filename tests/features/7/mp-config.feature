@@ -1,4 +1,4 @@
-@jboss-eap-7
+@jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: EAP Openshift mp-config tests
 
   Scenario: Micro-profile config, configuration with defaults
