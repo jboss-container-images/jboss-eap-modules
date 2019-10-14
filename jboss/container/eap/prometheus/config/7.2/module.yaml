@@ -7,4 +7,3 @@ modules:
   install:
   - name: jboss.container.eap.prometheus.agent
   - name: jboss.container.eap.prometheus.jmx-exporter-config
-    version: '7.2'
