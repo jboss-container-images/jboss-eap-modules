@@ -473,6 +473,33 @@ function get_application_routes {
       APPLICATION_ROUTES="${secureroute}"
     fi
   fi
+
+  APPLICATION_ROUTES=$(add_route_with_default_port ${APPLICATION_ROUTES})
+}
+
+# Adds an aditional route to the route list with the default port only if the route doesn't have a port
+# {1} Route or Route list (splited by semicolon)
+function add_route_with_default_port() {
+  local routes=${1}
+  local routesWithPort="";
+  local IFS_save=$IFS
+  IFS=";"
+
+  for route in ${routes}; do
+    routesWithPort="${routesWithPort}${route};"
+    # this regex match URLs with port
+    if ! [[ "${route}" =~ ^(https?://.*):(\d*)\/?(.*)$ ]]; then
+      if [[ "${route}" =~ ^(http://.*)$ ]]; then
+        routesWithPort="${routesWithPort}${route}:80;"
+      elif [[ "${route}" =~ ^(https://.*)$ ]]; then
+        routesWithPort="${routesWithPort}${route}:443;"
+      fi
+    fi
+  done
+  
+  IFS=$IFS_save
+
+  echo ${routesWithPort%;}
 }
 
 # Tries to discover the route using the pod's hostname
