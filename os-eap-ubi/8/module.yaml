@@ -1,6 +1,0 @@
-schema_version: 1
-name: os.eap.ubi
-version: '8.0'
-description: UBI adaption script package
-execute:
-- script: configure.sh
