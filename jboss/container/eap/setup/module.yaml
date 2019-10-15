@@ -1,0 +1,11 @@
+schema_version: 1
+name: jboss.container.eap.setup
+version: '1.0'
+description:  "JBoss Enterprise Application Platform setup JBOSS_HOME"
+
+execute:
+- script: configure.sh
+
+envs:
+- name: SSO_FORCE_LEGACY_SECURITY
+  value: "true"

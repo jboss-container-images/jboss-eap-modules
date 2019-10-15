@@ -1,0 +1,4 @@
+schema_version: 1
+name: jboss.container.config.cd
+version: '18.0'
+description: Galleon generated default config for EAP CD18. For reference and bats tests.

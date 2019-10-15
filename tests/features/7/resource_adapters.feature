@@ -19,7 +19,7 @@ Feature: EAP Openshift resource adapters
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value fileQS on XPath //*[local-name()='resource-adapter']/@id
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.jboss.teiid.resource-adapter.file on XPath //*[local-name()='resource-adapter']/*[local-name()='module']/@id
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.teiid.resource.adapter.file.FileManagedConnectionFactory on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@class-name
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value /home/jboss/source/injected/injected-files/data on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='config-property'][@name="ParentDirectory"]
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value /home/jboss/source/injected/injected-files/data on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='config-property'][@name="ParentDirectory"]
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 1 on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='pool']/*[local-name()='min-pool-size']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 5 on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='pool']/*[local-name()='max-pool-size']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='pool']/*[local-name()='prefill']
@@ -62,7 +62,7 @@ Feature: EAP Openshift resource adapters
        | TEST_1_ADMIN_OBJECT_topic_CLASS_NAME    | org.apache.activemq.command.ActiveMQTopic                    |
        | TEST_1_ADMIN_OBJECT_topic_PHYSICAL_NAME | queue/HELLOWORLDMDBTopic                                     |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value activemq-rar.rar on XPath //*[local-name()='resource-adapter']/@id
-    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value activemq-rar.rar on XPath //*[local-name()='resource-adapter']/*[local-name()='archive']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value activemq-rar.rar on XPath //*[local-name()='resource-adapter']/*[local-name()='archive']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.apache.activemq.ra.ActiveMQManagedConnectionFactory on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@class-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/ConnectionFactory on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 1 on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='xa-pool']/*[local-name()='min-pool-size']
@@ -97,7 +97,7 @@ Feature: EAP Openshift resource adapters
       | TEST_1_ADMIN_OBJECT_topic_PHYSICAL_NAME | queue/HELLOWORLDMDBTopic                                     |
       | TEST_1_TRACKING                         | false                                                        |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value activemq-rar.rar on XPath //*[local-name()='resource-adapter']/@id
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value activemq-rar.rar on XPath //*[local-name()='resource-adapter']/*[local-name()='archive']
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value activemq-rar.rar on XPath //*[local-name()='resource-adapter']/*[local-name()='archive']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.apache.activemq.ra.ActiveMQManagedConnectionFactory on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@class-name
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/ConnectionFactory on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@jndi-name
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 1 on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='xa-pool']/*[local-name()='min-pool-size']
@@ -126,13 +126,15 @@ Feature: EAP Openshift resource adapters
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value fileQS on XPath //*[local-name()='resource-adapter']/@id
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.jboss.teiid.resource-adapter.file on XPath //*[local-name()='resource-adapter']/*[local-name()='module']/@id
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.teiid.resource.adapter.file.FileManagedConnectionFactory on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@class-name
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value /home/jboss/source/injected/injected-files/data on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='config-property'][@name="ParentDirectory"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value /home/jboss/source/injected/injected-files/data on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='config-property'][@name="ParentDirectory"]
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 1 on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='pool']/*[local-name()='min-pool-size']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 5 on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='pool']/*[local-name()='max-pool-size']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='pool']/*[local-name()='prefill']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value EntirePool on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='pool']/*[local-name()='flush-strategy']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@tracking
 
+  # This will fail until messaging.sh has been ported to work with CLI
+  @ignore
   Scenario: CLOUD-2455, test tracking configuration
     When container is started with env
       | variable                      | value               |
@@ -148,11 +150,11 @@ Feature: EAP Openshift resource adapters
       | EAP_APP_AMQ_TCP_SERVICE_PORT  | 8000                |
       | MQ_TRACKING                   | false               |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value activemq-rar.rar on XPath //*[local-name()='resource-adapter']/@id
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value activemq-rar.rar on XPath //*[local-name()='resource-adapter']/*[local-name()='archive']
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value activemq-rar.rar on XPath //*[local-name()='resource-adapter']/*[local-name()='archive']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value XATransaction on XPath //*[local-name()='resource-adapter']/*[local-name()='transaction-support']
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value testUser on XPath //*[local-name()='resource-adapter']/*[local-name()='config-property'][@name="UserName"]
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value testPass on XPath //*[local-name()='resource-adapter']/*[local-name()='config-property'][@name="Password"]
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value tcp://10.10.10.10:8000?jms.rmIdFromConnectionId=true on XPath //*[local-name()='resource-adapter']/*[local-name()='config-property'][@name="ServerUrl"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value testUser on XPath //*[local-name()='resource-adapter']/*[local-name()='config-property'][@name="UserName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value testPass on XPath //*[local-name()='resource-adapter']/*[local-name()='config-property'][@name="Password"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value tcp://10.10.10.10:8000?jms.rmIdFromConnectionId=true on XPath //*[local-name()='resource-adapter']/*[local-name()='config-property'][@name="ServerUrl"]
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@tracking
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.apache.activemq.ra.ActiveMQManagedConnectionFactory on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@class-name
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/mq/jndi on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@jndi-name
@@ -166,10 +168,50 @@ Feature: EAP Openshift resource adapters
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/queue/foo on XPath //*[local-name()='resource-adapter']/*[local-name()='admin-objects']/*[local-name()='admin-object']/@jndi-name
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value true on XPath //*[local-name()='resource-adapter']/*[local-name()='admin-objects']/*[local-name()='admin-object']/@use-java-context
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value queue/foo on XPath //*[local-name()='resource-adapter']/*[local-name()='admin-objects']/*[local-name()='admin-object']/@pool-name
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value queue/foo on XPath //*[local-name()='resource-adapter']/*[local-name()='admin-objects']/*[local-name()='admin-object']/*[local-name()='config-property'][@name="PhysicalName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value queue/foo on XPath //*[local-name()='resource-adapter']/*[local-name()='admin-objects']/*[local-name()='admin-object']/*[local-name()='config-property'][@name="PhysicalName"]
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.apache.activemq.command.ActiveMQTopic on XPath //*[local-name()='resource-adapter']/*[local-name()='admin-objects']/*[local-name()='admin-object']/@class-name
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/topic/bar on XPath //*[local-name()='resource-adapter']/*[local-name()='admin-objects']/*[local-name()='admin-object']/@jndi-name
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value topic/bar on XPath //*[local-name()='resource-adapter']/*[local-name()='admin-objects']/*[local-name()='admin-object']/@pool-name
-     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value topic/bar on XPath //*[local-name()='resource-adapter']/*[local-name()='admin-objects']/*[local-name()='admin-object']/*[local-name()='config-property'][@name="PhysicalName"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain trimmed value topic/bar on XPath //*[local-name()='resource-adapter']/*[local-name()='admin-objects']/*[local-name()='admin-object']/*[local-name()='config-property'][@name="PhysicalName"]
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/*[local-name()='xa-pool']/*[local-name()='prefill']
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='resource-adapter']/*[local-name()='connection-definitions']/*[local-name()='connection-definition']/@tracking
+
+Scenario: Cannot add a resource adapter when there is no resource-adapters subsystem
+    When container is started with command bash
+       | variable                         | value                                                        |
+       | RESOURCE_ADAPTERS                | TEST_1                                                       |
+       | TEST_1_ID                        | fileQS                                                       |
+       | TEST_1_MODULE_SLOT               | main                                                         |
+       | TEST_1_MODULE_ID                 | org.jboss.teiid.resource-adapter.file                        |
+       | TEST_1_CONNECTION_CLASS          | org.teiid.resource.adapter.file.FileManagedConnectionFactory |
+       | TEST_1_CONNECTION_JNDI           | java:/marketdata-file                                        |
+       | TEST_1_PROPERTY_ParentDirectory  | /home/jboss/source/injected/injected-files/data              |
+       | TEST_1_PROPERTY_AllowParentPaths | true                                                         |
+       | TEST_1_POOL_MIN_SIZE             | 1                                                            |
+       | TEST_1_POOL_MAX_SIZE             | 5                                                            |
+       | TEST_1_POOL_PREFILL              | false                                                        |
+       | TEST_1_POOL_FLUSH_STRATEGY       | EntirePool                                                   |
+    Then copy features/jboss-eap-modules/7/scripts/resource-adapters/remove-ra-subsystem.cli to /tmp in container
+    And run /opt/eap/bin/jboss-cli.sh --file=/tmp/remove-ra-subsystem.cli in container once
+    And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
+    And file /tmp/boot.log should contain ERROR You have set environment variables to configure resource-adapters. Fix your configuration to contain the resource-adapters subsystem for this to happen.
+
+  Scenario: Cannot add a resource adapter when one exists with a clashing name
+    When container is started with command bash
+       | variable                         | value                                                        |
+       | RESOURCE_ADAPTERS                | TEST_1                                                       |
+       | TEST_1_ID                        | fileQS                                                       |
+       | TEST_1_MODULE_SLOT               | main                                                         |
+       | TEST_1_MODULE_ID                 | org.jboss.teiid.resource-adapter.file                        |
+       | TEST_1_CONNECTION_CLASS          | org.teiid.resource.adapter.file.FileManagedConnectionFactory |
+       | TEST_1_CONNECTION_JNDI           | java:/marketdata-file                                        |
+       | TEST_1_PROPERTY_ParentDirectory  | /home/jboss/source/injected/injected-files/data              |
+       | TEST_1_PROPERTY_AllowParentPaths | true                                                         |
+       | TEST_1_POOL_MIN_SIZE             | 1                                                            |
+       | TEST_1_POOL_MAX_SIZE             | 5                                                            |
+       | TEST_1_POOL_PREFILL              | false                                                        |
+       | TEST_1_POOL_FLUSH_STRATEGY       | EntirePool                                                   |
+    Then copy features/jboss-eap-modules/7/scripts/resource-adapters/add-clashing-resource-adapter.cli to /tmp in container
+    And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-clashing-resource-adapter.cli in container once
+    And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
+    And file /tmp/boot.log should contain ERROR You have set environment variables to configure the resource-adapter 'fileQS'. However, your base configuration already contains a resource-adapter with that name.

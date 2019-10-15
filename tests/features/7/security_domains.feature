@@ -98,7 +98,9 @@ Feature: EAP Openshift security domains
        | EAP_SECDOMAIN_ROLES_PROPERTIES  | otherroles.properties |
      Then container log should contain Running jboss-eap-
       And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='security-domain'][@name='HiThere'][@cache-type='default']/*[local-name()='authentication']/*[local-name()='login-module']/*[local-name()='module-option'][@name='rolesProperties'][@value='${jboss.server.config.dir}/otherroles.properties']
-
+  
+  # this test is no more valid, we are not adding comments in standalone-openshift.xml
+  @ignore
   Scenario: check security-domain unconfigured
     When container is started with env
        | variable                  | value       |

@@ -10,7 +10,7 @@ Feature: Common EAP tests
     When container is started with env
       | variable          | value                 |
       | ENABLE_ACCESS_LOG | true                  |
-    Then file /opt/eap/standalone/configuration/standalone-openshift.xml should contain <access-log use-server-log="true" pattern="%h %l %u %t %{i,X-Forwarded-Host} &quot;%r&quot; %s %b"/>
+    Then file /opt/eap/standalone/configuration/standalone-openshift.xml should contain <access-log pattern="%h %l %u %t %{i,X-Forwarded-Host} &quot;%r&quot; %s %b" use-server-log="true"/>
 
   Scenario: Management interface is secured and JAVA_OPTS is modified
     When container is started with env
@@ -43,7 +43,7 @@ Feature: Common EAP tests
     Then run java -version in container and check its output for openjdk version "1.8.0"
     Then run javac -version in container and check its output for javac 1.8.0
 
-  @ignore @jboss-eap-7-tech-preview/eap-cd-openshift
+  @ignore @jboss-eap-7-tech-preview
   @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
   Scenario: Java 11 is installed and set as default one
     When container is ready
@@ -164,8 +164,10 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_SECRET                       | jdg_jgroups_encrypt_secret              |
-       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
+       | JGROUPS_PING_PROTOCOL                        | dns.DNS_PING                            |
+       | OPENSHIFT_DNS_PING_SERVICE_NAME              | ping-service                            |
+       | JGROUPS_CLUSTER_PASSWORD                     | P@ssw0rd                                |
+    Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster will be encrypted using a deprecated version of ASYM_ENCRYPT protocol. You need to set all of these variables to configure ASYM_ENCRYPT using the Elytron keysore: JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_NAME defined
@@ -173,8 +175,10 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_NAME                         | jboss                                   |
-       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
+       | JGROUPS_PING_PROTOCOL                        | dns.DNS_PING                            |
+       | OPENSHIFT_DNS_PING_SERVICE_NAME              | ping-service                            |
+       | JGROUPS_CLUSTER_PASSWORD                     | P@ssw0rd                                |
+    Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster will be encrypted using a deprecated version of ASYM_ENCRYPT protocol. You need to set all of these variables to configure ASYM_ENCRYPT using the Elytron keysore: JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_PASSWORD defined
@@ -182,8 +186,10 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_PASSWORD                     | mykeystorepass                          |
-       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
+       | JGROUPS_PING_PROTOCOL                        | dns.DNS_PING                            |
+       | OPENSHIFT_DNS_PING_SERVICE_NAME              | ping-service                            |
+       | JGROUPS_CLUSTER_PASSWORD                     | P@ssw0rd                                |
+    Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster will be encrypted using a deprecated version of ASYM_ENCRYPT protocol. You need to set all of these variables to configure ASYM_ENCRYPT using the Elytron keysore: JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_KEYSTORE_DIR defined
@@ -191,8 +197,10 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_KEYSTORE_DIR                 | /etc/jgroups-encrypt-secret-volume      |
-       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
+       | JGROUPS_PING_PROTOCOL                        | dns.DNS_PING                            |
+       | OPENSHIFT_DNS_PING_SERVICE_NAME              | ping-service                            |
+       | JGROUPS_CLUSTER_PASSWORD                     | P@ssw0rd                                |
+    Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster will be encrypted using a deprecated version of ASYM_ENCRYPT protocol. You need to set all of these variables to configure ASYM_ENCRYPT using the Elytron keysore: JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   Scenario: Check jgroups encryption issues a warning when using ASYM_ENCRYPT with JGROUPS_ENCRYPT_KEYSTORE file defined
@@ -200,11 +208,12 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_ENCRYPT_KEYSTORE                     | keystore.jks                            |
-       | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
-    Then container log should contain WARN The specified JGroups configuration properties (JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE_DIR JGROUPS_ENCRYPT_KEYSTORE) will be ignored when using JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT. Only JGROUPS_CLUSTER_PASSWORD is used.
-
+       | JGROUPS_PING_PROTOCOL                        | dns.DNS_PING                            |
+       | OPENSHIFT_DNS_PING_SERVICE_NAME              | ping-service                            |
+       | JGROUPS_CLUSTER_PASSWORD                     | P@ssw0rd                                |
+    Then container log should contain WARN Detected partial JGroups encryption configuration, the communication within the cluster will be encrypted using a deprecated version of ASYM_ENCRYPT protocol. You need to set all of these variables to configure ASYM_ENCRYPT using the Elytron keysore: JGROUPS_ENCRYPT_SECRET, JGROUPS_ENCRYPT_NAME, JGROUPS_ENCRYPT_PASSWORD, JGROUPS_ENCRYPT_KEYSTORE.
   # CD doesn't have these any more
-  @ignore @jboss-eap-7-tech-preview/eap-cd-openshift
+  @ignore @jboss-eap-7-tech-preview
   Scenario: No duplicate module jars
     When container is ready
     Then files at /opt/eap/modules/system/layers/openshift/org/jgroups/main should have count of 2
@@ -228,7 +237,7 @@ Feature: Common EAP tests
      And all files under /opt/eap are writeable by current user
      And all files under /deployments are writeable by current user
 
-   Scenario: HTTP proxy as java properties (CLOUD-865) and disable web console (CLOUD-1040)
+  Scenario: HTTP proxy as java properties (CLOUD-865) and disable web console (CLOUD-1040)
     When container is started with env
       | variable   | value                 |
       | HTTP_PROXY | http://localhost:1337 |
@@ -236,3 +245,11 @@ Feature: Common EAP tests
      And container log should contain VM Arguments:
      And available container log should contain http.proxyHost = localhost
      And available container log should contain http.proxyPort = 1337
+
+  Scenario: EJB transaction recovery
+    When container is started with env
+      | variable                                    | value                     |
+      | STATEFULSET_HEADLESS_SERVICE_NAME           | tx-server-headless        |
+    Then container log should contain WFLYSRV0025
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()="socket-binding"][@name="http"]/*[local-name()="client-mapping" and substring(@destination-address,string-length(@destination-address) - string-length("tx-server-headless") + 1) = "tx-server-headless"]
+     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()="socket-binding"][@name="https"]/*[local-name()="client-mapping" and substring(@destination-address,string-length(@destination-address) - string-length("tx-server-headless") + 1) = "tx-server-headless"]

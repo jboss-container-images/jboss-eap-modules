@@ -1,0 +1,8 @@
+embed-server --timeout=30 --std-out=echo --server-config=standalone-openshift.xml
+
+batch
+    /subsystem=ejb3/service=timer-service:add(thread-pool-name=default, default-data-store=test_mysql-TEST_ds)
+    /subsystem=ejb3/service=timer-service/database-data-store=test_mysql-TEST_ds:add(datasource-jndi-name=java:jboss/datasources/test_b, database=mysql, partition=test_b-TEST_part, refresh-interval=-1)
+run-batch
+
+stop-embedded-server

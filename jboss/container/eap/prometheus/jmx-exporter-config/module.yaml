@@ -1,0 +1,7 @@
+schema_version: 1
+name: jboss.container.eap.prometheus.jmx-exporter-config
+version: '1.0'
+description: Provides Prometheus JMX Exporter configuration
+
+execute:
+- script: configure.sh

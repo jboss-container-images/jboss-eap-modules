@@ -1,0 +1,5 @@
+embed-server --timeout=30 --std-out=echo --server-config=standalone-openshift.xml
+
+/subsystem=resource-adapters/resource-adapter=fileQS:add(module="org.jboss.teiid.resource-adapter.file:main")
+
+stop-embedded-server

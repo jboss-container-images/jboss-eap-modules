@@ -1,0 +1,3 @@
+embed-server --timeout=30 --std-out=echo --server-config=standalone-openshift.xml
+/subsystem=logging/logger=org.infinispan.rest.logging.RestAccessLoggingHandler:add(level=TRACE)
+stop-embedded-server

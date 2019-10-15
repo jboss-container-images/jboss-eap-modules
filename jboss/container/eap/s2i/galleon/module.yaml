@@ -1,0 +1,17 @@
+schema_version: 1
+name: jboss.container.eap.s2i.galleon
+version: '1.0'
+description: Customization of common Maven S2I for EAP S2I images.
+
+execute:
+- script: configure.sh
+- script: backward_compatibility.sh
+
+modules:
+  install:
+  - name: jboss.container.wildfly.s2i.bash
+
+# required by save-artifacts
+packages:
+  install: 
+   - diffutils

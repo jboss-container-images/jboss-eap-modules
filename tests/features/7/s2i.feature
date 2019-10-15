@@ -26,11 +26,12 @@ Feature: Openshift EAP s2i tests
 
   # Like above, but JDK 11 options have changed.
   # see cct_module/dynamic-resources for details.
+  # Test used to add -P jboss-eap-repository-insecure,-securecentral,insecurecentral but we can't use unsecure repos, they are banned by parent pom.xml.
   @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
   Scenario: Test to ensure that maven is run with -Djava.net.preferIPv4Stack=true and user-supplied arguments, even when MAVEN_ARGS is overridden, and doesn't clear the local repository after the build
     Given s2i build https://github.com/jboss-developer/jboss-eap-quickstarts from helloworld using openshift
        | variable          | value                                                                                  |
-       | MAVEN_ARGS        | -e -P jboss-eap-repository-insecure,-securecentral,insecurecentral -Dcom.redhat.xpaas.repo.jbossorg -DskipTests package |
+       | MAVEN_ARGS        | -e -Dcom.redhat.xpaas.repo.jbossorg -DskipTests package |
        | MAVEN_ARGS_APPEND | -Dfoo=bar                                                                              |
     Then container log should contain WFLYSRV0025
     And run sh -c 'test -d /tmp/artifacts/m2/org && echo all good' in container and immediately check its output for all good
@@ -124,3 +125,21 @@ Feature: Openshift EAP s2i tests
       | APP_DATADIR  | deployments |
       | SCRIPT_DEBUG | true        |
     Then s2i build log should contain + log_info 'Script debugging is enabled, allowing bash commands and their arguments to be printed as they are executed'
+
+  Scenario: check drivers added during s2i.
+    Given s2i build git://github.com/jfdenise/jboss-eap-modules from tests/examples/test-app-drivers with env and true using EAP7-1216
+    Then container log should contain WFLYSRV0025
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()='driver']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value testpostgres on XPath //*[local-name()='drivers']/*[local-name()='driver']/@name
+
+  Scenario: Test custom settings
+    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-settings with env and true using EAP7-1216
+    Then container log should contain WFLYSRV0025
+    Then file /home/jboss/.m2/settings.xml should contain foo-repository
+
+  Scenario: Test custom settings by env
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
+     | variable                     | value                                                 |
+     | MAVEN_SETTINGS_XML           | /home/jboss/../jboss/../jboss/.m2/settings.xml |
+    Then s2i build log should contain /home/jboss/../jboss/../jboss/.m2/settings.xml
+    Then container log should contain WFLYSRV0025

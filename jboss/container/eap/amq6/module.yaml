@@ -1,0 +1,8 @@
+schema_version: 1
+name: jboss.container.eap.amq6
+version: '1.0'
+description:  "rar to interact with AMQ6 packaged in FP"
+
+execute:
+- script: configure.sh
+  user: '185'
