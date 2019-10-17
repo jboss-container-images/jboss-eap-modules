@@ -1,0 +1,7 @@
+schema_version: 1
+name: jboss.container.eap.galleon.build-settings
+version: 'osbs'
+description: Install settings to run galleon in osbs
+
+execute:
+- script: configure.sh
