@@ -20,12 +20,6 @@
     <exclude feature-id="core-service.management.security-realm.server-identity.ssl:security-realm=ApplicationRealm"/>
     <feature-group name="os-management"/>
 
-    <!-- singleton -->
-    <feature-group name="singleton"/>
-
-    <!-- jgroups -->
-    <feature-group name="os-jgroups"/>
-
     <!-- mod-cluster -->
     <!-- required by modcluster -->
     <feature spec="subsystem.undertow">
@@ -74,34 +68,9 @@
     <!-- elytron -->
     <feature-group name="os-elytron"/>
 
-    <!-- infinispan -->
+    <!-- clustering -->
     <exclude spec="subsystem.infinispan"/>
-    <feature-group name="infinispan-dist-server"/>
-    <feature-group name="os-infinispan-dist-web"/>
-
-    <feature-group name="infinispan-dist-ejb">
-        <include feature-id="subsystem.infinispan.cache-container:cache-container=ejb">
-            <param name="default-cache" value="repl"/>
-            <feature spec="subsystem.infinispan.cache-container.replicated-cache">
-                <param name="replicated-cache" value="repl"/>
-                <feature spec="subsystem.infinispan.cache-container.replicated-cache.memory.object">
-                    <param name="size" value="10000"/>
-                </feature>
-                <feature spec="subsystem.infinispan.cache-container.replicated-cache.component.locking">
-                    <param name="isolation" value="REPEATABLE_READ"/>
-                </feature>
-                <feature spec="subsystem.infinispan.cache-container.replicated-cache.component.transaction">
-                    <param name="mode" value="BATCH"/>
-                </feature>
-                <feature spec="subsystem.infinispan.cache-container.replicated-cache.store.file">
-                    <unset param="relative-to"/>
-                </feature>
-            </feature>
-        </include>
-    </feature-group>
-
-    <feature-group name="infinispan-dist-hibernate"/>
-    <feature-group name="os-infinispan-hibernate"/>
+    <feature-group name="os-clustering"/>
 
     <!-- micro-profile -->
     <feature-group name="os-observability"/>
@@ -124,14 +93,6 @@
 
     <feature-group name="os-socket"/>
 
-    <!-- sockets -->
-    <feature spec="socket-binding-group">
-        <param name="socket-binding-group" value="standard-sockets" />
-        <feature-group name="ha-sockets">
-            <exclude feature-id="socket-binding-group.socket-binding:name=standard-sockets,socket-binding=jgroups-udp-fd"/>
-            <exclude feature-id="socket-binding-group.socket-binding:name=standard-sockets,socket-binding=jgroups-tcp-fd"/>
-        </feature-group>
-    </feature>
     <feature-group name="os-undertow"/>
 
 </config>
