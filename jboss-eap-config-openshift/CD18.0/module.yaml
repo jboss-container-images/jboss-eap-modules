@@ -1,0 +1,7 @@
+schema_version: 1
+name: jboss.eap.config.openshift
+version: 'CD18.0'
+description: The legacy jboss.eap.config.openshift CD18.0 version script package. Installs a standalone-openshift.xml compatible with EAP CD 18.
+execute:
+- script: configure.sh
+  user: '185'
