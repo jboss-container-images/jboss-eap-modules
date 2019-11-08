@@ -124,14 +124,14 @@ Feature: EAP Openshift security domains
       And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value application-security on XPath //*[local-name()='security-domain'][@name='application-security'][@default-realm='application-security']/*[local-name()='realm']/@name
 
   Scenario: check other login modules
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-extension with env and true using EAP7-1216
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-extension with env and true
     Then container log should contain WFLYSRV0025
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value org.kie.security.jaas.KieLoginModule on XPath //*[local-name()='login-module']/@code
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value optional on XPath //*[local-name()='login-module' and @code="org.kie.security.jaas.KieLoginModule"]/@flag
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value deployment.ROOT.war on XPath //*[local-name()='login-module'][@code="org.kie.security.jaas.KieLoginModule"]/@module
 
   Scenario: check other login modules, galleon
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-extension with env and true using EAP7-1216
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-extension with env and true
       | variable                     | value       |
       | GALLEON_PROVISION_SERVER     | slim-default-server     |
     Then container log should contain WFLYSRV0025
@@ -140,7 +140,7 @@ Feature: EAP Openshift security domains
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value deployment.ROOT.war on XPath //*[local-name()='login-module'][@code="org.kie.security.jaas.KieLoginModule"]/@module
 
   Scenario: check other login modules, galleon legacy-security layer
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-extension with env and true using EAP7-1216
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-extension with env and true
       | variable                     | value       |
       | GALLEON_PROVISION_LAYERS     | cloud-server,legacy-security     |
     Then container log should contain WFLYSRV0025
@@ -149,14 +149,14 @@ Feature: EAP Openshift security domains
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value deployment.ROOT.war on XPath //*[local-name()='login-module'][@code="org.kie.security.jaas.KieLoginModule"]/@module
 
   Scenario: check other login modules, no security domain
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-extension with env and true using EAP7-1216
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-extension with env and true
       | variable                     | value            |
       | GALLEON_PROVISION_LAYERS     | cloud-server     |
     Then container log should contain WFLYCTL0030: No resource definition is registered for address
 
 
   Scenario: check Elytron configuration with elytron core realms security domain fail
-    Given s2i build https://github.com/wildfly/temp-eap-modules from tests/examples/test-app-web-security with env and true using EAP7-1216
+    Given s2i build https://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-web-security with env and true
        | variable                   | value       |
        | ELYTRON_SECDOMAIN_NAME     | my-security-domain     |
        | ELYTRON_SECDOMAIN_CORE_REALM | true                 |
@@ -172,7 +172,7 @@ Feature: EAP Openshift security domains
       | port                       | 8080        |
 
   Scenario: check Elytron configuration with elytron core realms security domain success
-    Given s2i build https://github.com/wildfly/temp-eap-modules from tests/examples/test-app-web-security with env and true using EAP7-1216 without running
+    Given s2i build https://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-web-security with env and true using master without running
        | variable                   | value       |
        | ELYTRON_SECDOMAIN_NAME     | my-security-domain     |
        | ELYTRON_SECDOMAIN_CORE_REALM | true                 |
@@ -188,7 +188,7 @@ Feature: EAP Openshift security domains
       | password | pass |
 
   Scenario: check Elytron configuration with elytron core realms security domain fail, galleon
-    Given s2i build https://github.com/wildfly/temp-eap-modules from tests/examples/test-app-web-security with env and true using EAP7-1216
+    Given s2i build https://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-web-security with env and true
        | variable                   | value       |
        | ELYTRON_SECDOMAIN_NAME     | my-security-domain     |
        | ELYTRON_SECDOMAIN_CORE_REALM | true                 |
@@ -203,7 +203,7 @@ Feature: EAP Openshift security domains
       | port                       | 8080        |
 
   Scenario: check Elytron configuration with elytron core realms security domain success, galleon
-    Given s2i build https://github.com/wildfly/temp-eap-modules from tests/examples/test-app-web-security with env and true using EAP7-1216 without running
+    Given s2i build https://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-web-security with env and true using master without running
        | variable                   | value       |
        | ELYTRON_SECDOMAIN_NAME     | my-security-domain     |
        | ELYTRON_SECDOMAIN_CORE_REALM | true                 |
@@ -220,7 +220,7 @@ Feature: EAP Openshift security domains
       | password | pass |
 
  Scenario: check Elytron configuration with elytron custom security domain fail
-    Given s2i build https://github.com/wildfly/temp-eap-modules from tests/examples/test-app-web-security with env and true using EAP7-1216 without running
+    Given s2i build https://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-web-security with env and true using master without running
        | variable                   | value       |
        | ELYTRON_SECDOMAIN_NAME     | my-security-domain     |
        | ELYTRON_SECDOMAIN_USERS_PROPERTIES | empty-foo-users.properties                 |
@@ -241,7 +241,7 @@ Feature: EAP Openshift security domains
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value my-security-domain on XPath //*[local-name()='subsystem' and starts-with(namespace-uri(), 'urn:jboss:domain:ejb3:')]/*[local-name()='application-security-domains']/*[local-name()='application-security-domain']/@security-domain
 
   Scenario: check Elytron configuration with elytron custom security domain success
-    Given s2i build https://github.com/wildfly/temp-eap-modules from tests/examples/test-app-web-security with env and true using EAP7-1216 without running
+    Given s2i build https://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-web-security with env and true using master without running
        | variable                   | value       |
        | ELYTRON_SECDOMAIN_NAME     | my-security-domain     |
        | ELYTRON_SECDOMAIN_USERS_PROPERTIES | foo-users.properties                 |
@@ -259,7 +259,7 @@ Feature: EAP Openshift security domains
       | password | pass |
 
  Scenario: check Elytron configuration with elytron custom security domain fail, galleon
-    Given s2i build https://github.com/wildfly/temp-eap-modules from tests/examples/test-app-web-security with env and true using EAP7-1216 without running
+    Given s2i build https://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-web-security with env and true using master without running
        | variable                   | value       |
        | ELYTRON_SECDOMAIN_NAME     | my-security-domain     |
        | ELYTRON_SECDOMAIN_USERS_PROPERTIES | empty-foo-users.properties                 |
@@ -279,7 +279,7 @@ Feature: EAP Openshift security domains
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value my-security-domain on XPath //*[local-name()='subsystem' and starts-with(namespace-uri(), 'urn:jboss:domain:undertow:')]/*[local-name()='application-security-domains']/*[local-name()='application-security-domain']/@security-domain
 
   Scenario: check Elytron configuration with elytron custom security domain success, galleon
-    Given s2i build https://github.com/wildfly/temp-eap-modules from tests/examples/test-app-web-security with env and true using EAP7-1216 without running
+    Given s2i build https://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-web-security with env and true using master without running
        | variable                   | value       |
        | ELYTRON_SECDOMAIN_NAME     | my-security-domain     |
        | ELYTRON_SECDOMAIN_USERS_PROPERTIES | foo-users.properties                 |

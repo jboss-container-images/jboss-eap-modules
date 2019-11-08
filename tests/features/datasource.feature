@@ -905,7 +905,7 @@ Feature: EAP Openshift datasources
 	    Then container log should contain ERROR The list of configured datasources does not contain a datasource matching the ee default-bindings datasource specified with EE_DEFAULT_DATASOURCE='does-not-match-anything'.
 
   Scenario: check mysql datasource, galleon s2i
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-prov-mysql with env and true using EAP7-1216
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-prov-mysql with env and true
        | variable                  | value                        |
        | DB_SERVICE_PREFIX_MAPPING | test-mysql=TEST              |
        | TEST_DATABASE             | kitchensink                  |
@@ -927,7 +927,7 @@ Feature: EAP Openshift datasources
     And container log should not contain WARN The default datasource for the ee subsystem has been guessed to be
 
   Scenario: check postgresql datasource, galleon s2i
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-prov-mysql-postgres with env and true using EAP7-1216
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-prov-mysql-postgres with env and true
        | variable                  | value                            |
        | DB_SERVICE_PREFIX_MAPPING     | test-postgresql=TEST         |
        | TEST_DATABASE                 | kitchensink                  |
@@ -949,7 +949,7 @@ Feature: EAP Openshift datasources
     And container log should not contain WARN The default datasource for the ee subsystem has been guessed to be
 
   Scenario: check mysql and postgresql datasource, galleon s2i
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-prov-mysql-postgres with env and true using EAP7-1216
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-prov-mysql-postgres with env and true
        | variable                      | value                                                  |
        | DB_SERVICE_PREFIX_MAPPING     | test-postgresql=TEST_POSTGRESQL,test-mysql=TEST_MYSQL  |
        | TEST_MYSQL_DATABASE           | kitchensink-m                                          |
