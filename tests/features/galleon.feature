@@ -44,7 +44,7 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value web-clustering on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
   
   Scenario: build the example, then check that cloud-server and postgresql-driver are provisioned and artifacts are downloaded
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-postgres using EAP7-1216
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-postgres
     Then s2i build log should contain Downloaded
     Then file /s2i-output/server/.galleon/provisioning.xml should exist
     Then file /opt/eap/.galleon/provisioning.xml should exist
@@ -54,7 +54,7 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value postgresql-datasource on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
 
   Scenario: build the example, then check that cloud-server and postgresql-driver are provisioned and artifacts are not downloaded
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-postgres with env and true using EAP7-1216
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-postgres with env and true
     Then s2i build log should not contain Downloaded
     Then file /s2i-output/server/.galleon/provisioning.xml should exist
     Then file /opt/eap/.galleon/provisioning.xml should exist
@@ -64,14 +64,14 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value postgresql-datasource on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
 
   Scenario: build the jaxrs example and jaxrs server from user defined server, then check that jaxrs-server is provisioned
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-jaxrs with env and true using EAP7-1216
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs with env and true
     Then file /s2i-output/server/.galleon/provisioning.xml should exist
     Then file /opt/eap/.galleon/provisioning.xml should exist
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value jaxrs-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value jaxrs-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
 
   Scenario: build the jaxrs example, then check that galleon env var overrides user defined galleon server
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-jaxrs with env and true using EAP7-1216
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs with env and true
     | variable          | value                                                                                  |
     | GALLEON_PROVISION_LAYERS        | core-server |
     Then file /s2i-output/server/.galleon/provisioning.xml should exist
@@ -80,7 +80,7 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value core-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
 
   Scenario: failing to build the example due to invalid user defined galleon definition
-    Given failing s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-jaxrs with env and true using EAP7-1216
+    Given failing s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs with env and true
     | variable          | value                                                                                  |
     | GALLEON_VERSION | 0.0.0.Foo |
 
@@ -125,7 +125,7 @@ Feature: Openshift EAP galleon s2i tests
     | GALLEON_PROVISION_LAYERS        | cloud-server,foo |
 
   Scenario: Test custom settings with galleon
-   Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-settings with env and true using EAP7-1216
+   Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-settings with env and true
     | variable                     | value                                                 |
     | GALLEON_PROVISION_LAYERS     | cloud-server  |
     Then container log should contain WFLYSRV0025
@@ -140,7 +140,7 @@ Feature: Openshift EAP galleon s2i tests
     Then container log should contain WFLYSRV0025
 
  Scenario: Galleon provision cloud-server with user redefined MAVEN_ARGS
-    Given s2i build git://github.com/wildfly/temp-eap-modules from tests/examples/test-app-empty with env and true using EAP7-1216
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-empty with env and true
     | variable                        | value        |
     | MAVEN_ARGS                      | foo          |
     | GALLEON_PROVISION_LAYERS        | cloud-server |
