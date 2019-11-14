@@ -263,3 +263,28 @@ Feature: OpenShift EAP SSO tests
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-ejb3-sec-domain.cli in container once
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
     And file /tmp/boot.log should contain ejb3 already contains keycloak application security domain. Fix your configuration or set SSO_SECURITY_DOMAIN env variable.
+
+  Scenario: Check deployment is properly deployed in cloud-server,sso layers
+     Given s2i build https://github.com/redhat-developer/redhat-sso-quickstarts from . with env and true using 7.0.x-ose
+       | variable               | value                                                                     |
+       | ARTIFACT_DIR           | app-profile-jee-jsp/target    |
+       | SSO_REALM              | demo                                                                      |
+       | SSO_URL                | http://localhost:8080/auth    |
+       | MAVEN_ARGS_APPEND      | -Dmaven.compiler.source=1.6 -Dmaven.compiler.target=1.6 |
+       | GALLEON_PROVISION_LAYERS | datasources-web-server,sso |
+    Then container log should contain Existing other application-security-domain is extended with support for keycloak
+    Then container log should contain WFLYSRV0025
+    And container log should contain Deployed "app-profile-jsp.war"
+
+  Scenario: deploys the keycloak examples using secure-deployments and galleon layers then checks if it's deployed.
+     Given XML namespaces
+       | prefix | url                          |
+       | ns     | urn:jboss:domain:keycloak:1.1 |
+     Given s2i build http://github.com/bdecoste/keycloak-examples using securedeployments
+       | variable                   | value                                            |
+       | ARTIFACT_DIR               | app-profile-jee/target |
+       | MAVEN_ARGS_APPEND          | -Dmaven.compiler.source=1.6 -Dmaven.compiler.target=1.6 |
+       | GALLEON_PROVISION_LAYERS | datasources-web-server,sso |
+    Then container log should contain Existing other application-security-domain is extended with support for keycloak
+    Then container log should contain WFLYSRV0025
+    Then container log should contain WFLYSRV0010: Deployed "app-profile-jee.war"
