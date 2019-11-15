@@ -80,7 +80,7 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value core-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
 
   Scenario: failing to build the example due to invalid user defined galleon definition
-    Given failing s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs with env and true
+    Given failing s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs using master
     | variable          | value                                                                                  |
     | GALLEON_VERSION | 0.0.0.Foo |
 

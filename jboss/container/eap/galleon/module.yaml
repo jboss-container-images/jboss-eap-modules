@@ -34,6 +34,8 @@ envs:
   value: eap-s2i-galleon-pack
 - name: GALLEON_S2I_PRODUCER_NAME
   value: eap-s2i
+- name: DELETE_BUILD_ARTIFACTS
+  value: "true"
 
 execute:
 - script: configure.sh
