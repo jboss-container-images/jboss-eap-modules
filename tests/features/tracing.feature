@@ -1,4 +1,4 @@
-@jboss-eap-7-tech-preview
+@jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: EAP Openshift open-tracing tests
 
   Scenario: No tracing
