@@ -4,7 +4,7 @@ set -e
 SCRIPT_DIR=$(dirname $0)
 ADDED_DIR=${SCRIPT_DIR}/added
 SOURCES_DIR="/tmp/artifacts"
-VERSION_TXN_MARKER="1.1.2.Final-redhat-00001"
+VERSION_TXN_MARKER="1.1.4.Final-redhat-00001"
 
 # Add new "openshift" layer
 cp -rp --remove-destination "$ADDED_DIR/modules" "$JBOSS_HOME/"

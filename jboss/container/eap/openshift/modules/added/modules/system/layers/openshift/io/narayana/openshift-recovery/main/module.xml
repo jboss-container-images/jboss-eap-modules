@@ -34,5 +34,6 @@
         <module name="com.mysql" optional="true"/>
         <module name="org.postgresql.jdbc" optional="true"/>
         <module name="com.mysql.jdbc" optional="true"/>
+        <module name="io.narayana.openshift-recovery.jdbc" optional="true"/>
     </dependencies>
 </module>

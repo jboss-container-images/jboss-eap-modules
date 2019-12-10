@@ -5,8 +5,8 @@
 #   by application server and the migration pod
 # -------
 
-source $JBOSS_HOME/bin/launch/launch-common.sh
-source $JBOSS_HOME/bin/launch/logging.sh
+source "${JBOSS_HOME}/bin/launch/launch-common.sh"
+source "${JBOSS_HOME}/bin/launch/logging.sh"
 
 [ "x${SCRIPT_DEBUG}" = "xtrue" ] && DEBUG_QUERY_API_PARAM="-l debug"
 
@@ -21,6 +21,8 @@ if ! $IS_SPLIT_DATA_DEFINED && [ "x$FORBID_TX_JDBC_RECOVERY_MARKER" = "xtrue" ];
     log_warning "[`date`] Forbidden to use jdbc for recovery marker by use of variable FORBID_TX_JDBC_RECOVERY_MARKER while SPLIT_DATA is not enabled."
     log_warning "The transaction recovery marker algorithm is not capable to save recovery data and won't work."
 fi
+# module path as it's defined by driver binding of module.xml at jboss/container/eap/openshift/modules/added/modules/system/layers/openshift/io/narayana/openshift-recovery
+JDBC_RECOVERY_DRIVER_OPENSHIFT_MODULE_PATH=${JDBC_RECOVERY_DRIVER_OPENSHIFT_MODULE_PATH:-"${JBOSS_HOME}/modules/system/layers/openshift/io/narayana/openshift-recovery/jdbc"}
 # when not capable to connect to JDBC recovery storage retrying n-times before exiting the container
 [[ $TX_JDBC_RECOVERY_CONNECTION_RETRY =~ ^[0-9]+$ ]] || TX_JDBC_RECOVERY_CONNECTION_RETRY=3
 
@@ -87,7 +89,7 @@ function startApplicationServer() {
             exit 3
         fi
         log_error "[`date`] Cannot create schema of database transaction recovery records. Will be retrying."
-        log_error "${JDBC_INFO} is probably not available."
+        log_error "Trying to connect to database at ${JDBC_INFO} but is probably not available."
         loopCount=$((loopCount+1))
       done
     fi
@@ -343,7 +345,7 @@ function recoveryPodsGarbageCollection() {
   if $IS_TX_SQL_BACKEND; then
     # jdbc
     local recoveryMarkers=($(${JDBC_COMMAND_RECOVERY_MARKER} select_recovery))
-    for recoveryPod in ${recoveryMarkers[@]}; do
+    for recoveryPod in "${recoveryMarkers[@]}"; do
       if ! arrContains ${recoveryPod} "${livingPods[@]}"; then
         # recovery pod is dead, garbage collecting
         ${JDBC_COMMAND_RECOVERY_MARKER} delete -r ${recoveryPod}
@@ -425,22 +427,44 @@ function initJdbcRecoveryMarkerProperties() {
   JDBC_RECOVERY_DATABASE=$(find_env "${prefix}_DATABASE")
   JDBC_RECOVERY_USER=$(find_env "${prefix}_USERNAME")
   JDBC_RECOVERY_PASSWORD=$(find_env "${prefix}_PASSWORD")
+  JDBC_RECOVERY_URL=$(find_env "${prefix}_URL")
+  JDBC_RECOVERY_DATABASE_TYPE=$(find_env "${prefix}_DATABASE_TYPE")
+  JDBC_RECOVERY_HIBERNATE_DIALECT=$(find_env "${prefix}_HIBERNATE_DIALECT")
+  JDBC_RECOVERY_JDBC_DRIVER_CLASS=$(find_env "${prefix}_JDBC_DRIVER_CLASS")
   JDBC_RECOVERY_NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
-  JDBC_INFO="${JDBC_RECOVERY_DB_HOST}:${JDBC_RECOVERY_DB_PORT}/${JDBC_RECOVERY_DATABASE}"
 
   local jdbcTableSuffix=${TX_JDBC_RECOVERY_MARKER_TABLE_SUFFIX//-/}
   [ "x${jdbcTableSuffix}" != "x" ] && jdbcTableSuffix="_${jdbcTableSuffix}"
   JDBC_RECOVERY_TABLE="recmark${jdbcTableSuffix}"
   JDBC_PODNAME_REGISTRY_TABLE="recpodreg${jdbcTableSuffix}"
 
-  case "$db" in
-    "MYSQL")
-      JDBC_RECOVERY_DB_TYPE='mysql'
-      ;;
-    "POSTGRESQL")
-      JDBC_RECOVERY_DB_TYPE='postgresql'
-      ;;
-  esac
+  if [ "x${JDBC_RECOVERY_DATABASE_TYPE}" = "x" ]; then
+    JDBC_RECOVERY_DATABASE_TYPE=$(getDbType "$db")
+  fi
+
+  createCustomJDBCDriverModuleAlias
+
+  JDBC_INFO="${JDBC_RECOVERY_URL}"
+  [ -z "${JDBC_INFO}" ] && JDBC_INFO="${JDBC_RECOVERY_DB_HOST}:${JDBC_RECOVERY_DB_PORT}/${JDBC_RECOVERY_DATABASE}"
+
+   if ( [ -z $JDBC_RECOVERY_URL ] ) &&\
+      ( [ -z $JDBC_RECOVERY_USER ] || [ -z $JDBC_RECOVERY_PASSWORD ] || [ -z $JDBC_RECOVERY_DB_HOST ] || [ -z $JDBC_RECOVERY_DB_PORT ] || [ -z $JDBC_RECOVERY_DATABASE ] ); then
+     log_warning "There is a problem with the databse ${db,,} setup!"
+     log_warning "In order to create transaction recovery database tables for $prefix service you need to provide following environment variables: ${service}_SERVICE_HOST, ${service}_SERVICE_PORT, ${prefix}_USERNAME, ${prefix}_PASSWORD, ${prefix}_DATABASE or ${prefix}_URL."
+     log_warning
+     log_warning "Current values:"
+     log_warning "${service}_SERVICE_HOST: $JDBC_RECOVERY_DB_HOST"
+     log_warning "${service}_SERVICE_PORT: $JDBC_RECOVERY_DB_PORT"
+     log_warning "${prefix}_USERNAME: $JDBC_RECOVERY_USER"
+     log_warning "${prefix}_PASSWORD: $JDBC_RECOVERY_PASSWORD"
+     log_warning "${prefix}_DATABASE: $JDBC_RECOVERY_DATABASE"
+     log_warning "${prefix}_URL: $JDBC_RECOVERY_URL"
+     log_warning "${prefix}_DATABASE_TYPE: $JDBC_RECOVERY_DATABASE_TYPE"
+     log_warning "${prefix}_HIBERNATE_DIALECT: $JDBC_RECOVERY_HIBERNATE_DIALECT"
+     log_warning "${prefix}_JDBC_DRIVER_CLASS: $JDBC_RECOVERY_JDBC_DRIVER_CLASS"
+     log_warning
+     log_error   "The image startup could fail. For disabling transaction database scaledown processing do NOT use property TX_DATABASE_PREFIX_MAPPING."
+   fi
 
   LOGGING_PROPERTIES="-Djava.util.logging.config.file=$(dirname ${BASH_SOURCE[0]})/logging.properties"
   # do not reduce logging when debug is enabled
@@ -452,7 +476,14 @@ function initJdbcRecoveryMarkerProperties() {
   fi
 
   # one table works as storage for recovery markers, other stores information about started pods
-  local jdbcCommand="java $jopts $LOGGING_PROPERTIES -jar $JBOSS_HOME/jboss-modules.jar -mp $JBOSS_HOME/modules/ io.narayana.openshift-recovery -y ${JDBC_RECOVERY_DB_TYPE} -o ${JDBC_RECOVERY_DB_HOST} -p ${JDBC_RECOVERY_DB_PORT} -d ${JDBC_RECOVERY_DATABASE} -u ${JDBC_RECOVERY_USER} -s ${JDBC_RECOVERY_PASSWORD}"
+  local jdbcCommand="java $jopts $LOGGING_PROPERTIES -jar $JBOSS_HOME/jboss-modules.jar -mp $JBOSS_HOME/modules/ io.narayana.openshift-recovery -u ${JDBC_RECOVERY_USER} -s ${JDBC_RECOVERY_PASSWORD}"
+  [ "x${JDBC_RECOVERY_DATABASE_TYPE}" != "x" ] && jdbcCommand="$jdbcCommand -y ${JDBC_RECOVERY_DATABASE_TYPE}"
+  [ "x${JDBC_RECOVERY_URL}" != "x" ] && jdbcCommand="$jdbcCommand -l ${JDBC_RECOVERY_URL}"
+  [ "x${JDBC_RECOVERY_DB_HOST}" != "x" ] && jdbcCommand="$jdbcCommand -o ${JDBC_RECOVERY_DB_HOST}"
+  [ "x${JDBC_RECOVERY_DB_PORT}" != "x" ] && jdbcCommand="$jdbcCommand -p ${JDBC_RECOVERY_DB_PORT}"
+  [ "x${JDBC_RECOVERY_DATABASE}" != "x" ] && jdbcCommand="$jdbcCommand -d ${JDBC_RECOVERY_DATABASE}"
+  [ "x${JDBC_RECOVERY_HIBERNATE_DIALECT}" != "x" ] && jdbcCommand="$jdbcCommand -i ${JDBC_RECOVERY_HIBERNATE_DIALECT}"
+  [ "x${JDBC_RECOVERY_JDBC_DRIVER_CLASS}" != "x" ] && jdbcCommand="$jdbcCommand -j ${JDBC_RECOVERY_JDBC_DRIVER_CLASS}"
   JDBC_COMMAND_RECOVERY_MARKER="${jdbcCommand} -t ${JDBC_RECOVERY_TABLE} -c"
   JDBC_COMMAND_PODNAME_REGISTRY="${jdbcCommand} -t ${JDBC_PODNAME_REGISTRY_TABLE} -c"
 }
@@ -466,4 +497,69 @@ function createRecoveryDatabaseSchema() {
   ${JDBC_COMMAND_PODNAME_REGISTRY} create
   [ $? -ne 0 ] && return 1
   return 0
+}
+
+# creating a new jboss module named 'io.narayana.openshift-recovery.jdbc'
+# which aliases the specified JDBC driver module name.
+# The 'io.narayana.openshift-recovery.jdbc' is module name used when searching for custom JDBC drivers.
+# This method aliases the existing JDBC driver jboss module to the narayana one that recovery uses.
+# If user has defined e.g. an Oracle driver module 'com.oracle.ojdbc' he may specify that's the module
+# where scaledown recovery finds the driver class, ie. via JDBC_RECOVERY_CUSTOM_JDBC_MODULE=com.oracle.ojdbc
+function createCustomJDBCDriverModuleAlias() {
+  if [ "x${JDBC_RECOVERY_CUSTOM_JDBC_MODULE}" = "x" ]; then
+    return
+  fi
+
+  local TARGET_MODULE_PATH_DIR="${JDBC_RECOVERY_DRIVER_OPENSHIFT_MODULE_PATH}/main"
+  mkdir -p "${TARGET_MODULE_PATH_DIR}"
+  echo "<module-alias xmlns=\"urn:jboss:module:1.9\" name=\"io.narayana.openshift-recovery.jdbc\" target-name=\"${JDBC_RECOVERY_CUSTOM_JDBC_MODULE}\"/>" > "${TARGET_MODULE_PATH_DIR}/module.xml"
+}
+
+# returns database type string which is recognized by the jbosstm/narayana-openshift-tools,
+# represented as jars placed at jboss module io.narayana.openshift-recovery
+# parameters:
+# - db type which should be converted to the string understandable by java program
+function getDbType() {
+  case "$1" in
+    "MYSQL")
+      echo 'mysql'
+      return 0
+      ;;
+    "POSTGRESQL")
+      echo 'postgresql'
+      return 0
+      ;;
+    "ORACLE")
+      echo 'oracle'
+      return 0
+      ;;
+    "DB2")
+      echo 'db2'
+      return 0
+      ;;
+    "SYBASE")
+      echo 'sybase'
+      return 0
+      ;;
+    "MARIADB")
+      echo 'mariadb'
+      return 0
+      ;;
+    "SYBASE")
+      echo 'sybase'
+      return 0
+      ;;
+    "MSSQL")
+      echo 'mssql'
+      return 0
+      ;;
+    "POSTGRESPLUS")
+      echo 'postgresplus'
+      return 0
+      ;;
+  esac
+  log_warning "[`date`] There is not defined variable '${prefix}_DATABASE_TYPE' and the PREFIX part of the TX_DATABASE_PREFIX_MAPPING='${TX_DATABASE_PREFIX_MAPPING}' does not contain information on database type."
+  log_warning "  Consider to configure the variable '${prefix}_DATABASE_TYPE' with string like: 'mysql', 'oracle', 'postgresql', ..."
+  echo ""
+  return 1
 }
