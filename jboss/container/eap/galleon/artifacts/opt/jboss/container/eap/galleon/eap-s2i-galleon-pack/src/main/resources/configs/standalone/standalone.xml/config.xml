@@ -70,13 +70,6 @@
         <param name="default-resource-adapter-name" value="${ejb.resource-adapter-name:activemq-ra.rar}"/>
     </feature>
     <exclude spec="subsystem.ejb3.service.timer-service"/>
-    <feature spec="subsystem.ejb3.service.remote">
-        <feature spec="subsystem.ejb3.service.remote.channel-creation-options">
-            <param name="channel-creation-options" value="READ_TIMEOUT"/>
-            <param name="value" value="${prop.remoting-connector.read.timeout:20}"/>
-            <param name="type" value="xnio"/>
-        </feature>
-    </feature>
 
     <!-- elytron -->
     <feature-group name="os-elytron"/>
