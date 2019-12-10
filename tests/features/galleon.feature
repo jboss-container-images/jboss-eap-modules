@@ -1,4 +1,4 @@
-@jboss-eap-7-tech-preview
+@jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: Openshift EAP galleon s2i tests
 
   Scenario: Galleon provision cloud-server
