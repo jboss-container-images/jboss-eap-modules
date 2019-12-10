@@ -1,4 +1,4 @@
-@jboss-eap-7-tech-preview
+@jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: EAP Openshift drivers
 
   Scenario: check h2 driver only
