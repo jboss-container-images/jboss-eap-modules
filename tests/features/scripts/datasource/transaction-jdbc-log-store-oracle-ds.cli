@@ -1,0 +1,11 @@
+embed-server --timeout=30 --std-out=echo --server-config=standalone-openshift.xml
+
+/subsystem=datasources/data-source=test_myObjectStorePool:add(jta=false, jndi-name=java:jboss/datasources/test_myObjectStore, enabled=true, connection-url=jdbc:oracle:thin:@oracle-xe:1521:XE, driver-name=oracle, user-name=kabir, password=password)
+
+batch
+/subsystem=transactions:write-attribute(name=use-jdbc-store, value=true)
+/subsystem=transactions:write-attribute(name=jdbc-store-datasource, value=java:/jboss/datasources/test_postgresql)
+/subsystem=transactions:write-attribute(name=jdbc-state-store-table-prefix, value=testprefix)
+run-batch
+
+stop-embedded-server
