@@ -1,7 +1,7 @@
 #!/bin/sh
 # Openshift EAP common migration script
 
-source ${JBOSS_HOME}/bin/launch/openshift-common.sh
+source ${JBOSS_HOME}/bin/launch/launch.sh
 source ${JBOSS_HOME}/bin/probe_common.sh
 source /opt/partition/partitionPV.sh
 
@@ -15,7 +15,8 @@ function runMigration() {
 
   cp -f ${STANDALONE_XML_COPY} ${STANDALONE_XML}
 
-  source $JBOSS_HOME/bin/launch/configure.sh
+  # exposed by wildfly-cekit-modules
+  configure_server
 
   echo "Running $JBOSS_IMAGE_NAME image, version $JBOSS_IMAGE_VERSION"
 
