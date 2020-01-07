@@ -1,14 +1,14 @@
 schema_version: 1
 name: os-eap-probes
 version: '2.0'
-description: os-eap-probes script package for python 3
+description: os-eap-probes script package for python 2
 execute:
 - script: configure.sh
   user: '185'
 packages:
       install:
-          - python3-requests
-envs:
-    - name: "PROBE_DISABLE_BOOT_ERRORS_CHECK"
-      example: "true"
-      description: Disable the boot errors check in the probes.
+          - python-enum34
+          - python-requests
+modules:
+  install:
+  - name: os-eap-probes-common

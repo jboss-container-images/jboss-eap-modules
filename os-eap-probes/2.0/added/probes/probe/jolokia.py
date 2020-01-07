@@ -19,8 +19,8 @@ import logging
 import os
 import requests
 import sys
-import configparser as ConfigParser
-from io import StringIO
+import ConfigParser
+import StringIO
 
 from collections import OrderedDict
 
@@ -61,7 +61,7 @@ class JolokiaProbe(BatchingProbe):
         self.logger.info("Reading jolokia properties file")
         with open("/opt/jolokia/etc/jolokia.properties") as jolokiaProperties:
             # fake a section
-            jolokiaConfig.readfp(StringIO("[jolokia]\n" + jolokiaProperties.read()))
+            jolokiaConfig.readfp(StringIO.StringIO("[jolokia]\n" + jolokiaProperties.read()))
         
         self.host = "localhost"
         self.port = int(jolokiaConfig.get("jolokia", "port")) + int(os.getenv('PORT_OFFSET', 0))

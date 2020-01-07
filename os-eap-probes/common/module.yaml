@@ -1,0 +1,12 @@
+schema_version: 1
+name: os-eap-probes-common
+version: '1.0'
+description: os-eap-probes common scripts
+execute:
+- script: configure.sh
+  user: '185'
+
+envs:
+    - name: "PROBE_DISABLE_BOOT_ERRORS_CHECK"
+      example: "true"
+      description: Disable the boot errors check in the probes.
