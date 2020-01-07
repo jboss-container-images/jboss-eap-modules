@@ -9,3 +9,4 @@ cp -r "$ADDED_DIR"/* $JBOSS_HOME/bin/
 
 chown -R jboss:root $JBOSS_HOME/bin/
 chmod -R g+rwX $JBOSS_HOME/bin/
+
