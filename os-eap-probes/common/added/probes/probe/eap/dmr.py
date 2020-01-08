@@ -200,7 +200,7 @@ class HealthCheckTest(Test):
             elsif the 'read-resource' step failed:
                 READY as failure means no health check subsystem configured on the system
             elsif the 'check' step succeeded:
-                READY if the 'check' step result's outcome field is 'UP'
+                READY if the 'check' step result's status field is 'UP'
                 HARD_FAILURE otherwise
             else:
                 HARD_FAILURE as the query failed
