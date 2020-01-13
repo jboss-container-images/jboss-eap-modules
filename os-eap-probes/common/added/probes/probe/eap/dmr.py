@@ -23,13 +23,14 @@ from probe.dmr import DmrProbe
 class EapProbe(DmrProbe):
     """
     Basic EAP probe which uses the DMR interface to query server state.  It
-    defines tests for server status, boot errors and deployment status.
+    defines tests for server status, server running mode, boot errors and deployment status.
     """
 
     def __init__(self):
         super(EapProbe, self).__init__(
             [
                 ServerStatusTest(),
+                ServerRunningModeTest(),
                 BootErrorsTest(),
                 DeploymentTest()
             ]
@@ -59,6 +60,33 @@ class ServerStatusTest(Test):
         if results["outcome"] != "success" and results.get("failure-description"):
             return (Status.FAILURE, "DMR query failed")
         if results["result"] == "running":
+            return (Status.READY, results["result"])
+        return (Status.NOT_READY, results["result"])
+
+class ServerRunningModeTest(Test):
+    """
+    Checks the running mode of the server.
+    """
+
+    def __init__(self):
+        super(ServerRunningModeTest, self).__init__(
+            {
+                "operation": "read-attribute",
+                "name": "running-mode"
+            }
+        )
+
+    def evaluate(self, results):
+        """
+        Evaluates the test:
+            READY for "NORMAL"
+            FAILURE if the query itself failed
+            NOT_READY for all other states 
+        """
+
+        if results["outcome"] != "success" and results.get("failure-description"):
+            return (Status.FAILURE, "DMR query failed")
+        if results["result"] == "NORMAL":
             return (Status.READY, results["result"])
         return (Status.NOT_READY, results["result"])
 
