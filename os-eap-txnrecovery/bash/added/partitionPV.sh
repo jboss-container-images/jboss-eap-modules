@@ -174,6 +174,11 @@ function migratePV() {
     done
   fi
 
+  # server can only be configured once due to CLI script being executed
+  # doing it before the loop that will start a server per directory.
+  source $JBOSS_HOME/bin/launch/launch.sh
+  configure_server
+
   while true ; do
 
     if $IS_TX_SQL_BACKEND; then
