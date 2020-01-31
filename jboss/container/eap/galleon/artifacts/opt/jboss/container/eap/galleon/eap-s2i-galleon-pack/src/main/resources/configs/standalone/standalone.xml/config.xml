@@ -7,11 +7,6 @@
         <include name="amq6-rar"/>
     </layers>
 
-    <!-- ejb tx recovery package -->
-    <packages>
-        <package name="wildfly.s2i.ejb.tx.recovery"/>
-    </packages>
-
      <!-- sso packages -->
     <feature-group name="sso"/>
 
