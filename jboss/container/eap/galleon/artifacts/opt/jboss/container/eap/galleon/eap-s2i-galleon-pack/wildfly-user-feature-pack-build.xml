@@ -29,6 +29,9 @@
          <dependency group-id="org.jboss.eap" artifact-id="wildfly-servlet-galleon-pack">
             <name>org.wildfly:wildfly-servlet-galleon-pack</name>
         </dependency>
+         <dependency group-id="org.jboss.eap" artifact-id="wildfly-ee-galleon-pack">
+            <name>org.wildfly:wildfly-ee-galleon-pack</name>
+        </dependency>
     </transitive>
     <dependencies>
         <dependency group-id="org.jboss.eap" artifact-id="wildfly-galleon-pack">
