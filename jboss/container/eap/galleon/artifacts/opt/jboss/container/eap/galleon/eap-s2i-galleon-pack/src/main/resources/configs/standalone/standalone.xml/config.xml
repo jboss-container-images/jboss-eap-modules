@@ -3,7 +3,9 @@
 <config xmlns="urn:jboss:galleon:config:1.0" name="standalone.xml" model="standalone">
     <layers>
         <!-- we already have all required in default config -->
-        <exclude name="operator-required"/>
+        <!-- Although logically correct, galleon doesn't actually support excluding from model -->
+        <!-- This is harmeless, keeping the exclusion commented for reference until GAL-308 is fixed -->
+        <!--<exclude name="operator-required"/>-->
         <include name="amq6-rar"/>
     </layers>
 

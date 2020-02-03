@@ -147,3 +147,161 @@ Feature: Openshift EAP galleon s2i tests
     Then container log should contain WFLYSRV0025
     Then file /opt/eap/.galleon/provisioning.xml should exist
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+
+  Scenario: Test cloud-server,microprofile
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and True using master
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | cloud-server,microprofile  |
+    Then container log should contain WFLYSRV0025
+    And check that page is served
+      | property | value |
+      | path     | /     |
+      | port     | 8080  |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value microprofile on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+
+  # Tests for specified exclusion
+  Scenario: Test datasources-web-server, exclude datasources
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and True using master
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | datasources-web-server,-datasources  |
+    Then container log should contain WFLYSRV0025
+    And check that page is served
+      | property | value |
+      | path     | /     |
+      | port     | 8080  |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value datasources-web-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value datasources on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+
+  Scenario: Test jaxrs-server, exclude jpa
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs with env and true
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | jaxrs-server,-jpa  |
+    Then container log should contain WFLYSRV0025
+    And check that page is served
+      | property | value |
+      | path     | /     |
+      | port     | 8080  |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value jaxrs-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value jpa on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+
+  Scenario: Test jaxrs-server, exclude datasources and jpa
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs with env and true
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | jaxrs-server,-datasources,-jpa  |
+    Then container log should contain WFLYSRV0025
+    And check that page is served
+      | property | value |
+      | path     | /     |
+      | port     | 8080  |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value jaxrs-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value datasources on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value jpa on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+
+  Scenario: Test jaxrs-server, exclude jpa and datasources (meaningless order)
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs with env and true
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | jaxrs-server,-jpa,-datasources  |
+    Then container log should contain WFLYSRV0025
+    And check that page is served
+      | property | value |
+      | path     | /     |
+      | port     | 8080  |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value jaxrs-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value datasources on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value jpa on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+
+  Scenario: Test jaxrs-server, exclude datasources, must fail
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | jaxrs-server,-datasources |
+
+  Scenario: Test jaxrs-server, exclude foo, must fail
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | jaxrs-server,-foo |
+
+  Scenario: Test cloud-server, exclude datasources and jpa
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs with env and true
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | cloud-server,-datasources,-jpa  |
+    Then container log should contain WFLYSRV0025
+    And check that page is served
+      | property | value |
+      | path     | /     |
+      | port     | 8080  |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value datasources on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value jpa on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+
+  Scenario: Test cloud-server, exclude observability
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs with env and true
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | cloud-server,-observability  |
+    Then container log should contain WFLYSRV0025
+    And check that page is served
+      | property | value |
+      | path     | /     |
+      | port     | 8080  |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value observability on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+
+  Scenario: Test cloud-server, exclude open-tracing
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs with env and true
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | cloud-server,-open-tracing  |
+    Then container log should contain WFLYSRV0025
+    And check that page is served
+      | property | value |
+      | path     | /     |
+      | port     | 8080  |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value open-tracing on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+
+  Scenario: Test cloud-server, exclude open-tracing and observability
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | cloud-server,-open-tracing,-observability  |
+
+  Scenario: Test jaxrs-server+observability, exclude open-tracing
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs with env and true
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | jaxrs-server,observability,-open-tracing  |
+    Then container log should contain WFLYSRV0025
+    And check that page is served
+      | property | value |
+      | path     | /     |
+      | port     | 8080  |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value jaxrs-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value observability on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value open-tracing on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+
+  Scenario: Test jaxrs-server+observability, exclude open-tracing from provisioning.xml
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-jaxrs-exclude with env and true
+    Then container log should contain WFLYSRV0025
+    And check that page is served
+      | property | value |
+      | path     | /     |
+      | port     | 8080  |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value jaxrs-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value observability on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value open-tracing on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+  
+  Scenario: Test jaxrs-server+microprofile, exclude all mp layers.
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | jaxrs-server,microprofile,-microprofile-config,-microprofile-fault-tolerance,-microprofile-jwt,-microprofile-metrics,-microprofile-openapi,-open-tracing  |
+    Then container log should contain WFLYSRV0025
+    And check that page is served
+      | property | value |
+      | path     | /     |
+      | port     | 8080  |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value jaxrs-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value microprofile on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value microprofile-config on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value microprofile-fault-tolerance on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value microprofile-jwt on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value microprofile-metrics on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value microprofile-openapi on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value open-tracing on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
+  # End specified tests
