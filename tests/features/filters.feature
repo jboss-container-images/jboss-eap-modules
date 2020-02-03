@@ -75,7 +75,7 @@ Feature: EAP 7 Openshift filters
     Then copy features/jboss-eap-modules/scripts/filters/add-clashing-response-header-filter.cli to /tmp in container
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-clashing-response-header-filter.cli in container once
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-    And file /tmp/boot.log should contain ERROR You have set environment variables to add an undertow response-header filter called One-Header. However there is already one which has conflicting values. Fix your configuration.
+    And file /tmp/boot.log should contain You have set environment variables to add an undertow response-header filter called One-Header. However there is already one which has conflicting values. Fix your configuration.
 
  Scenario: Base config with an existing filter-ref with the same name should give an error
     When container is started with command bash
@@ -88,7 +88,7 @@ Feature: EAP 7 Openshift filters
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-matching-response-header-filter.cli in container once
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-clashing-filter-ref.cli in container once
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-    And file /tmp/boot.log should contain ERROR You have set environment variables to add an undertow filter-ref called One-Header but one already exists. Fix your configuration so it does not contain clashing filter-refs for this to happen.
+    And file /tmp/boot.log should contain You have set environment variables to add an undertow filter-ref called One-Header but one already exists. Fix your configuration so it does not contain clashing filter-refs for this to happen.
 
   Scenario: Filters, No undertow should give error
     Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master

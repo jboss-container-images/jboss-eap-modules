@@ -11,6 +11,15 @@ Feature: Common EAP tests
       | variable          | value                 |
       | ENABLE_ACCESS_LOG | true                  |
     Then file /opt/eap/standalone/configuration/standalone-openshift.xml should contain <access-log pattern="%h %l %u %t %{i,X-Forwarded-Host} &quot;%r&quot; %s %b" use-server-log="true"/>
+    Then container log should not contain Configuring the server using embedded server
+
+  Scenario: Cloud-1784, make the Access Log Valve configurable (legacy)
+    When container is started with env
+      | variable          | value                 |
+      | ENABLE_ACCESS_LOG | true                  |
+      | DISABLE_BOOT_SCRIPT_INVOKER | true        |
+    Then file /opt/eap/standalone/configuration/standalone-openshift.xml should contain <access-log pattern="%h %l %u %t %{i,X-Forwarded-Host} &quot;%r&quot; %s %b" use-server-log="true"/>
+    Then container log should contain Configuring the server using embedded server
 
   Scenario: Management interface is secured and JAVA_OPTS is modified
     When container is started with env
@@ -326,6 +335,6 @@ Feature: Common EAP tests
    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     | variable                        | value                                                                                  |
     | GALLEON_PROVISION_LAYERS        | cloud-server |
-   Then container log should contain WFLYSRV0025
+   Then exactly 2 times container log should contain WFLYSRV0025
    Then run /opt/eap/bin/readinessProbe.sh in container once
    Then run /opt/eap/bin/livenessProbe.sh in container once

@@ -194,7 +194,7 @@ Feature: EAP Openshift transaction objectstore datasources
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
-    And file /tmp/boot.log should contain ERROR You have set environment variables to configure the datasource 'xa_postgresqlObjectStorePool'. However, your base configuration already contains a datasource with that name.
+    And file /tmp/boot.log should contain You have set environment variables to configure the datasource 'xa_postgresqlObjectStorePool'. However, your base configuration already contains a datasource with that name.
 
   Scenario: Cannot add a transaction log store datasource when a standard datasource already exists with a clashing name
        #Although we use the name 'NONXA' here this does not refer to the log store we're attempting to add
@@ -215,7 +215,7 @@ Feature: EAP Openshift transaction objectstore datasources
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
-    And file /tmp/boot.log should contain ERROR You have set environment variables to configure the datasource 'nonxa_postgresqlObjectStorePool'. However, your base configuration already contains a datasource with that name.
+    And file /tmp/boot.log should contain You have set environment variables to configure the datasource 'nonxa_postgresqlObjectStorePool'. However, your base configuration already contains a datasource with that name.
 
   Scenario: Cannot add a transaction log store when a conflicting transaction jdbc logstore already exists
        When container is started with command bash
@@ -232,7 +232,7 @@ Feature: EAP Openshift transaction objectstore datasources
        Then copy features/jboss-eap-modules/scripts/datasource/transaction-jdbc-log-store.cli to /tmp in container
        And run /opt/eap/bin/jboss-cli.sh --file=/tmp/transaction-jdbc-log-store.cli in container once
        And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-       And file /tmp/boot.log should contain ERROR You have set environment variables to configure a jdbc logstore in the transactions subsystem which conflict with the values that already exist in the base configuration. Fix your configuration.
+       And file /tmp/boot.log should contain You have set environment variables to configure a jdbc logstore in the transactions subsystem which conflict with the values that already exist in the base configuration. Fix your configuration.
 
   Scenario: Cannot link an non-xa datasource to the transaction log store when a conflicting transaction jdbc logstore already exists
        #Here is defined only jndi for JDBC store which is to be added but it fails as the cli already added one
@@ -252,7 +252,7 @@ Feature: EAP Openshift transaction objectstore datasources
        Then copy features/jboss-eap-modules/scripts/datasource/transaction-jdbc-log-store.cli to /tmp in container
        And run /opt/eap/bin/jboss-cli.sh --file=/tmp/transaction-jdbc-log-store.cli in container once
        And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-       And file /tmp/boot.log should contain ERROR You have set environment variables to configure a jdbc logstore in the transactions subsystem which conflict with the values that already exist in the base configuration. Fix your configuration.
+       And file /tmp/boot.log should contain You have set environment variables to configure a jdbc logstore in the transactions subsystem which conflict with the values that already exist in the base configuration. Fix your configuration.
 
   Scenario: JDBC object store creation fails in transactions subsystem while tx mapping identifies postgresql and configure url and creates datasource
       When container is started with command bash
@@ -271,7 +271,7 @@ Feature: EAP Openshift transaction objectstore datasources
       And run /opt/eap/bin/jboss-cli.sh --file=/tmp/transaction-jdbc-log-store-oracle-ds.cli in container once
       And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
       And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
-      And file /tmp/boot.log should contain ERROR You have set environment variables to configure a jdbc logstore in the transactions subsystem which conflict with the values that already exist in the base configuration. Fix your configuration.
+      And file /tmp/boot.log should contain You have set environment variables to configure a jdbc logstore in the transactions subsystem which conflict with the values that already exist in the base configuration. Fix your configuration.
 
   Scenario: Oracle datasource for JDBC object store fails as not having url defined
       When container is started with command bash

@@ -107,7 +107,7 @@ Feature: EAP Openshift access-log-valve and log handler tests
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='logger' and @category='org.infinispan.rest.logging.RestAccessLoggingHandler']
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value WARN on XPath //*[local-name()='logger' and @category='org.infinispan.rest.logging.RestAccessLoggingHandler']/*[local-name()='level']/@name
-    And file /tmp/boot.log should contain ERROR You have set ENABLE_ACCESS_LOG=true to add the access log logger category 'org.infinispan.rest.logging.RestAccessLoggingHandler'. However one already exists which has conflicting values. Fix your configuration to contain the logging subsystem for this to happen.
+    And file /tmp/boot.log should contain You have set ENABLE_ACCESS_LOG=true to add the access log logger category 'org.infinispan.rest.logging.RestAccessLoggingHandler'. However one already exists which has conflicting values. Fix your configuration to contain the logging subsystem for this to happen.
 
   Scenario: Access Log valve, No undertow should give error
     Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master

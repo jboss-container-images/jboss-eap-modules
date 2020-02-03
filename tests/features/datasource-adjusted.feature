@@ -14,7 +14,7 @@ Scenario: Adding ExampleDS when already in config gives an error
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/ExampleDS-original on XPath //*[local-name()='datasource']/@jndi-name
-    And file /tmp/boot.log should contain ERROR You have set environment variables to configure the default datasource 'ExampleDS'. However, your base configuration already contains a datasource with that name.
+    And file /tmp/boot.log should contain You have set environment variables to configure the default datasource 'ExampleDS'. However, your base configuration already contains a datasource with that name.
 
 Scenario: Can add an xa datasource when datasources already exist and the names don't clash
     When container is started with command bash
@@ -65,7 +65,7 @@ Scenario: Cannot add an xa datasource when an xa datasource already exists with 
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
-    And file /tmp/boot.log should contain ERROR You have set environment variables to configure the datasource 'test_mysql-B'. However, your base configuration already contains a datasource with that name.
+    And file /tmp/boot.log should contain You have set environment variables to configure the datasource 'test_mysql-B'. However, your base configuration already contains a datasource with that name.
 
 Scenario: Cannot add an xa datasource when a non-xa datasource already exists with a clashing name
     When container is started with command bash
@@ -82,7 +82,7 @@ Scenario: Cannot add an xa datasource when a non-xa datasource already exists wi
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
-    And file /tmp/boot.log should contain ERROR You have set environment variables to configure the datasource 'test_mysql-A'. However, your base configuration already contains a datasource with that name.
+    And file /tmp/boot.log should contain You have set environment variables to configure the datasource 'test_mysql-A'. However, your base configuration already contains a datasource with that name.
 
 Scenario: Cannot add a non-xa datasource when a non-xa datasource already exists with a clashing name
     When container is started with command bash
@@ -100,7 +100,7 @@ Scenario: Cannot add a non-xa datasource when a non-xa datasource already exists
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
-    And file /tmp/boot.log should contain ERROR You have set environment variables to configure the datasource 'test_mysql-A'. However, your base configuration already contains a datasource with that name.
+    And file /tmp/boot.log should contain You have set environment variables to configure the datasource 'test_mysql-A'. However, your base configuration already contains a datasource with that name.
 
 Scenario: Cannot add a non-xa datasource when an xa datasource already exists with a clashing name
     When container is started with command bash
@@ -118,7 +118,7 @@ Scenario: Cannot add a non-xa datasource when an xa datasource already exists wi
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
-    And file /tmp/boot.log should contain ERROR You have set environment variables to configure the datasource 'test_mysql-B'. However, your base configuration already contains a datasource with that name.
+    And file /tmp/boot.log should contain You have set environment variables to configure the datasource 'test_mysql-B'. However, your base configuration already contains a datasource with that name.
 
 Scenario: check datasource with default value used for default-job-repository does not give error when no batch-jberet subsystem
     When container is started with command bash
@@ -134,7 +134,7 @@ Scenario: check datasource with default value used for default-job-repository do
    And run /opt/eap/bin/jboss-cli.sh --file=/tmp/remove-batch-jberet-subsystem.cli in container once
    And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
-   And file /tmp/boot.log should not contain ERROR You have set the DEFAULT_JOB_REPOSITORY environment variables to configure a default-job-repository pointing to
+   And file /tmp/boot.log should not contain You have set the DEFAULT_JOB_REPOSITORY environment variables to configure a default-job-repository pointing to
 
 Scenario: check datasource with specified value used for default-job-repository gives error when no batch-jberet subsystem
     When container is started with command bash
@@ -151,7 +151,7 @@ Scenario: check datasource with specified value used for default-job-repository 
    And run /opt/eap/bin/jboss-cli.sh --file=/tmp/remove-batch-jberet-subsystem.cli in container once
    And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
-   And file /tmp/boot.log should contain ERROR You have set the DEFAULT_JOB_REPOSITORY environment variables to configure a default-job-repository pointing to the 'test-mysql' datasource. Fix your configuration to contain a batch-jberet subsystem for this to happen.
+   And file /tmp/boot.log should contain You have set the DEFAULT_JOB_REPOSITORY environment variables to configure a default-job-repository pointing to the 'test-mysql' datasource. Fix your configuration to contain a batch-jberet subsystem for this to happen.
 
 Scenario: check datasource with default value used for timer-service-datastore does not give error when no ejb3 subsystem
     When container is started with command bash
@@ -167,7 +167,7 @@ Scenario: check datasource with default value used for timer-service-datastore d
    And run /opt/eap/bin/jboss-cli.sh --file=/tmp/remove-ejb3-subsystem.cli in container once
    And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
-   And file /tmp/boot.log should not contain ERROR You have set the TIMER_SERVICE_DATA_STORE environment variable which adds a timer-service to the ejb3 subsystem. Fix your configuration to contain an ejb3 subsystem for this to happen.
+   And file /tmp/boot.log should not contain You have set the TIMER_SERVICE_DATA_STORE environment variable which adds a timer-service to the ejb3 subsystem. Fix your configuration to contain an ejb3 subsystem for this to happen.
 
 Scenario: check datasource with specified value used for timer-service-datastore gives error when no ejb3 subsystem
     When container is started with command bash
@@ -183,7 +183,7 @@ Scenario: check datasource with specified value used for timer-service-datastore
    Then copy features/jboss-eap-modules/scripts/datasource/remove-ejb3-subsystem.cli to /tmp in container
    And run /opt/eap/bin/jboss-cli.sh --file=/tmp/remove-ejb3-subsystem.cli in container once
    And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-   And file /tmp/boot.log should contain ERROR You have set the TIMER_SERVICE_DATA_STORE environment variable which adds a timer-service to the ejb3 subsystem. Fix your configuration to contain an ejb3 subsystem for this to happen.
+   And file /tmp/boot.log should contain You have set the TIMER_SERVICE_DATA_STORE environment variable which adds a timer-service to the ejb3 subsystem. Fix your configuration to contain an ejb3 subsystem for this to happen.
 
 Scenario: check datasource existing timer-service database-data-store not changed when not specified
     When container is started with command bash
@@ -255,7 +255,7 @@ Scenario: check datasource and timer service with a clashing database-data-store
    And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
    # Skip a lot of the checks done in 'check mysql datasource' anyway
    # Now for what we are after....
-   And file /tmp/boot.log should contain ERROR You have set environment variables to configure a timer service database-data-store in the ejb3 subsystem which conflict with the values that already exist in the base configuration. Fix your configuration.
+   And file /tmp/boot.log should contain You have set environment variables to configure a timer service database-data-store in the ejb3 subsystem which conflict with the values that already exist in the base configuration. Fix your configuration.
 
 Scenario: check guessed EE default-bindings datasource and no EE subsystem does not give error
     When container is started with command bash
@@ -273,7 +273,7 @@ Scenario: check guessed EE default-bindings datasource and no EE subsystem does 
    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
    # Skip a lot of the checks done in 'check mysql datasource' anyway
    # Now for what we are after....
-   And file /tmp/boot.log should not contain ERROR EE_DEFAULT_DATASOURCE was set to
+   And file /tmp/boot.log should not contain EE_DEFAULT_DATASOURCE was set to
 
 Scenario: check specified EE default-bindings datasource and no EE subsystem gives error
     When container is started with command bash
@@ -291,7 +291,7 @@ Scenario: check specified EE default-bindings datasource and no EE subsystem giv
    And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
    # Skip a lot of the checks done in 'check mysql datasource' anyway
    # Now for what we are after....
-   And file /tmp/boot.log should contain ERROR EE_DEFAULT_DATASOURCE was set to 'test-mysql' but the base configuration contains no ee subsystem. Fix your configuration.
+   And file /tmp/boot.log should contain EE_DEFAULT_DATASOURCE was set to 'test-mysql' but the base configuration contains no ee subsystem. Fix your configuration.
 
 Scenario: check guessed EE default-bindings datasource when there is a conflict in existing values should give a warning
    When container is started with command bash
@@ -311,7 +311,7 @@ Scenario: check guessed EE default-bindings datasource when there is a conflict 
    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
    # Skip a lot of the checks done in 'check mysql datasource' anyway
    # Now for what we are after....
-   And file /tmp/boot.log should contain WARN You have set environment variables to configure the datasource in the default-bindings in the ee subsystem subsystem which conflicts with the value that already exists in the base configuration. The base configuration value will be used. Fix your configuration.
+   And file /tmp/boot.log should contain You have set environment variables to configure the datasource in the default-bindings in the ee subsystem subsystem which conflicts with the value that already exists in the base configuration. The base configuration value will be used. Fix your configuration.
 
 Scenario: check specified EE default-bindings datasource when there is a conflict in existing values should give an error
    When container is started with command bash
@@ -332,4 +332,4 @@ Scenario: check specified EE default-bindings datasource when there is a conflic
    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_mysql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
    # Skip a lot of the checks done in 'check mysql datasource' anyway
    # Now for what we are after....
-   And file /tmp/boot.log should contain ERROR You have set environment variables to configure the datasource in the default-bindings in the ee subsystem subsystem which conflicts with the value that already exists in the base configuration. Fix your configuration.
+   And file /tmp/boot.log should contain You have set environment variables to configure the datasource in the default-bindings in the ee subsystem subsystem which conflicts with the value that already exists in the base configuration. Fix your configuration.

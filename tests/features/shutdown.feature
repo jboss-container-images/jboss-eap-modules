@@ -6,12 +6,22 @@ Feature: Openshift EAP shutdown tests
     Then container log should contain WFLYSRV0025
     And run kill -TERM 1 in container once
     And container log should contain received TERM signal
-    And container log should contain WFLYSRV0050
+    And exactly 2 times container log should contain WFLYSRV0050
 
   Scenario: Check if image does not shutdown with TERM signal when CLI_GRACEFUL_SHUTDOWN is set
     When container is started with env
        | variable                  | value           |
        | CLI_GRACEFUL_SHUTDOWN     | true            |
+    Then container log should contain WFLYSRV0025
+    And run kill -TERM 1 in container once
+    And container log should not contain received TERM signal
+    And exactly 1 times container log should contain WFLYSRV0050
+
+  Scenario: Check if image does not shutdown with TERM signal when CLI_GRACEFUL_SHUTDOWN is set
+    When container is started with env
+       | variable                  | value           |
+       | CLI_GRACEFUL_SHUTDOWN     | true            |
+       | DISABLE_BOOT_SCRIPT_INVOKER     | true      |
     Then container log should contain WFLYSRV0025
     And run kill -TERM 1 in container once
     And container log should not contain received TERM signal
@@ -24,7 +34,7 @@ Feature: Openshift EAP shutdown tests
     Then container log should contain WFLYSRV0025
     And run /opt/eap/bin/jboss-cli.sh -c "shutdown --timeout=60" in container once
     And container log should not contain received TERM signal
-    And container log should contain WFLYSRV0050
+    And exactly 2 times container log should contain WFLYSRV0050
 
   Scenario: Check if image shuts down cleanly with TERM signal
     When container is ready
@@ -32,7 +42,7 @@ Feature: Openshift EAP shutdown tests
     And run kill -TERM 1 in container once
     And container log should contain received TERM signal
     And container log should contain WFLYSRV0241
-    And container log should contain WFLYSRV0050
+    And exactly 2 times container log should contain WFLYSRV0050
 
   Scenario: Check if image shuts down with TERM signal when split
     When container is started with env
@@ -41,7 +51,7 @@ Feature: Openshift EAP shutdown tests
     Then container log should contain WFLYSRV0025
     And run kill -TERM 1 in container once
     And container log should contain received TERM signal
-    And container log should contain WFLYSRV0050
+    And exactly 2 times container log should contain WFLYSRV0050
 
   Scenario: Check if image does not shutdown with TERM signal when CLI_GRACEFUL_SHUTDOWN is set when split
     When container is started with env
@@ -51,7 +61,7 @@ Feature: Openshift EAP shutdown tests
     Then container log should contain WFLYSRV0025
     And run kill -TERM 1 in container once
     And container log should not contain received TERM signal
-    And container log should not contain WFLYSRV0050
+    And exactly 1 times container log should contain WFLYSRV0050
 
   Scenario: Check if image shuts down with cli when CLI_GRACEFUL_SHUTDOWN is set when split
     When container is started with env
@@ -61,7 +71,7 @@ Feature: Openshift EAP shutdown tests
     Then container log should contain WFLYSRV0025
     And run /opt/eap/bin/jboss-cli.sh -c "shutdown --timeout=60" in container once
     And container log should not contain received TERM signal
-    And container log should contain WFLYSRV0050
+    And exactly 2 times container log should contain WFLYSRV0050
 
   Scenario: Check if image shuts down cleanly with TERM signal when split
     When container is started with env
@@ -71,4 +81,4 @@ Feature: Openshift EAP shutdown tests
     And run kill -TERM 1 in container once
     And container log should contain received TERM signal
     And container log should contain WFLYSRV0241
-    And container log should contain WFLYSRV0050
+    And exactly 2 times container log should contain WFLYSRV0050
