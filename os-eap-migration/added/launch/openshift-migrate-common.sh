@@ -16,7 +16,7 @@ function runMigration() {
   cp -f ${STANDALONE_XML_COPY} ${STANDALONE_XML}
 
   # exposed by wildfly-cekit-modules
-  configure_server
+  configure_server_with_cli
 
   echo "Running $JBOSS_IMAGE_NAME image, version $JBOSS_IMAGE_VERSION"
 
