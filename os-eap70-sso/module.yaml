@@ -7,9 +7,9 @@ execute:
   user: '185'
 
 artifacts:
-- name: rh-sso-7.3.1-eap7-adapter
-  target: rh-sso-7.3.1-eap7-adapter.zip
-  md5: 4b0a15b48fa9413cdd9a6cbb858450b6
-- name: rh-sso-7.3.1-saml-eap7-adapter
-  target: rh-sso-7.3.1-saml-eap7-adapter.zip
-  md5: f0bd62882ab63ee8db15752c02a7d818
+- name: keycloak-wildfly-adapter-dist-9.0.0
+  target: keycloak-wildfly-adapter-dist-9.0.0.zip
+  url: http://indy.psi.redhat.com/api/content/maven/group/temporary-builds/org/keycloak/keycloak-wildfly-adapter-dist/9.0.0.temporary-redhat-00088/keycloak-wildfly-adapter-dist-9.0.0.temporary-redhat-00088.zip
+- name: keycloak-saml-wildfly-adapter-dist-9.0.0
+  target: keycloak-saml-wildfly-adapter-dist-9.0.0.zip
+  url: http://indy.psi.redhat.com/api/content/maven/group/temporary-builds/org/keycloak/keycloak-saml-wildfly-adapter-dist/9.0.0.temporary-redhat-00088/keycloak-saml-wildfly-adapter-dist-9.0.0.temporary-redhat-00088.zip

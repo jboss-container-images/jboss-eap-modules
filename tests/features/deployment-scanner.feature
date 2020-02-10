@@ -59,4 +59,4 @@ Feature: EAP Openshift deployment-scanner tests
     Then copy features/jboss-eap-modules/scripts/deployment-scanner/set-default-deployment-scanner-to-true.cli to /tmp in container
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/set-default-deployment-scanner-to-true.cli in container once
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-    And file /tmp/boot.log should contain ERROR You have set environment variables to set auto-deploy-exploded for the deployment scanner but your configuration already contains a conflicting value. Fix your configuration.
+    And file /tmp/boot.log should contain You have set environment variables to set auto-deploy-exploded for the deployment scanner but your configuration already contains a conflicting value. Fix your configuration.

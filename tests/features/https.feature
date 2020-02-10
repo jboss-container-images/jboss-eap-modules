@@ -40,7 +40,7 @@ Feature: Check HTTPS configuration
     Then copy features/jboss-eap-modules/scripts/https/add-https-listener.cli to /tmp in container
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-https-listener.cli in container once
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-    And file /tmp/boot.log should contain ERROR You have set HTTPS_PASSWORD, HTTPS_KEYSTORE_DIR and HTTPS_KEYSTORE to add https-listeners to your undertow servers, however at least one of these already contains an https-listener. Fix your configuration.
+    And file /tmp/boot.log should contain You have set HTTPS_PASSWORD, HTTPS_KEYSTORE_DIR and HTTPS_KEYSTORE to add https-listeners to your undertow servers, however at least one of these already contains an https-listener. Fix your configuration.
 
   Scenario: Configure HTTPS with no ApplicationRealm should give error
     When container is started with command bash
@@ -51,7 +51,7 @@ Feature: Check HTTPS configuration
     Then copy features/jboss-eap-modules/scripts/https/remove-application-realm.cli to /tmp in container
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/remove-application-realm.cli in container once
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-    And file /tmp/boot.log should contain ERROR You have set the HTTPS_PASSWORD, HTTPS_KEYSTORE_DIR and HTTPS_KEYSTORE to add the ssl server-identity. Fix your configuration to contain the /core-service=management/security-realm=ApplicationRealm resource for this to happen.
+    And file /tmp/boot.log should contain You have set the HTTPS_PASSWORD, HTTPS_KEYSTORE_DIR and HTTPS_KEYSTORE to add the ssl server-identity. Fix your configuration to contain the /core-service=management/security-realm=ApplicationRealm resource for this to happen.
 
   Scenario: Configure HTTPS with exisiting SSL server-identity should give error
     When container is started with command bash
@@ -62,7 +62,7 @@ Feature: Check HTTPS configuration
     Then copy features/jboss-eap-modules/scripts/https/add-ssl-server-identity.cli to /tmp in container
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-ssl-server-identity.cli in container once
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-    And file /tmp/boot.log should contain ERROR You have set the HTTPS_PASSWORD, HTTPS_KEYSTORE_DIR and HTTPS_KEYSTORE to add the ssl server-identity. But this already exists in the base configuration. Fix your configuration.
+    And file /tmp/boot.log should contain You have set the HTTPS_PASSWORD, HTTPS_KEYSTORE_DIR and HTTPS_KEYSTORE to add the ssl server-identity. But this already exists in the base configuration. Fix your configuration.
 
   Scenario: Use Elytron for HTTPS
     When container is started with env

@@ -3,43 +3,9 @@
 # Always start sourcing the launch script supplied by wildfly-cekit-modules
 source ${JBOSS_HOME}/bin/launch/launch.sh
 
-management_port=""
-if [ -n "${PORT_OFFSET}" ]; then
-  management_port=$((9990 + PORT_OFFSET))
-fi
-
-# TERM signal handler
-function clean_shutdown() {
-  log_error "*** JBossAS wrapper process ($$) received TERM signal ***"
-  if [ -z ${management_port} ]; then
-    $JBOSS_HOME/bin/jboss-cli.sh -c "shutdown --timeout=60"
-  else
-    $JBOSS_HOME/bin/jboss-cli.sh --commands="connect remote+http://localhost:${management_port},shutdown --timeout=60"
-  fi
-  wait $!
-}
-
 function runServer() {
   local instanceDir=$1
-
-  # exposed by wildfly-cekit-modules
-  configure_server
-
-  log_info "Running $JBOSS_IMAGE_NAME image, version $JBOSS_IMAGE_VERSION"
-
-  trap "clean_shutdown" TERM
-  trap "clean_shutdown" INT
-
-  if [ -n "$CLI_GRACEFUL_SHUTDOWN" ] ; then
-    trap "" TERM
-    log_info "Using CLI Graceful Shutdown instead of TERM signal"
-  fi
-
-  $JBOSS_HOME/bin/standalone.sh -c standalone-openshift.xml -bmanagement 0.0.0.0 -Djboss.server.data.dir="$instanceDir" -Dwildfly.statistics-enabled=true ${JAVA_PROXY_OPTIONS} ${JBOSS_HA_ARGS} ${JBOSS_MESSAGING_ARGS} &
-
-  PID=$!
-  wait $PID 2>/dev/null
-  wait $PID 2>/dev/null
+  launchServer "$JBOSS_HOME/bin/standalone.sh -c standalone-openshift.xml -bmanagement 0.0.0.0 -Djboss.server.data.dir="$instanceDir" -Dwildfly.statistics-enabled=true"
 }
 
 function init_data_dir() {

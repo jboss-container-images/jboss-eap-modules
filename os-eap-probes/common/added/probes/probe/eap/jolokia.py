@@ -23,7 +23,7 @@ from probe.jolokia import JolokiaProbe
 class EapProbe(JolokiaProbe):
     """
     Basic EAP probe which uses the Jolokia interface to query server state (i.e.
-    RESTful JMX queries).  It defines tests for server status, boot errors and
+    RESTful JMX queries).  It defines tests for server status, running mode, boot errors and
     deployment status.
     """
 
@@ -31,6 +31,7 @@ class EapProbe(JolokiaProbe):
         super(EapProbe, self).__init__(
             [
                 ServerStatusTest(),
+                ServerRunningModeTest(),
                 BootErrorsTest(),
                 DeploymentTest(),
                 HealthCheckTest()
@@ -62,6 +63,34 @@ class ServerStatusTest(Test):
         if results["status"] != 200:
             return (Status.FAILURE, "Jolokia query failed")
         if results["value"] == "running":
+            return (Status.READY, results["value"])
+        return (Status.NOT_READY, results["value"])
+
+class ServerRunningModeTest(Test):
+    """
+    Checks the running mode of the server.
+    """
+
+    def __init__(self):
+        super(ServerRunningModeTest, self).__init__(
+            {
+                "type": "read",
+                "attribute": "runningMode",
+                "mbean": "jboss.as:management-root=server"
+            }
+        )
+
+    def evaluate(self, results):
+        """
+        Evaluates the test:
+            READY for "NORMAL"
+            FAILURE if the query itself failed
+            NOT_READY for all other states 
+        """
+
+        if results["status"] != 200:
+            return (Status.FAILURE, "Jolokia query failed")
+        if results["value"] == "NORMAL":
             return (Status.READY, results["value"])
         return (Status.NOT_READY, results["value"])
 

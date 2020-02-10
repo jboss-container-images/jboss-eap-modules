@@ -192,7 +192,7 @@ Scenario: Cannot add a resource adapter when there is no resource-adapters subsy
     Then copy features/jboss-eap-modules/scripts/resource-adapters/remove-ra-subsystem.cli to /tmp in container
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/remove-ra-subsystem.cli in container once
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-    And file /tmp/boot.log should contain ERROR You have set environment variables to configure resource-adapters. Fix your configuration to contain the resource-adapters subsystem for this to happen.
+    And file /tmp/boot.log should contain You have set environment variables to configure resource-adapters. Fix your configuration to contain the resource-adapters subsystem for this to happen.
 
   Scenario: Cannot add a resource adapter when one exists with a clashing name
     When container is started with command bash
@@ -212,7 +212,7 @@ Scenario: Cannot add a resource adapter when there is no resource-adapters subsy
     Then copy features/jboss-eap-modules/scripts/resource-adapters/add-clashing-resource-adapter.cli to /tmp in container
     And run /opt/eap/bin/jboss-cli.sh --file=/tmp/add-clashing-resource-adapter.cli in container once
     And run script -c /opt/eap/bin/openshift-launch.sh /tmp/boot.log in container and detach
-    And file /tmp/boot.log should contain ERROR You have set environment variables to configure the resource-adapter 'fileQS'. However, your base configuration already contains a resource-adapter with that name.
+    And file /tmp/boot.log should contain You have set environment variables to configure the resource-adapter 'fileQS'. However, your base configuration already contains a resource-adapter with that name.
 
   Scenario: Test resource adapter extension, galleon s2i
     Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
