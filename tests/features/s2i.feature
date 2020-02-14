@@ -143,3 +143,8 @@ Feature: Openshift EAP s2i tests
      | MAVEN_SETTINGS_XML           | /home/jboss/../jboss/../jboss/.m2/settings.xml |
     Then s2i build log should contain /home/jboss/../jboss/../jboss/.m2/settings.xml
     Then container log should contain WFLYSRV0025
+
+  Scenario: Test embedded server configuration during S2I
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-embedded-at-s2i with env and true using master
+    Then container log should not contain WFLYCTL0056
+    Then container log should contain WFLYSRV0025

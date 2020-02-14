@@ -1,0 +1,3 @@
+embed-server --std-out=echo --server-config=standalone-openshift.xml
+/system-property=foo:add(value=bar)
+stop-embedded-server
