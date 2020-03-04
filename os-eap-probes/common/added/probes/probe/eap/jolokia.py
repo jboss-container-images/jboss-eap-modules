@@ -165,7 +165,7 @@ class HealthCheckTest(Test):
         Evaluates the test:
             READY for a 404 due to InstanceNotFoundException as that means no health check configured on the system
             HARD_FAILURE for any other non-200 as the query failed
-            READY if the result value's outcome field is 'UP'
+            READY if the result value's status field is 'UP'
             HARD_FAILURE otherwise
 
         In no case do we return NOT_READY as MicroProfile Health Check is not a readiness check.
@@ -177,13 +177,13 @@ class HealthCheckTest(Test):
         if results["status"] != 200 or not results.get("value"):
 	        return (Status.HARD_FAILURE, "Jolokia query failed " + str(results))
 
-        outcome = results["value"].get("outcome")
+        status = results["value"].get("status")
 
-        if not outcome:
-            return (Status.HARD_FAILURE, "No outcome")
+        if not status:
+            return (Status.HARD_FAILURE, "No status")
 
-        if re.compile("\W*UP\W*").match(outcome):
+        if re.compile("\W*UP\W*").match(status):
             return (Status.READY, "Status is UP")
 
-        return (Status.HARD_FAILURE, outcome)
+        return (Status.HARD_FAILURE, status)
 
