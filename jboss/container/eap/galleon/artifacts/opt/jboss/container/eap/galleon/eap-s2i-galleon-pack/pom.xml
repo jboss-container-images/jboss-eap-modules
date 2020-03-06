@@ -37,11 +37,12 @@
     <properties>
         <version.org.wildfly>${env.WILDFLY_VERSION}</version.org.wildfly>
         <version.org.wildfly.galleon-plugins>${env.GALLEON_WILDFLY_VERSION}</version.org.wildfly.galleon-plugins>
+        <full.maven.groupId>${env.EAP_FULL_GROUPID}</full.maven.groupId>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.jboss.eap</groupId>
+            <groupId>${full.maven.groupId}</groupId>
             <artifactId>wildfly-galleon-pack</artifactId>
             <version>${version.org.wildfly}</version>
             <type>zip</type>
