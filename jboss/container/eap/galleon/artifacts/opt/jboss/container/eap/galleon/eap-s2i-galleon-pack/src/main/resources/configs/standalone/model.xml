@@ -13,7 +13,9 @@
         <package name="eap.s2i.hawkular"/>
         <package name="eap.s2i.prometheus"/>
         <package name="wildfly.s2i.mvn"/>
-        <package name="docs.licenses.merge"/>        
+        <package name="docs.licenses.merge"/>
+        <!-- that is a workaround waiting for WF to upgrade to Galleon-plugins 4.2.5+ -->
+        <package name="layers.conf" optional="true"/>        
     </packages>
     <layers>
         <!-- required by operator to be monitored -->
