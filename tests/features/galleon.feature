@@ -1,6 +1,16 @@
 @jboss-eap-7 @jboss-eap-7-tech-preview
 Feature: Openshift EAP galleon s2i tests
 
+  Scenario: Test microprofile config.
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
+      | variable                             | value         |
+      | GALLEON_PROVISION_LAYERS             | cloud-server,microprofile-openapi,microprofile-jwt,microprofile-fault-tolerance,-jpa,jpa-distributed,web-clustering  |
+    Then container log should contain WFLYSRV0025
+    And check that page is served
+      | property | value |
+      | path     | /     |
+      | port     | 8080  |
+
   Scenario: Galleon provision cloud-server
     Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     | variable                        | value                                                                                  |
@@ -148,6 +158,8 @@ Feature: Openshift EAP galleon s2i tests
     Then file /opt/eap/.galleon/provisioning.xml should exist
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
 
+  # microprofile layer didn't make it in CD19
+  @ignore
   Scenario: Test cloud-server,microprofile
     Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and True using master
       | variable                             | value         |
@@ -287,6 +299,8 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value observability on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value open-tracing on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
   
+  # microprofile layer didn't make it in CD19
+  @ignore
   Scenario: Test jaxrs-server+microprofile, exclude all mp layers.
     Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
       | variable                             | value         |
