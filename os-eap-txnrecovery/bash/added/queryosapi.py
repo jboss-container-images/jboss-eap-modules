@@ -19,6 +19,7 @@ import argparse
 import json
 import logging
 import osquery
+import sys, traceback
 
 from enum import Enum
 
@@ -106,20 +107,26 @@ if __name__ == "__main__":
 
     logger.debug("Starting query openshift api with args: %s", args)
 
-    if args.query == QueryType.PODS:
-        queryResult = getPods()
-    elif args.query == QueryType.PODS_LIVING:
-        queryResult = getLivingPods()
-    elif args.query == QueryType.LOG:
-        if args.pod is None:
-            logger.critical('query of type "--query log" requires one argument to be an existing pod name')
+    try:
+        if args.query == QueryType.PODS:
+            queryResult = getPods()
+        elif args.query == QueryType.PODS_LIVING:
+            queryResult = getLivingPods()
+        elif args.query == QueryType.LOG:
+            if args.pod is None:
+                logger.critical('query of type "--query log" requires one argument to be an existing pod name')
+                exit(1)
+            podName = args.pod
+            sinceTime = args.sincetime
+            tailLine = args.tailline
+            queryResult = getLog(podName, sinceTime, tailLine)
+        else:
+            logger.critical('No handler for query type %s', args.query)
             exit(1)
-        podName = args.pod
-        sinceTime = args.sincetime
-        tailLine = args.tailline
-        queryResult = getLog(podName, sinceTime, tailLine)
-    else:
-        logger.critical('No handler for query type %s', args.query)
+    except:
+        etype, value, tb = sys.exc_info()
+        logger.critical("Error while request was processed: %s : %s", etype, value)
+        logger.debug('Exception stacktrace:\n%s', ''.join(traceback.format_exception(etype, value, tb, None)))
         exit(1)
 
     if args.format == OutputFormat.LIST_SPACE:
