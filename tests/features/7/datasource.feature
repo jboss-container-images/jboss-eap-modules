@@ -338,10 +338,12 @@ Feature: EAP Openshift datasources
        | TEST_NONXA                     | true                                   |
        | TEST_JTA                       | false                                  |
        | JDBC_SKIP_RECOVERY             | true                                   |
+       | TEST_TX_ISOLATION              | TRANSACTION_REPEATABLE_READ            |       
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value tombrady on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='datasource']/*[local-name()='security']/*[local-name()='password']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:postgresql://10.1.1.1:5432/pgdb on XPath //*[local-name()='datasource']/*[local-name()='connection-url']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value TRANSACTION_REPEATABLE_READ on XPath //*[local-name()='datasource']/*[local-name()='transaction-isolation']
 
   Scenario: Test postgresql xa datasource extension w/URL
     When container is started with env
@@ -373,6 +375,7 @@ Feature: EAP Openshift datasources
        | TEST_DATABASE                  | kitchensink                            |
        | TEST_NONXA                     | false                                  |
        | TEST_JTA                       | true                                   |
+       | TEST_TX_ISOLATION              | TRANSACTION_REPEATABLE_READ            |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 10.1.1.1 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="ServerName"]
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value 3306 on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property'][@name="Port"]
@@ -380,6 +383,7 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value tombrady on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='user-name']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value password on XPath //*[local-name()='xa-datasource']/*[local-name()='security']/*[local-name()='password']
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 3 elements on XPath //*[local-name()='xa-datasource']/*[local-name()='xa-datasource-property']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value TRANSACTION_REPEATABLE_READ on XPath //*[local-name()='datasource']/*[local-name()='transaction-isolation']
 
   Scenario: Test mysql non-xa datasource extension
     When container is started with env
