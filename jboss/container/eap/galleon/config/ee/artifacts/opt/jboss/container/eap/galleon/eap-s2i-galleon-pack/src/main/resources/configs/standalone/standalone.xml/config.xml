@@ -2,8 +2,6 @@
 
 <config xmlns="urn:jboss:galleon:config:1.0" name="standalone.xml" model="standalone">
     <layers>
-        <!-- we already have all required in default config -->
-        <exclude name="operator-required"/>
         <include name="amq6-rar"/>
     </layers>
 
