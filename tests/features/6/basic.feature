@@ -65,7 +65,7 @@ Feature: Openshift EAP common tests (EAP and EAP derived images)
 
   Scenario: Check if jolokia is configured correctly
     When container is ready
-    Then container log should contain -javaagent:/opt/jboss/container/jolokia/jolokia.jar=config=/opt/jboss/container/jolokia/etc/jolokia.properties
+    Then container log should contain -javaagent:/usr/share/java/jolokia-jvm-agent/jolokia-jvm.jar=config=/opt/jboss/container/jolokia/etc/jolokia.properties
 
   Scenario: jgroups-encrypt
     When container is started with env
