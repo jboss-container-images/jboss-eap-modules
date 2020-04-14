@@ -1,0 +1,7 @@
+schema_version: 1
+name: jboss.container.eap.galleon.config.ee
+version: '1.0'
+description: Install Galleon descriptions and EAP s2i feature-pack for ee config
+
+execute:
+- script: configure.sh

@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
-<layer-spec xmlns="urn:jboss:galleon:layer-spec:1.0" name="web-clustering">
-   <exclude spec="subsystem.jgroups.channel"/>
+<layer-spec xmlns="urn:jboss:galleon:layer-spec:1.0" name="jpa-distributed">
+    <exclude spec="subsystem.jgroups.channel"/>
     <feature spec="subsystem.jgroups.channel">
         <param name="channel" value="ee"/>
         <param name="stack" value="tcp"/>
@@ -20,6 +20,7 @@
     
     <exclude feature-id="socket-binding-group.socket-binding:socket-binding-group=standard-sockets,socket-binding=jgroups-udp-fd"/>
     <exclude feature-id="socket-binding-group.socket-binding:socket-binding-group=standard-sockets,socket-binding=jgroups-tcp-fd"/>
+    
+    <feature-group name="os-infinispan-hibernate"/>
 
-    <feature-group name="os-infinispan-web-repl-cache"/>
 </layer-spec>
