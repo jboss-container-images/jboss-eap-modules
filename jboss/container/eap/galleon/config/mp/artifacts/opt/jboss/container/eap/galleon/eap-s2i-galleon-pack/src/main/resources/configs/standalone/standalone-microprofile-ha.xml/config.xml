@@ -1,6 +1,10 @@
 <?xml version="1.0" ?>
 
 <config xmlns="urn:jboss:galleon:config:1.0" name="standalone-microprofile-ha.xml" model="standalone">
+
+    <!-- sso packages -->
+    <feature-group name="sso"/>
+
     <exclude feature-id="core-service.management.security-realm.server-identity.ssl:security-realm=ApplicationRealm"/>
     
     <exclude feature-id="subsystem.logging.pattern-formatter:pattern-formatter=PATTERN"/>
