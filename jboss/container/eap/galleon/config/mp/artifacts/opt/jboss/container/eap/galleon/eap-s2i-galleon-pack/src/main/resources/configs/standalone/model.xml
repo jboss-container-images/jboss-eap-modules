@@ -15,7 +15,11 @@
         <package name="wildfly.s2i.mvn"/>
         <package name="docs.licenses.merge"/>
         <!-- that is a workaround waiting for WF to upgrade to Galleon-plugins 4.2.5+ -->
-        <package name="layers.conf" optional="true"/>          
+        <package name="layers.conf" optional="true"/>
+        <!-- Although we don't have ejb present in the default configuration, although we don't have a layer for ejb,
+             we could end in a situation where a custom configuration bring ejb, so the statefulset.sh script that this package
+             brings should be provisioned in all cases. In 7.3.x this script is only provisioned with the default config.-->
+        <package name="wildfly.s2i.ejb.tx.recovery" optional="true"/>
     </packages>
     <layers>
         <!-- required by operator to be monitored -->
