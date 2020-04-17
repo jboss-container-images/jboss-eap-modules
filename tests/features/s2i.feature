@@ -59,15 +59,6 @@ Feature: Openshift EAP s2i tests
     And container log should contain Engine class provider found.
     And container log should not contain JavaScript engine not found.
 
-  # CLOUD-807
-  # JDK 11 needs an extra dep for javax.annotations
-  @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
-  Scenario: Test if the container has the JavaScript engine available
-    Given s2i build https://github.com/luck3y/openshift-examples from eap-tests/jsengine using openjdk-11
-    Then container log should contain Engine found: jdk.nashorn.api.scripting.NashornScriptEngine
-    And container log should contain Engine class provider found.
-    And container log should not contain JavaScript engine not found.
-
   # Always force IPv4 (CLOUD-188)
   # Append user-supplied arguments (CLOUD-412)
   # Allow the user to clear down the maven repository after running s2i (CLOUD-413)
