@@ -8,6 +8,8 @@ envs:
   value: "18.0.0.Final"
 - name: GALLEON_DEFINITIONS
   value: /opt/jboss/container/eap/galleon/definitions
+- name: GALLEON_MAVEN_REPO_HOOK_SCRIPT
+  value: /opt/jboss/container/eap/galleon/patching.sh
 - name: GALLEON_DEFAULT_SERVER
   value: /opt/jboss/container/eap/galleon/definitions/slim-default-server
 - name: GALLEON_DEFAULT_FAT_SERVER
