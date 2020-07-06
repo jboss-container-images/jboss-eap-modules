@@ -20,7 +20,7 @@ function runMigration() {
 
   echo "Running $JBOSS_IMAGE_NAME image, version $JBOSS_IMAGE_VERSION"
 
-  local txOptions="-Dcom.arjuna.ats.arjuna.common.RecoveryEnvironmentBean.recoveryBackoffPeriod=1 -Dcom.arjuna.ats.arjuna.common.RecoveryEnvironmentBean.periodicRecoveryPeriod=1 -Dcom.arjuna.ats.jta.common.JTAEnvironmentBean.orphanSafetyInterval=1"
+  local txOptions="-Djboss.node.name=${NODE_NAME} -Dcom.arjuna.ats.arjuna.common.RecoveryEnvironmentBean.recoveryBackoffPeriod=1 -Dcom.arjuna.ats.arjuna.common.RecoveryEnvironmentBean.periodicRecoveryPeriod=1 -Dcom.arjuna.ats.jta.common.JTAEnvironmentBean.orphanSafetyInterval=1"
   local terminatingFile="${JBOSS_HOME}/terminatingMigration"
 
   (runMigrationServer "$instanceDir" "${txOptions}") &
@@ -54,8 +54,11 @@ function runMigration() {
 
       if [ "${recoveryPort}" != "undefined" ] ; then
         local recoveryClass="com.arjuna.ats.arjuna.tools.RecoveryMonitor"
-        # we may have > 1 jar, if that is the case we use the most recent one
+        # for runtime image the modules jar files are under $JBOSS_HOME/modules
         recoveryJars=$(find "${JBOSS_HOME}" -name \*.jar | xargs grep -l "${recoveryClass}")
+        # for builder image the modules jar files are under galleon maven repository
+        [ -z "${recoveryJars}" ] && recoveryJars=$(find "${GALLEON_LOCAL_MAVEN_REPO}" -name \*.jar | xargs grep -l "${recoveryClass}")
+        # we may have > 1 jar, if that is the case we use the most recent one
         recoveryJar=$(ls -Art $recoveryJars | tail -n 1)
         if [ -n "${recoveryJar}" ] ; then
           echo "$(date): Executing synchronous recovery scan for a first time"
@@ -73,11 +76,11 @@ function runMigration() {
     fi
   done
 
-  # -- checking if the pod log is clean from errors (only if function of the particular name exists, provided by the os-partition module)
+  # -- checking if the migration pod log is clean from errors (only if the function exists, provided by the os-eap-txnrecovery module)
   if [ $probeStatus -eq 0 ] && [ "$(type -t probePodLogForRecoveryErrors)" = 'function' ]; then
-    probePodLogForRecoveryErrors
+    probePodLogForRecoveryErrors "${MIGRATION_POD_NAME}" "${MIGRATION_POD_TIMESTAMP}"
     probeStatus=$?
-    [ $probeStatus -ne 0 ] && echo "The migration container log contains periodic recovery errors, check it for details."
+    [ $probeStatus -ne 0 ] && echo "The migration container log contains periodic recovery errors or cannot query API, check for details above."
   fi
 
   if [ $probeStatus -eq 0 ] ; then
