@@ -52,7 +52,13 @@ class OpenShiftQuery():
             headers = {'Authorization': 'Bearer ' + OpenShiftQuery.getToken(), 'Accept': 'application/json'})
         logger.debug('query for: "%s"', request.get_full_url())
         try:
-            return urllib.request.urlopen(request, cafile = OpenShiftQuery.CERT_FILE_PATH).read()
+            resource = urllib.request.urlopen(request, cafile = OpenShiftQuery.CERT_FILE_PATH)
+            charset = 'utf-8'
+            if resource.headers.get_content_charset() != None:
+                charset = resource.headers.get_content_charset()
+            elif resource.info().get_content_charset() != None:
+                charset = resource.info().get_content_charset()
+            return resource.read().decode(charset)
         except:
             logger.critical('Cannot query OpenShift API for "%s"', request.get_full_url())
             raise

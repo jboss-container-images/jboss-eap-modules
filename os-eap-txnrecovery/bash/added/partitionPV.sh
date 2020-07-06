@@ -124,7 +124,7 @@ function startApplicationServer() {
         mkdir -p "${SERVER_DATA_DIR}"
 
         if [ ! -f "${SERVER_DATA_DIR}/../data_initialized" ]; then
-           init_data_dir ${SERVER_DATA_DIR}
+            init_data_dir ${SERVER_DATA_DIR}
             touch "${SERVER_DATA_DIR}/../data_initialized"
         fi
     fi
@@ -209,7 +209,9 @@ function migratePV() {
 
         (
           # 1.a.ii) run recovery until empty (including orphan checks and empty object store hierarchy deletion)
+          MIGRATION_POD_NAME=${recoveryPodName}
           MIGRATION_POD_TIMESTAMP=$(getPodLogTimestamp)  # investigating on current pod timestamp
+          [ $? -ne 0 ] && log_warning "[`date`] Can't get log from the transaction migration pod '${MIGRATION_POD_NAME}', skipping cleanup for ${applicationPodName}" && continue
           SERVER_DATA_DIR="${applicationPodDir}/serverData"
           NODE_NAME=$(truncate_jboss_node_name "${applicationPodName}") runMigration "${SERVER_DATA_DIR}" &
 
@@ -336,7 +338,8 @@ function removeRecoveryMarker() {
 # parameters:
 # - place where pod data directories are saved (podsDir)
 function recoveryPodsGarbageCollection() {
-  local livingPods=($($(dirname ${BASH_SOURCE[0]})/queryosapi.py -q pods_living -f list_space ${DEBUG_QUERY_API_PARAM}))
+  local livingPods
+  livingPods=($($(dirname ${BASH_SOURCE[0]})/queryosapi.py -q pods_living -f list_space ${DEBUG_QUERY_API_PARAM}))
   if [ $? -ne 0 ]; then # fail to connect to openshift api
     log_warning "[`date`] Can't get list of living pods. Can't do recovery marker garbage collection."
     return 1
@@ -371,7 +374,14 @@ function getPodLogTimestamp() {
   init_pod_name
   local podNameToProbe=${1:-$POD_NAME}
 
-  local logOutput=$($(dirname ${BASH_SOURCE[0]})/queryosapi.py -q log --pod ${podNameToProbe} --tailline 1 ${DEBUG_QUERY_API_PARAM})
+  local logOutput
+  logOutput=$($(dirname ${BASH_SOURCE[0]})/queryosapi.py -q log --pod ${podNameToProbe} --tailline 1 ${DEBUG_QUERY_API_PARAM})
+
+  if [ $? -ne 0 ]; then
+    log_warning "[`date`] Cannot contact OpenShift API to get log for pod ${podNameToProbe} while searching for the log timestamp"
+    return 1
+  fi
+
   # only one, last line of the log, is returned, taking the start which is timestamp
   echo $logOutput | sed 's/ .*$//'
 }
@@ -381,13 +391,17 @@ function getPodLogTimestamp() {
 # - pod name (optional)
 function probePodLogForRecoveryErrors() {
   init_pod_name
+  local podNameToProbe=${1:-$POD_NAME}
   local sinceTimestampParam=''
-  local sinceTimestamp=${1:-$MIGRATION_POD_TIMESTAMP}
+  local sinceTimestamp=${2:-$MIGRATION_POD_TIMESTAMP}
   [ "x$sinceTimestamp" != "x" ] && sinceTimestampParam="--sincetime ${sinceTimestamp}"
-  local podNameToProbe=${2:-$POD_NAME}
 
-  local logOutput=$($(dirname ${BASH_SOURCE[0]})/queryosapi.py -q log --pod ${podNameToProbe} ${sinceTimestampParam} ${DEBUG_QUERY_API_PARAM})
+  local logOutput
+  # even for debug it's too verbose to print the listing of the log
+  [ "x${SCRIPT_DEBUG}" = "xtrue" ] && set +x
+  logOutput=$($(dirname ${BASH_SOURCE[0]})/queryosapi.py -q log --pod ${podNameToProbe} ${sinceTimestampParam} ${DEBUG_QUERY_API_PARAM})
   local probeStatus=$?
+  [ "x${SCRIPT_DEBUG}" = "xtrue" ] && set -x
 
   if [ $probeStatus -ne 0 ]; then
     log_warning "[`date`] Cannot contact OpenShift API to get log for pod ${podNameToProbe}"
