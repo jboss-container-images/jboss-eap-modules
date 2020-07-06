@@ -24,6 +24,7 @@ function prepareEnv() {
   unset SSO_SAML_VALIDATE_SIGNATURE
   unset SSO_SECRET
   unset SSO_SERVICE_URL
+  unset SSO_SSL_REQUIRED
   unset SSO_TRUSTSTORE
   unset SSO_TRUSTSTORE_CERTIFICATE_ALIAS
   unset SSO_TRUSTSTORE_DIR
@@ -81,6 +82,10 @@ function configure_keycloak() {
       log_warning "Missing SSO_REALM. Defaulting to ${SSO_REALM:=master} realm"
     fi
 
+    if [ ! -n "${SSO_SSL_REQUIRED}" ]; then
+      ${SSO_SSL_REQUIRED:=external}
+    fi
+
     set_curl
     get_token
 
@@ -115,6 +120,8 @@ function configure_keycloak() {
     if [ -n "$SSO_SAML_KEYSTORE" ] && [ -n "$SSO_SAML_KEYSTORE_DIR" ]; then
       sed -i "s|##SSO_SAML_KEYSTORE##|${SSO_SAML_KEYSTORE_DIR}/${SSO_SAML_KEYSTORE}|g" "${CONFIG_FILE}"
     fi
+
+    sed -i "s|##KEYCLOAK_SSL_REQUIRED##|${SSO_SSL_REQUIRED}|g" "${CONFIG_FILE}"
   else
     log_warning "Missing SSO_URL. Unable to properly configure SSO-enabled applications"
   fi
