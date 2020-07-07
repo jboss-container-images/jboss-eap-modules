@@ -4,7 +4,7 @@
     <layers>
         <!-- we already have all required in default config -->
         <!-- Although logically correct, galleon doesn't actually support excluding from model -->
-        <!-- This is harmeless, keeping the exclusion commented for reference until GAL-308 is fixed -->
+        <!-- This is harmless, keeping the exclusion commented for reference until GAL-308 is fixed -->
         <!--<exclude name="operator-required"/>-->
         <include name="amq6-rar"/>
     </layers>
@@ -16,21 +16,6 @@
     <exclude spec="subsystem.core-management"/>
     <exclude feature-id="core-service.management.security-realm.server-identity.ssl:security-realm=ApplicationRealm"/>
     <feature-group name="os-management"/>
-
-    <!-- mod-cluster -->
-    <!-- required by modcluster -->
-    <feature spec="subsystem.undertow">
-        <feature spec="subsystem.undertow.server">
-            <param name="server" value="default-server"/>
-            <feature spec="subsystem.undertow.server.ajp-listener">
-                <param name="ajp-listener" value="ajp"/>
-                <param name="socket-binding" value="ajp"/>
-                <unset param="worker"/>
-                <unset param="buffer-pool"/>
-            </feature>
-        </feature>
-    </feature>
-    <feature-group name="modcluster"/>
 
     <!-- messaging -->
     <feature spec="subsystem.messaging-activemq"/>
