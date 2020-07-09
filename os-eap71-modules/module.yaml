@@ -8,6 +8,6 @@ execute:
 
 artifacts:
 - path: txn-recovery-marker-jdbc-common-1.1.2.Final-redhat-00001.jar
-  md5: 252aa2b4bcded8e5bf8a7087ad7bbbeb
+  md5: 874d791e82393006b0d2e621d08fbe00
 - path: txn-recovery-marker-jdbc-hibernate5-1.1.2.Final-redhat-00001.jar
-  md5: cd68ad886a759d21f8dd0cb7646601ee
+  md5: 7f8f5a79f47a354fd1a548428ced7b5b
