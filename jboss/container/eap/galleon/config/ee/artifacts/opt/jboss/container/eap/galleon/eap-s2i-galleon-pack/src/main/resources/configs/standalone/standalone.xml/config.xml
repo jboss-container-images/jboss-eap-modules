@@ -14,6 +14,17 @@
     <feature-group name="sso"/>
 
     <!-- management -->
+    <!-- remove elytron security that core-tools bring, we should be able to exclude management but we can't due to GAL-308 -->
+    <!-- START workaround GAL-308 -->
+    <exclude spec="core-service.management.access.identity"/>
+    <feature spec="core-service.management.management-interface.http-interface">
+        <param name="socket-binding" value="management-http"/>
+        <unset param="http-authentication-factory"/>
+        <feature spec="core-service.management.management-interface.http-interface.http-upgrade">
+            <unset param="sasl-authentication-factory"/>
+        </feature>
+    </feature>
+    <!-- END workaround GAL-308 -->
     <exclude spec="subsystem.core-management"/>
     <exclude feature-id="core-service.management.security-realm.server-identity.ssl:security-realm=ApplicationRealm"/>
     <feature-group name="os-management"/>

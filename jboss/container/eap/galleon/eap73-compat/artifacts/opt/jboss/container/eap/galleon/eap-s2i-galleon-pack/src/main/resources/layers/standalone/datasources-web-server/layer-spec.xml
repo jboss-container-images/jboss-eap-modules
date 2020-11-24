@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<layer-spec xmlns="urn:jboss:galleon:layer-spec:1.0" name="datasources-web-server">
+    <packages>
+        <package name="org.jboss.as.security"/>
+    </packages>
+</layer-spec>

@@ -1,0 +1,7 @@
+schema_version: 1
+name: jboss.container.eap.galleon.eap73-compat
+version: '1.0'
+description: Galleon changes require to keep backward compatibility with EAP 7.3 GA.
+
+execute:
+- script: configure.sh
