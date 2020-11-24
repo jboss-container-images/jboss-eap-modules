@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.jboss.eap.galleon.s2i</groupId>
     <artifactId>eap-s2i-galleon-pack</artifactId>
-    <version>20.0.0.Final</version>
+    <version>21.0.0.Final</version>
     <packaging>pom</packaging>
     <name>EAP Galleon feature-pack for OpenShift</name>
 
