@@ -65,10 +65,6 @@
     <exclude spec="subsystem.infinispan"/>
     <feature-group name="os-clustering"/>
 
-    <!-- micro-profile -->
-    <feature-group name="os-observability"/>
-    <exclude spec="subsystem.microprofile-opentracing-smallrye"/>
-
     <!-- legacy security -->
     <exclude feature-id="subsystem.security.security-domain:security-domain=jaspitest"/>
 
