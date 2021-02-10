@@ -43,7 +43,7 @@
     <dependencies>
         <dependency>
             <groupId>${full.maven.groupId}</groupId>
-            <artifactId>wildfly-galleon-pack</artifactId>
+            <artifactId>wildfly-ee-galleon-pack</artifactId>
             <version>${version.org.wildfly}</version>
             <type>zip</type>
         </dependency>

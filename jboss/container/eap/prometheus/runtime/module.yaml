@@ -5,5 +5,5 @@ description: Provides Prometheus JMX Exporter configuration and agent
 
 modules:
   install:
-  - name: jboss.container.prometheus.bash
+  - name: jboss.container.prometheus
   - name: jboss.container.eap.prometheus.jmx-exporter-config
