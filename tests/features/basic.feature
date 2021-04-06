@@ -100,6 +100,7 @@ Feature: Common EAP tests
        | JGROUPS_ENCRYPT_NAME                         | jboss                                  |
        | JGROUPS_ENCRYPT_PASSWORD                     | mykeystorepass                         |
        | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                     |
+       | OPENSHIFT_DNS_PING_SERVICE_NAME              | ping                                   |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()='auth-protocol'][@type='AUTH']
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
@@ -156,6 +157,7 @@ Feature: Common EAP tests
        | variable                                     | value                                   |
        | JGROUPS_ENCRYPT_PROTOCOL                     | ASYM_ENCRYPT                            |
        | JGROUPS_PING_PROTOCOL                        | openshift.DNS_PING                      |
+       | OPENSHIFT_DNS_PING_SERVICE_NAME              | ping                                    |
     Then container log should contain WARN JGROUPS_ENCRYPT_PROTOCOL=ASYM_ENCRYPT requires JGROUPS_CLUSTER_PASSWORD to be set and not empty, the communication within the cluster WILL NOT be encrypted.
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
@@ -279,6 +281,7 @@ Feature: Common EAP tests
     When container is started with env
       | variable                             | value           |
       | JGROUPS_PING_PROTOCOL                | openshift.DNS_PING     |
+      | OPENSHIFT_DNS_PING_SERVICE_NAME      | ping                   |
     # 2 matches, one for TCP, one for UDP
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()="protocol"][@type="dns.DNS_PING"]
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath //*[local-name()="protocol"][@type="kubernetes.KUBE_PING"]
@@ -299,6 +302,7 @@ Feature: Common EAP tests
     When container is started with env
       | variable                             | value           |
       | JGROUPS_PING_PROTOCOL                | dns.DNS_PING    |
+      | OPENSHIFT_DNS_PING_SERVICE_NAME      | ping            |
     # 2 matches, one for TCP, one for UDP
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()="protocol"][@type="dns.DNS_PING"]
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath //*[local-name()="protocol"][@type="kubernetes.KUBE_PING"]
