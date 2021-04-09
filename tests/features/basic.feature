@@ -266,9 +266,15 @@ Feature: Common EAP tests
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()="socket-binding"][@name="https"]/*[local-name()="client-mapping" and substring(@destination-address,string-length(@destination-address) - string-length("tx-server-headless") + 1) = "tx-server-headless"]
 
   # https://issues.jboss.org/browse/CLOUD-180
+  @jboss-eap-7-tech-preview
   Scenario: Check if image version and release is printed on boot
     When container is ready
-    Then container log should contain Running jboss-eap-7-tech-preview/eap-cd-openshift-rhel8 image, version
+    Then container log should match regex ^INFO Running jboss-eap-7-tech-preview/eap74-(.)+ image, version(.)+$
+
+  @jboss-eap-7
+  Scenario: Check if image version and release is printed on boot
+    When container is ready
+    Then container log should match regex ^INFO Running jboss-eap-7/eap74-(.)+ image, version(.)+$
 
   Scenario: Check that the labels are correctly set
     Given image is built
