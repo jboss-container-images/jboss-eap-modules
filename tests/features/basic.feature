@@ -232,14 +232,14 @@ Feature: Common EAP tests
   Scenario: jboss.modules.system.pkgs is set to defaults when JBOSS_MODULES_SYSTEM_PKGS_APPEND env var is not set
     When container is ready
     Then container log should contain VM Arguments:
-     And available container log should contain -Djboss.modules.system.pkgs=org.jboss.logmanager,jdk.nashorn.api,com.sun.crypto.provider
+     And available container log should contain -Djboss.modules.system.pkgs=jdk.nashorn.api,com.sun.crypto.provider
 
   Scenario: jboss.modules.system.pkgs will contain default value and the value of JBOSS_MODULES_SYSTEM_PKGS_APPEND env var, when it is set
     When container is started with env
       | variable                             | value           |
       | JBOSS_MODULES_SYSTEM_PKGS_APPEND     | org.foo.bar     |
     Then container log should contain VM Arguments:
-     And available container log should contain -Djboss.modules.system.pkgs=org.jboss.logmanager,jdk.nashorn.api,com.sun.crypto.provider,org.foo.bar
+     And available container log should contain -Djboss.modules.system.pkgs=jdk.nashorn.api,com.sun.crypto.provider,org.foo.bar
 
   Scenario: check ownership when started as alternative UID
     When container is started as uid 26458
