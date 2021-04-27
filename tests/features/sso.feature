@@ -291,3 +291,40 @@ Feature: OpenShift EAP SSO tests
     Then container log should contain Existing other application-security-domain is extended with support for keycloak
     Then container log should contain WFLYSRV0025
     Then container log should contain WFLYSRV0010: Deployed "app-profile-jee.war"
+
+  Scenario: deploys the keycloak examples using secure-deployments CLI and galleon layers then checks if it's deployed.
+     Given XML namespaces
+       | prefix | url                          |
+       | ns     | urn:jboss:domain:keycloak:1.1 |
+     Given s2i build http://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-sso using master
+       | variable                   | value                                            |
+       | ARTIFACT_DIR               | app-profile-jee/target |
+       | GALLEON_PROVISION_LAYERS | datasources-web-server,sso |
+    Then container log should contain Existing other application-security-domain is extended with support for keycloak
+    Then container log should contain WFLYSRV0025
+    Then container log should contain WFLYSRV0010: Deployed "app-profile-jee.war"
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value demo on XPath //*[local-name()='realm']/@name
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value app-profile-jee.war on XPath //*[local-name()='secure-deployment']/@name
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='secure-deployment'][@name="app-profile-jee.war"]/*[local-name()='enable-cors']
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value https://secure-sso-demo.cloudapps.example.com/auth on XPath //*[local-name()='secure-deployment'][@name="app-profile-jee.war"]/*[local-name()='auth-server-url']
+
+
+  Scenario: deploys the keycloak examples using secure-deployments CLI then checks if it's deployed.
+     Given XML namespaces
+       | prefix | url                          |
+       | ns     | urn:jboss:domain:keycloak:1.1 |
+     Given s2i build http://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-sso using master
+       | variable                   | value                                            |
+       | ARTIFACT_DIR               | app-profile-jee-saml/target,app-profile-jee/target |
+    Then container log should contain WFLYSRV0010: Deployed "app-profile-jee.war"
+    Then container log should contain WFLYSRV0010: Deployed "app-profile-jee-saml.war"
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value demo on XPath //*[local-name()='realm']/@name
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value app-profile-jee.war on XPath //*[local-name()='secure-deployment']/@name
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value false on XPath //*[local-name()='secure-deployment'][@name="app-profile-jee.war"]/*[local-name()='enable-cors']
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value https://secure-sso-demo.cloudapps.example.com/auth on XPath //*[local-name()='secure-deployment'][@name="app-profile-jee.war"]/*[local-name()='auth-server-url']
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value app-profile-jee-saml.war on XPath //*[local-name()='secure-deployment']/@name
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value app-profile-jee-saml on XPath //*[local-name()='secure-deployment'][@name="app-profile-jee-saml.war"]/*[local-name()='SP']/@entityID
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value EXTERNAL on XPath //*[local-name()='secure-deployment'][@name="app-profile-jee-saml.war"]/*[local-name()='SP']/@sslPolicy
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value true on XPath //*[local-name()='secure-deployment'][@name="app-profile-jee-saml.war"]/*[local-name()='SP']/*[local-name()='Keys']/*[local-name()='Key']/@signing 
+    And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value idp on XPath //*[local-name()='secure-deployment'][@name="app-profile-jee-saml.war"]/*[local-name()='SP']/*[local-name()='IDP']/@entityID 
+
