@@ -63,6 +63,7 @@
 
     <!-- clustering -->
     <exclude spec="subsystem.infinispan"/>
+    <exclude spec="subsystem.distributable-web"/>
     <feature-group name="os-clustering"/>
 
     <!-- legacy security -->
