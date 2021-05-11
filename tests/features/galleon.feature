@@ -54,7 +54,7 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value web-clustering on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value web-clustering on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
-  
+
   Scenario: build the example, then check that cloud-server and postgresql-driver are provisioned and artifacts are downloaded
     Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-postgres
     Then s2i build log should contain Downloaded
@@ -369,7 +369,7 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value jaxrs-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value observability on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value open-tracing on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
-  
+     
   # microprofile layer didn't make it in CD19
   @ignore
   Scenario: Test jaxrs-server+microprofile, exclude all mp layers.
@@ -390,3 +390,83 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value microprofile-openapi on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value open-tracing on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
   # End specified tests
+
+Scenario: Test custom galleon config, default dir
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-custom-galleon using master
+      | variable                                                  | value                                                    |
+      | GALLEON_PROVISION_LAYERS            | jaxrs-server,test    |
+      | GALLEON_PROVISION_FEATURE_PACKS                      | org.test:test-galleon-pack:1.0.0.Final |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value test on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test on XPath //*[local-name()='driver']/@name
+    Then container log should contain WFLYSRV0025
+
+ Scenario: Test custom galleon config
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-custom-galleon using master
+      | variable                                                  | value                                                    |
+      | GALLEON_PROVISION_LAYERS            | jaxrs-server,foo,bar    |
+      | GALLEON_DIR                                        | my/custom/galleon |
+      | GALLEON_PROVISION_FEATURE_PACKS                      | org.foo:foo-galleon-pack:1.0.0.Final,org.bar:bar-galleon-pack:1.0.0.Final |
+      | FOO                                                         | PostgreSQLDS |
+    Then s2i build log should contain my/custom/galleon/settings.xml
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value foo on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value bar on XPath //*[local-name()='driver']/@name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/${env.FOO} on XPath //*[local-name()='subsystem' and starts-with(namespace-uri(), 'urn:jboss:domain:ee:')]/*[local-name()='default-bindings']/@datasource
+    Then container log should contain WFLYSRV0025
+
+ Scenario: Test custom galleon config failing, unknown layer
+    Given failing s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-custom-galleon using master
+      | variable                                                  | value                                                    |
+      | GALLEON_PROVISION_LAYERS            | jaxrs-server,foo,bar    |
+      | GALLEON_DIR                                        | my/custom/galleon |
+      | GALLEON_PROVISION_FEATURE_PACKS                      | org.foo:foo-galleon-pack:1.0.0.Final|
+
+ Scenario: Test custom galleon config failing, unknown feature-pack (not found in Galleon dir).
+    Given failing s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-custom-galleon using master
+      | variable                                                  | value                                                    |
+      | GALLEON_PROVISION_LAYERS            | jaxrs-server,foo    |
+      | GALLEON_PROVISION_FEATURE_PACKS                     | org.foo:foo-galleon-pack:1.0.0.Final|
+
+ Scenario: Test custom galleon config, custom location for local repo.
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-custom-galleon using master
+      | variable                                                   | value                                                    |
+      | GALLEON_PROVISION_LAYERS             | jaxrs-server,foo,bar    |
+      | GALLEON_CUSTOM_FEATURE_PACKS_MAVEN_REPO | /tmp/src/my/custom/galleon/repository |
+      | GALLEON_PROVISION_FEATURE_PACKS                      | org.foo:foo-galleon-pack:1.0.0.Final,org.bar:bar-galleon-pack:1.0.0.Final |
+      | FOO                                                         | PostgreSQLDS |
+    Then XML file /opt/eap/.galleon/provisioning.xml should contain value foo on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value bar on XPath //*[local-name()='driver']/@name
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/${env.FOO} on XPath //*[local-name()='subsystem' and starts-with(namespace-uri(), 'urn:jboss:domain:ee:')]/*[local-name()='default-bindings']/@datasource
+    Then container log should contain WFLYSRV0025
+
+ Scenario: Test custom galleon config, failure, invalid feature-pack GAV
+    Given failing s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-custom-galleon using master
+      | variable                                                   | value                                                    |
+      | GALLEON_PROVISION_LAYERS             | jaxrs-server,foo,bar    |
+      | GALLEON_CUSTOM_FEATURE_PACKS_MAVEN_REPO | /tmp/src/my/custom/galleon/repository |
+      | GALLEON_PROVISION_FEATURE_PACKS                      | org.foo:foo-galleon-pack:1.0.0.Final,org.bar:1.0.0.Final |
+
+ Scenario: Test custom galleon config, failure, unknown local maven repo.
+    Given failing s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-custom-galleon using master
+      | variable                                                   | value                                                    |
+      | GALLEON_PROVISION_LAYERS             | jaxrs-server,foo,bar    |
+      | GALLEON_CUSTOM_FEATURE_PACKS_MAVEN_REPO | /tmp/src/foo/repository |
+      | GALLEON_PROVISION_FEATURE_PACKS                      | org.foo:foo-galleon-pack:1.0.0.Final,org.bar:bar-galleon-pack:1.0.0.Final |
+      | FOO                                                         | PostgreSQLDS |
+
+ Scenario: Test custom galleon config failing, unknow GALLEON_DIR
+    Given failing s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-custom-galleon using master
+      | variable                                                  | value                                                    |
+      | GALLEON_PROVISION_LAYERS            | jaxrs-server,foo,bar    |
+      | GALLEON_DIR                                        | my/custom/galleonXXX |
+      | GALLEON_PROVISION_FEATURE_PACKS                      | org.foo:foo-galleon-pack:1.0.0.Final,org.bar:bar-galleon-pack:1.0.0.Final |
+
+Scenario: Test custom galleon config failing, no layers set
+    Given failing s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-custom-galleon using master
+      | variable                                                  | value                                                    |
+      | GALLEON_DIR                                        | my/custom/galleon |
+      | GALLEON_PROVISION_FEATURE_PACKS                      | org.foo:foo-galleon-pack:1.0.0.Final,org.bar:bar-galleon-pack:1.0.0.Final |
+
+Scenario: Test galleon dir doesn't contain provisioning.xml, no provisioning occurs.
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-custom-galleon using master
+    Then s2i build log should contain No provisioning.xml file exists in
+    Then container log should contain WFLYSRV0025

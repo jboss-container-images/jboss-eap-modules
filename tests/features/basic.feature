@@ -94,7 +94,7 @@ Feature: Common EAP tests
 
   Scenario: Check if jolokia is configured correctly
     When container is ready
-    Then container log should contain -javaagent:/opt/jboss/container/jolokia/jolokia.jar=config=/opt/jboss/container/jolokia/etc/jolokia.properties
+    Then container log should contain -javaagent:/usr/share/java/jolokia-jvm-agent/jolokia-jvm.jar=config=/opt/jboss/container/jolokia/etc/jolokia.properties
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   # https://issues.jboss.org/browse/CLOUD-295
@@ -232,14 +232,14 @@ Feature: Common EAP tests
   Scenario: jboss.modules.system.pkgs is set to defaults when JBOSS_MODULES_SYSTEM_PKGS_APPEND env var is not set
     When container is ready
     Then container log should contain VM Arguments:
-     And available container log should contain -Djboss.modules.system.pkgs=org.jboss.logmanager,jdk.nashorn.api,com.sun.crypto.provider
+     And available container log should contain -Djboss.modules.system.pkgs=jdk.nashorn.api,com.sun.crypto.provider
 
   Scenario: jboss.modules.system.pkgs will contain default value and the value of JBOSS_MODULES_SYSTEM_PKGS_APPEND env var, when it is set
     When container is started with env
       | variable                             | value           |
       | JBOSS_MODULES_SYSTEM_PKGS_APPEND     | org.foo.bar     |
     Then container log should contain VM Arguments:
-     And available container log should contain -Djboss.modules.system.pkgs=org.jboss.logmanager,jdk.nashorn.api,com.sun.crypto.provider,org.foo.bar
+     And available container log should contain -Djboss.modules.system.pkgs=jdk.nashorn.api,com.sun.crypto.provider,org.foo.bar
 
   Scenario: check ownership when started as alternative UID
     When container is started as uid 26458
@@ -266,9 +266,15 @@ Feature: Common EAP tests
      And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()="socket-binding"][@name="https"]/*[local-name()="client-mapping" and substring(@destination-address,string-length(@destination-address) - string-length("tx-server-headless") + 1) = "tx-server-headless"]
 
   # https://issues.jboss.org/browse/CLOUD-180
+  @jboss-eap-7-tech-preview
   Scenario: Check if image version and release is printed on boot
     When container is ready
-    Then container log should contain Running jboss-eap-7-tech-preview/eap-cd-openshift-rhel8 image, version
+    Then container log should match regex ^INFO Running jboss-eap-7-tech-preview/eap74-(.)+ image, version(.)+$
+
+  @jboss-eap-7
+  Scenario: Check if image version and release is printed on boot
+    When container is ready
+    Then container log should match regex ^INFO Running jboss-eap-7/eap74-(.)+ image, version(.)+$
 
   Scenario: Check that the labels are correctly set
     Given image is built
