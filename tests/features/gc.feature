@@ -8,7 +8,7 @@ Feature: Openshift OpenJDK GC tests
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=20\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=4\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:AdaptiveSizePolicyWeight=90\s
-      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxMetaspaceSize=256m\s
+      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MetaspaceSize=96m\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:\+ExitOnOutOfMemoryError\s
 
   Scenario: Check GC_MIN_HEAP_FREE_RATIO GC configuration
@@ -20,7 +20,7 @@ Feature: Openshift OpenJDK GC tests
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=20\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=4\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:AdaptiveSizePolicyWeight=90\s
-      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxMetaspaceSize=256m\s
+      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MetaspaceSize=96m\s
 
   Scenario: Check GC_MAX_HEAP_FREE_RATIO GC configuration
     When container is started with env
@@ -31,7 +31,7 @@ Feature: Openshift OpenJDK GC tests
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=50\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=4\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:AdaptiveSizePolicyWeight=90\s
-      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxMetaspaceSize=256m\s
+      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MetaspaceSize=96m\s
 
   Scenario: Check GC_TIME_RATIO GC configuration
     When container is started with env
@@ -42,7 +42,7 @@ Feature: Openshift OpenJDK GC tests
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=20\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=5\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:AdaptiveSizePolicyWeight=90\s
-      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxMetaspaceSize=256m\s
+      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MetaspaceSize=96m\s
 
   Scenario: Check GC_ADAPTIVE_SIZE_POLICY_WEIGHT GC configuration
     When container is started with env
@@ -53,20 +53,7 @@ Feature: Openshift OpenJDK GC tests
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=20\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=4\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:AdaptiveSizePolicyWeight=80\s
-      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxMetaspaceSize=256m\s
-
-  Scenario: Check GC_METASPACE_SIZE and GC_MAX_METASPACE_SIZE GC configuration
-    When container is started with env
-       | variable                 | value  |
-       | GC_METASPACE_SIZE        | 60     |
-       | GC_MAX_METASPACE_SIZE    | 120    |
-    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelOldGC\s
-      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MinHeapFreeRatio=10\s
-      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=20\s
-      And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=4\s
-      And container log should match regex ^ *JAVA_OPTS: *.* -XX:AdaptiveSizePolicyWeight=90\s
-      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MetaspaceSize=60m\s
-      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxMetaspaceSize=120m\s
+      And container log should match regex ^ *JAVA_OPTS: *.* -XX:MetaspaceSize=96m\s
 
   Scenario: Check GC_METASPACE_SIZE and GC_MAX_METASPACE_SIZE GC configuration
     When container is started with env
