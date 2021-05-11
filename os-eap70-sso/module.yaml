@@ -7,9 +7,9 @@ execute:
   user: '185'
 
 artifacts:
-- name: rh-sso-7.4.0-eap7-adapter
-  target: rh-sso-7.4.0-eap7-adapter.zip
-  md5: 045e97f51e4df0dd708dc784d21b44d0
-- name: rh-sso-7.4.0-saml-eap7-adapter
-  target: rh-sso-7.4.0-saml-eap7-adapter.zip
-  md5: 64875c45a977f769c33da8d47e9a3ead  
+- name: rh-sso-7.4.5-eap7-adapter
+  target: rh-sso-7.4.5-eap7-adapter.zip
+  md5: e2b7aa64f9ecfb393727bf9b68ffa065
+- name: rh-sso-7.4.5-saml-eap7-adapter
+  target: rh-sso-7.4.5-saml-eap7-adapter.zip
+  md5: 4a005a62913b384975878183332c3761
