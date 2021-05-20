@@ -6,10 +6,13 @@ execute:
 - script: configure.sh
   user: '185'
 
-packages:
-      install:
-          - hostname
 envs:
+    - name: LD_PRELOAD
+      value: libnss_wrapper.so
+    - name: NSS_WRAPPER_PASSWD
+      value: /home/jboss/passwd
+    - name: NSS_WRAPPER_GROUP
+      value: /etc/group
     - name: "DEFAULT_ADMIN_USERNAME"
       value: "eapadmin"
     - name: "ENABLE_ACCESS_LOG"
@@ -21,4 +24,10 @@ envs:
 
 modules:
   install:
+  - name: jboss.container.user
   - name: os-eap-migration
+
+packages:
+  install:
+    - nss_wrapper
+    - hostname
