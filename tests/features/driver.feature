@@ -26,7 +26,7 @@ Feature: EAP Openshift drivers
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value oracle.jdbc.xa.client.OracleXADataSource on XPath //*[local-name()='drivers']/*[local-name()='driver']/*[local-name()='xa-datasource-class']
 
   Scenario: check postgresql and oracle drivers
-    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-prov-oracle-postgres with env and true using test-eap-ds
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-prov-oracle-postgres with env and true
     | variable    | value                           |
     | ORACLE_DRIVER_VERSION | 19.3.0.0 |
     | POSTGRESQL_DRIVER_VERSION | 42.2.19 |
