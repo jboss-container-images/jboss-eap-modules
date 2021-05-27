@@ -764,7 +764,8 @@ Feature: EAP Openshift datasources
 	       | JDBC_SKIP_RECOVERY        | true                         |
 	       | EE_DEFAULT_DATASOURCE     | does-not-match-anything      |
 	    Then container log should contain ERROR The list of configured datasources does not contain a datasource matching the ee default-bindings datasource specified with EE_DEFAULT_DATASOURCE='does-not-match-anything'.
-
+  @Ignore
+  # no more mysql in DB feature-pack, and we can't replace by oracle, mysql has spcial support in launch scripts.
   Scenario: check mysql datasource, galleon s2i
     Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-prov-mysql with env and true
        | variable                  | value                        |
@@ -788,7 +789,7 @@ Feature: EAP Openshift datasources
     And container log should not contain WARN The default datasource for the ee subsystem has been guessed to be
 
   Scenario: check postgresql datasource, galleon s2i
-    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-prov-mysql-postgres with env and true
+    Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-postgres with env and true
        | variable                  | value                            |
        | DB_SERVICE_PREFIX_MAPPING     | test-postgresql=TEST         |
        | TEST_DATABASE                 | kitchensink                  |
@@ -797,6 +798,7 @@ Feature: EAP Openshift datasources
        | TEST_POSTGRESQL_SERVICE_HOST  | 10.1.1.1                     |
        | TEST_POSTGRESQL_SERVICE_PORT  | 5432                         |
        | JDBC_SKIP_RECOVERY            | true                         |
+       | POSTGRESQL_DRIVER_VERSION | 42.2.19 |
     Then container log should contain WFLYSRV0025
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_postgresql on XPath //*[local-name()='xa-datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value test_postgresql-TEST on XPath //*[local-name()='xa-datasource']/@pool-name
@@ -809,6 +811,8 @@ Feature: EAP Openshift datasources
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:jboss/datasources/test_postgresql on XPath //*[local-name()='default-bindings']/@datasource
     And container log should not contain WARN The default datasource for the ee subsystem has been guessed to be
 
+@Ignore
+# no more mysql in DB feature-pack, and we can't replace by oracle, mysql has spcial support in launch scripts.
   Scenario: check mysql and postgresql datasource, galleon s2i
     Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-prov-mysql-postgres with env and true
        | variable                      | value                                                  |
