@@ -5,7 +5,7 @@
         <default-configs inherit="false"/>
         <packages inherit="false"/>
     </feature-pack>
-    <feature-pack location="org.wildfly:wildfly-datasources-galleon-pack:1.0.6.CD.Final">
+    <feature-pack location="org.jboss.eap:eap-datasources-galleon-pack:7.4.0.GA-redhat-00001">
         <default-configs inherit="false"/>
         <packages inherit="false"/>
     </feature-pack>

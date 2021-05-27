@@ -5,14 +5,15 @@
         <default-configs inherit="false"/>
         <packages inherit="false"/>
     </feature-pack>
-    <feature-pack location="org.wildfly:wildfly-datasources-galleon-pack:1.0.6.CD.Final">
+    <feature-pack location="org.jboss.eap:eap-datasources-galleon-pack:7.4.0.GA-redhat-00001">
         <default-configs inherit="false"/>
         <packages inherit="false"/>
     </feature-pack>
     <config model="standalone" name="standalone.xml">
         <layers>
             <include name="cloud-server"/>
-            <include name="mysql-driver"/>
+            <include name="oracle-driver"/>
+            <include name="postgresql-driver"/>
         </layers>
     </config>
     <options>

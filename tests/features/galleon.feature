@@ -57,6 +57,8 @@ Feature: Openshift EAP galleon s2i tests
 
   Scenario: build the example, then check that cloud-server and postgresql-driver are provisioned and artifacts are downloaded
     Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-postgres
+     | variable    | value                           |
+     | POSTGRESQL_DRIVER_VERSION | 42.2.19 |
     Then s2i build log should contain Downloaded
     Then file /s2i-output/server/.galleon/provisioning.xml should exist
     Then file /opt/eap/.galleon/provisioning.xml should exist
@@ -67,6 +69,8 @@ Feature: Openshift EAP galleon s2i tests
 
   Scenario: build the example, then check that cloud-server and postgresql-driver are provisioned and artifacts are not downloaded
     Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-postgres with env and true
+     | variable    | value                           |
+     | POSTGRESQL_DRIVER_VERSION | 42.2.19 |
     Then s2i build log should not contain Downloaded
     Then file /s2i-output/server/.galleon/provisioning.xml should exist
     Then file /opt/eap/.galleon/provisioning.xml should exist
