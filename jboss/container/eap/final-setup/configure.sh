@@ -19,7 +19,7 @@ chown jboss:root $JBOSS_HOME/standalone/deployments
 
 # Necessary to permit running with a randomised UID
 for dir in ${JBOSS_HOME} $DEPLOYMENTS_DIR; do
-    chown -R jboss:root $dir
-    chmod -R g+rwX $dir
+    chown -Rf jboss:root $dir
+    chmod -Rf g+rwX $dir
 done
 
