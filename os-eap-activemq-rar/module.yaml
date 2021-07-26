@@ -7,5 +7,5 @@ execute:
   user: '185'
 
 artifacts:
-- url: https://maven.repository.redhat.com/ga/org/apache/activemq/activemq-rar/5.11.0.redhat-630371/activemq-rar-5.11.0.redhat-630371.rar
-  md5: 3e9758751e0a1efb29d1e624a495ddde
+- url: https://maven.repository.redhat.com/ga/org/apache/activemq/activemq-rar/5.11.0.redhat-630495/activemq-rar-5.11.0.redhat-630495.rar
+  md5: 4bb3ccb1a3732a21435e36858c913699
