@@ -135,7 +135,7 @@ Feature: EAP Openshift transaction objectstore datasources
       | TEST_NONXA                     | true                                   |
       | TEST_JTA                       | false                                  |
       | JDBC_STORE_JNDI_NAME           | java:/jboss/datasources/testds         |
-      | NODE_NAME                      | Test-Store-Node-Name                   |
+      | NODE_NAME                      | Test-Store-Node.Name                   |
       | JDBC_SKIP_RECOVERY             | true                                   |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testds on XPath //*[local-name()='datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value jdbc:postgresql://10.1.1.1:5432/pgdb on XPath //*[local-name()='datasource']/*[local-name()='connection-url']
@@ -160,7 +160,7 @@ Feature: EAP Openshift transaction objectstore datasources
       | TEST_DATABASE                  | XE                                     |
       | TEST_NONXA                     | false                                  |
       | TEST_JTA                       | true                                   |
-      | NODE_NAME                      | TestStoreNodeName                      |
+      | NODE_NAME                      | Test.Store-Node.Name                   |
       | JDBC_SKIP_RECOVERY             | true                                   |
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value java:/jboss/datasources/testdsObjectStore on XPath //*[local-name()='datasource']/@jndi-name
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value testObjectStorePool on XPath //*[local-name()='datasource']/@pool-name
