@@ -5,7 +5,7 @@ description: Install Galleon descriptions and EAP s2i feature-pack. Configure ga
 
 envs:
 - name: S2I_FP_VERSION
-  value: "3.0.0.Final"
+  value: "23.0.0.Final"
 - name: GALLEON_DEFINITIONS
   value: /opt/jboss/container/eap/galleon/definitions
 - name: GALLEON_MAVEN_REPO_HOOK_SCRIPT
