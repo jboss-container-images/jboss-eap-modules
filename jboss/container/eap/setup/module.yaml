@@ -9,3 +9,4 @@ execute:
 envs:
 - name: SSO_FORCE_LEGACY_SECURITY
   value: "true"
+
