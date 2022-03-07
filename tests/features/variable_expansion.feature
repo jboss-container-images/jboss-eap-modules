@@ -39,6 +39,7 @@ Feature: Check correct variable expansion used
        | variable    | value         |
        | APP_DATADIR | configuration |
        | DATA_DIR    |               |
+       | MAVEN_ARGS_APPEND | -Dmaven.compiler.target=1.8 -Dmaven.compiler.source=1.8 -Dversion.war.plugin=3.3.2 |
     Then s2i build log should contain Copying app data from configuration to /opt/eap/standalone/data
     And run ls /opt/eap/standalone/data/standalone-openshift.xml in container and check its output for /opt/eap/standalone/data/standalone-openshift.xml
 
@@ -48,6 +49,7 @@ Feature: Check correct variable expansion used
        | variable    | value                         |
        | APP_DATADIR | modules/org/postgresql94/main |
        | DATA_DIR    | /tmp/test                     |
+       | MAVEN_ARGS_APPEND | -Dmaven.compiler.target=1.8 -Dmaven.compiler.source=1.8 -Dversion.war.plugin=3.3.2 |
     Then s2i build log should contain Copying app data from modules/org/postgresql94/main to /tmp/test...
      And run ls /tmp/test/module.xml in container and check its output for /tmp/test/module.xml
 
@@ -57,5 +59,6 @@ Feature: Check correct variable expansion used
        | variable    | value                         |
        | APP_DATADIR | modules/org/postgresql94/main |
        | DATA_DIR    | /tmp                          |
+       | MAVEN_ARGS_APPEND |  -Dmaven.compiler.target=1.8 -Dmaven.compiler.source=1.8 -Dversion.war.plugin=3.3.2 |
     Then s2i build log should contain Copying app data from modules/org/postgresql94/main to /tmp...
      And run ls /tmp/module.xml in container and check its output for /tmp/module.xml

@@ -1,10 +1,9 @@
-@jboss-eap-7/eap74-openjdk11-openshift-rhel8 @jboss-eap-7/eap74-openjdk8-openshift-rhel7
-@jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8 @jboss-eap-7/eap-xp4-openjdk11-openshift-rhel8
+@jboss-eap-7/eap74-openjdk17-openshift-rhel8
 Feature: Openshift OpenJDK GC tests
 
   Scenario: Check default GC configuration
     When container is ready
-    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelOldGC\s
+    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelGC\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MinHeapFreeRatio=10\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=20\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=4\s
@@ -16,7 +15,7 @@ Feature: Openshift OpenJDK GC tests
     When container is started with env
        | variable                         | value  |
        | GC_MIN_HEAP_FREE_RATIO           | 5      |
-    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelOldGC\s
+    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelGC\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MinHeapFreeRatio=5\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=20\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=4\s
@@ -27,7 +26,7 @@ Feature: Openshift OpenJDK GC tests
     When container is started with env
        | variable                         | value  |
        | GC_MAX_HEAP_FREE_RATIO           | 50     |
-    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelOldGC\s
+    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelGC\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MinHeapFreeRatio=10\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=50\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=4\s
@@ -38,7 +37,7 @@ Feature: Openshift OpenJDK GC tests
     When container is started with env
        | variable                         | value  |
        | GC_TIME_RATIO                    | 5      |
-    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelOldGC\s
+    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelGC\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MinHeapFreeRatio=10\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=20\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=5\s
@@ -49,7 +48,7 @@ Feature: Openshift OpenJDK GC tests
     When container is started with env
        | variable                         | value  |
        | GC_ADAPTIVE_SIZE_POLICY_WEIGHT   | 80     |
-    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelOldGC\s
+    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelGC\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MinHeapFreeRatio=10\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=20\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=4\s
@@ -61,7 +60,7 @@ Feature: Openshift OpenJDK GC tests
        | variable                 | value  |
        | GC_METASPACE_SIZE        | 60     |
        | GC_MAX_METASPACE_SIZE    | 120    |
-    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelOldGC\s
+    Then container log should match regex ^ *JAVA_OPTS: *.* -XX:\+UseParallelGC\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MinHeapFreeRatio=10\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:MaxHeapFreeRatio=20\s
       And container log should match regex ^ *JAVA_OPTS: *.* -XX:GCTimeRatio=4\s

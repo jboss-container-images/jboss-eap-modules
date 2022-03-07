@@ -110,7 +110,7 @@ Feature: EAP Openshift access-log-valve and log handler tests
     And file /tmp/boot.log should contain You have set ENABLE_ACCESS_LOG=true to add the access log logger category 'org.infinispan.rest.logging.RestAccessLoggingHandler'. However one already exists which has conflicting values. Fix your configuration to contain the logging subsystem for this to happen.
 
   Scenario: Access Log valve, No undertow should give error
-    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
        | variable                   | value         |
        | GALLEON_PROVISION_LAYERS   | core-server   |
        | ENABLE_ACCESS_LOG          | true          |

@@ -215,7 +215,7 @@ Scenario: Cannot add a resource adapter when there is no resource-adapters subsy
     And file /tmp/boot.log should contain You have set environment variables to configure the resource-adapter 'fileQS'. However, your base configuration already contains a resource-adapter with that name.
 
   Scenario: Test resource adapter extension, galleon s2i
-    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
        | variable                         | value                                                        |
        | RESOURCE_ADAPTERS                | TEST_1                                                       |
        | TEST_1_ID                        | fileQS                                                       |

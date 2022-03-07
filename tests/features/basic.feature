@@ -92,10 +92,6 @@ Feature: Common EAP tests
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()="protocol"][@type="openshift.DNS_PING"]
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath //*[local-name()="protocol"][@type="openshift.KUBE_PING"]
 
-  Scenario: Check if jolokia is configured correctly
-    When container is ready
-    Then container log should contain -javaagent:/usr/share/java/jolokia-jvm-agent/jolokia-jvm.jar=config=/opt/jboss/container/jolokia/etc/jolokia.properties
-
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   # https://issues.jboss.org/browse/CLOUD-295
   # https://issues.jboss.org/browse/CLOUD-336
@@ -324,7 +320,7 @@ Feature: Common EAP tests
     Then file at /opt/eap/modules/system/layers/openshift/org/jgroups/main should not exist
 
  Scenario: readinessProbe runs successfully on cloud-server trimmed server
-   Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
+   Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
     | variable                        | value                                                                                  |
     | GALLEON_PROVISION_LAYERS        | cloud-server |
    Then exactly 2 times container log should contain WFLYSRV0025
