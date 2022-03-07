@@ -5,6 +5,23 @@ echo "`date "+%Y-%m-%d %H:%M:%S"` Launching EAP Server"
 # Always start sourcing the launch script supplied by wildfly-cekit-modules
 source ${JBOSS_HOME}/bin/launch/launch.sh
 
+# Append image specific modular options in standalone.conf
+SPEC_VERSION="${JAVA_VERSION//1.}"
+SPEC_VERSION="${SPEC_VERSION//.*}"
+if (( $SPEC_VERSION > 15 )); then
+  MODULAR_JVM_OPTIONS=`echo $JAVA_OPTS | grep "\-\-add\-modules"`
+  if [ "x$MODULAR_JVM_OPTIONS" = "x" ]; then
+    DIRNAME=`dirname "$0"`
+    marker="#JVM modular options added by openshift startup script"
+    if ! grep -q "$marker" "$DIRNAME/standalone.conf"; then
+      jvm_options="$marker
+JAVA_OPTS=\"\$JAVA_OPTS --add-exports=jdk.naming.dns/com.sun.jndi.dns=ALL-UNNAMED\""
+     echo "$jvm_options" >> "$DIRNAME/standalone.conf"
+    fi
+  fi
+fi
+# end specific JDK modular options
+
 function runServer() {
   local instanceDir=$1
   launchServer "$JBOSS_HOME/bin/standalone.sh -c standalone-openshift.xml -bmanagement 0.0.0.0 -Djboss.server.data.dir=${instanceDir} -Dwildfly.statistics-enabled=true"
