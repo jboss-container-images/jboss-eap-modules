@@ -26,7 +26,8 @@
     </feature>
     
     <!-- management -->
-    <exclude spec="core-service.management.access.identity"/>
+    <!-- JDK 17, do not exclude identity -->
+    <!--<exclude spec="core-service.management.access.identity"/>-->
     <feature spec="core-service.management.management-interface.http-interface">
         <param name="socket-binding" value="management-http"/>
         <unset param="http-authentication-factory"/>

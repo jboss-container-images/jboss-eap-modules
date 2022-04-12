@@ -38,6 +38,7 @@
         <extension module="org.wildfly.extension.undertow"/>
     </extensions>
     <management>
+        <identity security-domain="ManagementDomain"/>
         <audit-log>
             <formatters>
                 <json-formatter name="json-formatter"/>
