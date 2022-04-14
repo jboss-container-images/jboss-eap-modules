@@ -131,7 +131,7 @@ Feature: Openshift EAP s2i tests
     Then file /home/jboss/.m2/settings.xml should contain foo-repository
 
   Scenario: Test custom settings by env
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
      | variable                     | value                                                 |
      | MAVEN_SETTINGS_XML           | /home/jboss/../jboss/../jboss/.m2/settings.xml |
     Then s2i build log should contain /home/jboss/../jboss/../jboss/.m2/settings.xml

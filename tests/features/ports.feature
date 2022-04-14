@@ -30,7 +30,7 @@ Feature: EAP Openshift port offset
     And file /tmp/boot.log should not contain You specified PORT_OFFSET
 
   Scenario: Zero port offset in galleon provisioned configuration
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
        | variable                    | value           |
        | PORT_OFFSET                 | 1000            |
        | GALLEON_PROVISION_LAYERS    | web-server      |

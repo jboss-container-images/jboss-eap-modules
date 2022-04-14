@@ -29,7 +29,7 @@ Scenario: Configure HTTPS with an existing https-listener should give error
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value /opt/eap/keystore.jks on XPath //*[local-name()='tls']/*[local-name()='key-stores']/*[local-name()='key-store'][@name="LocalhostKeyStore"]/*[local-name()='file']/@path
 
 Scenario: Https, No undertow should give error
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
        | variable                   | value         |
        | GALLEON_PROVISION_LAYERS   | core-server   |
        | EAP_HTTPS_PASSWORD         | p@ssw0rd      |
@@ -39,7 +39,7 @@ Scenario: Https, No undertow should give error
     Then container log should contain You have set environment variables to configure Https. However, your base configuration does not contain the Undertow subsystem
 
   Scenario: Use Elytron for HTTPS, galleon s2i (the default for JDK17)
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
       | variable                      | value                       |
       | HTTPS_PASSWORD                | p@ssw0rd                    |
       | HTTPS_KEYSTORE_DIR            | /opt/eap                    |

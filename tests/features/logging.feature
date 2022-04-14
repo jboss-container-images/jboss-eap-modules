@@ -16,7 +16,7 @@ Feature: Check logging configuration
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value COLOR-PATTERN on XPath //*[local-name()='console-handler']/*[local-name()='formatter']/*[local-name()='named-formatter']/@name
 
   Scenario: Check that EAP CD logs are json formatted, galleon s2i
-   Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+   Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     | variable                    | value             |
     | GALLEON_PROVISION_LAYERS    | jaxrs-server      |
     | ENABLE_JSON_LOGGING         | true              |
@@ -24,7 +24,7 @@ Feature: Check logging configuration
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value OPENSHIFT on XPath //*[local-name()='console-handler']/*[local-name()='formatter']/*[local-name()='named-formatter']/@name
 
   Scenario: Check that EAP7 logs are normally formatted, galleon s2i
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     | variable                    | value         |
     | GALLEON_PROVISION_LAYERS    | jaxrs-server  |
     | ENABLE_JSON_LOGGING         | false         |
@@ -32,7 +32,7 @@ Feature: Check logging configuration
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value COLOR-PATTERN on XPath //*[local-name()='console-handler']/*[local-name()='formatter']/*[local-name()='named-formatter']/@name
 
   Scenario: Add logging category, galleon s2i
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
        | variable                   | value            |
        | GALLEON_PROVISION_LAYERS   | core-server      |
        | LOGGER_CATEGORIES          | org.foo.bar:TRACE  |
@@ -41,7 +41,7 @@ Feature: Check logging configuration
     And XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value TRACE on XPath //*[local-name()='logger'][@category="org.foo.bar"]/*[local-name()='level']/@name
 
   Scenario: Logging, No logging should give error
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
        | variable                   | value         |
        | GALLEON_PROVISION_LAYERS   | jaxrs         |
        | LOGGER_CATEGORIES          | org.foo.bar:ALL     |

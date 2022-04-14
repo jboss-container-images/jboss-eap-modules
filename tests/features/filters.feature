@@ -91,7 +91,7 @@ Feature: EAP 7 Openshift filters
     And file /tmp/boot.log should contain You have set environment variables to add an undertow filter-ref called One-Header but one already exists. Fix your configuration so it does not contain clashing filter-refs for this to happen.
 
   Scenario: Filters, No undertow should give error
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
       | variable                         | value        |
       | GALLEON_PROVISION_LAYERS         | core-server  |
       | FILTERS                          | FOO          |

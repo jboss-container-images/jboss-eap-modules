@@ -320,7 +320,7 @@ Feature: Common EAP tests
     Then file at /opt/eap/modules/system/layers/openshift/org/jgroups/main should not exist
 
  Scenario: readinessProbe runs successfully on cloud-server trimmed server
-   Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+   Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     | variable                        | value                                                                                  |
     | GALLEON_PROVISION_LAYERS        | cloud-server |
    Then exactly 2 times container log should contain WFLYSRV0025

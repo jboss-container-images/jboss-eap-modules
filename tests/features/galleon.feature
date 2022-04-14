@@ -4,7 +4,7 @@ Feature: Openshift EAP galleon s2i tests
 # CLOUD-3949
 @ignore 
   Scenario: Test microprofile config.
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
       | variable                             | value         |
       | GALLEON_PROVISION_LAYERS             | cloud-server,microprofile-openapi,microprofile-jwt,microprofile-fault-tolerance,-jpa,jpa-distributed,web-clustering  |
     Then container log should contain WFLYSRV0025
@@ -14,7 +14,7 @@ Feature: Openshift EAP galleon s2i tests
       | port     | 8080  |
 
   Scenario: Galleon provision cloud-server
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     | variable                        | value                                                                                  |
     | GALLEON_PROVISION_LAYERS        | cloud-server |
     Then container log should contain WFLYSRV0025
@@ -24,7 +24,7 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value cloud-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
 
   Scenario: Galleon provision jaxrs-server
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     | variable                        | value                                                                                  |
     | GALLEON_PROVISION_LAYERS        | jaxrs-server |
     Then container log should contain WFLYSRV0025
@@ -34,7 +34,7 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value jaxrs-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
 
   Scenario: Galleon provision datasources-web-server
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     | variable                        | value                                                                                  |
     | GALLEON_PROVISION_LAYERS        | datasources-web-server |
     Then container log should contain WFLYSRV0025
@@ -44,7 +44,7 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /s2i-output/server/.galleon/provisioning.xml should contain value datasources-web-server on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='include']/@name
 
   Scenario: Galleon provision web-clustering
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     | variable                        | value                                                                                  |
     | GALLEON_PROVISION_LAYERS        | cloud-server,web-clustering            |
     Then container log should contain WFLYSRV0025
@@ -101,17 +101,17 @@ Feature: Openshift EAP galleon s2i tests
     | GALLEON_VERSION | 0.0.0.Foo |
 
   Scenario: failing to build the example due to multiple env vars in conflict
-    Given failing s2i build git://github.com/jfdenise/openshift-jee-sample from . using master
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
     | variable          | value                                                                                  |
     | GALLEON_PROVISION_SERVER        | slim-default-server |
     | GALLEON_PROVISION_LAYERS        | cloud-server       |
  
   Scenario: build the example without galleon, check that s2i-output doesn't contain a copied server
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     Then file /s2i-output/server/ should not exist
 
   Scenario: build the example with galleon, check that s2i-output contain a copied server
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
     | variable          | value                                                                                  |
     | GALLEON_PROVISION_DEFAULT_FAT_SERVER        | true |
     Then file /s2i-output/server/ should exist
@@ -131,12 +131,12 @@ Feature: Openshift EAP galleon s2i tests
     Then container log should contain WFLYCTL0310: Extension module org.keycloak.keycloak-adapter-subsystem not found
 
   Scenario: failing to build the example due to invalid layer name
-    Given failing s2i build git://github.com/jfdenise/openshift-jee-sample from . using master
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
     | variable          | value                                                                                  |
     | GALLEON_PROVISION_LAYERS        | foo |
 
   Scenario: failing to build the example due to invalid layer name
-    Given failing s2i build git://github.com/jfdenise/openshift-jee-sample from . using master
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
     | variable          | value                                                                                  |
     | GALLEON_PROVISION_LAYERS        | cloud-server,foo |
 
@@ -167,7 +167,7 @@ Feature: Openshift EAP galleon s2i tests
   # microprofile layer didn't make it in CD19
   @ignore
   Scenario: Test cloud-server,microprofile
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and True using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and True using master
       | variable                             | value         |
       | GALLEON_PROVISION_LAYERS             | cloud-server,microprofile  |
     Then container log should contain WFLYSRV0025
@@ -180,7 +180,7 @@ Feature: Openshift EAP galleon s2i tests
 
   # Tests for specified exclusion
   Scenario: Test datasources-web-server, exclude datasources
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and True using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and True using master
       | variable                             | value         |
       | GALLEON_PROVISION_LAYERS             | datasources-web-server,-datasources  |
     Then container log should contain WFLYSRV0025
@@ -230,12 +230,12 @@ Feature: Openshift EAP galleon s2i tests
     Then XML file /opt/eap/.galleon/provisioning.xml should contain value jpa on XPath //*[local-name()='installation']/*[local-name()='config']/*[local-name()='layers']/*[local-name()='exclude']/@name
 
   Scenario: Test jaxrs-server, exclude datasources, must fail
-    Given failing s2i build git://github.com/jfdenise/openshift-jee-sample from . using master
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
       | variable                             | value         |
       | GALLEON_PROVISION_LAYERS             | jaxrs-server,-datasources |
 
   Scenario: Test jaxrs-server, exclude foo, must fail
-    Given failing s2i build git://github.com/jfdenise/openshift-jee-sample from . using master
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
       | variable                             | value         |
       | GALLEON_PROVISION_LAYERS             | jaxrs-server,-foo |
 
@@ -342,7 +342,7 @@ Feature: Openshift EAP galleon s2i tests
 # CLOUD-3949
 @ignore 
   Scenario: Test cloud-server, exclude open-tracing and observability
-    Given failing s2i build git://github.com/jfdenise/openshift-jee-sample from .
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from .
       | variable                             | value         |
       | GALLEON_PROVISION_LAYERS             | cloud-server,-open-tracing,-observability  |
 
@@ -377,7 +377,7 @@ Feature: Openshift EAP galleon s2i tests
   # microprofile layer didn't make it in CD19
   @ignore
   Scenario: Test jaxrs-server+microprofile, exclude all mp layers.
-    Given failing s2i build git://github.com/jfdenise/openshift-jee-sample from .
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from .
       | variable                             | value         |
       | GALLEON_PROVISION_LAYERS             | jaxrs-server,microprofile,-microprofile-config,-microprofile-fault-tolerance,-microprofile-jwt,-microprofile-metrics,-microprofile-openapi,-open-tracing  |
     Then container log should contain WFLYSRV0025

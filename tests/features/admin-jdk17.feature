@@ -10,7 +10,7 @@ Feature: EAP Openshift admin
     And file /opt/eap/standalone/configuration/mgmt-users.properties should contain kabir
 
   Scenario: Standard configuration, galleon s2i
-    Given s2i build git://github.com/jfdenise/openshift-jee-sample from . with env and true using master
+    Given s2i build git://github.com/openshift/openshift-jee-sample from . with env and true using master
        | variable                 | value           |
        | ADMIN_USERNAME           | kabir           |
        | ADMIN_PASSWORD           | pass            |
