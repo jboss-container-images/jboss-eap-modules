@@ -1,5 +1,5 @@
 schema_version: 1
-name: jboss.container.eap.launch
+name: jboss.container.eap.launch.common
 version: '1.0'
 description: Module that enables CLI configuration for standalone-openshift.xml file
 execute:

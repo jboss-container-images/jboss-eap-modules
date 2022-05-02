@@ -1,0 +1,11 @@
+schema_version: 1
+name: jboss.container.eap.launch
+version: '1.0-no-sso'
+description: Module that enables CLI configuration for standalone-openshift.xml file, no SSO script
+execute:
+- script: configure.sh
+  user: '185'
+
+modules:
+  install:
+  - name: jboss.container.eap.launch.common
