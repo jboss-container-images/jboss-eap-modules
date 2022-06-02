@@ -764,7 +764,7 @@ Feature: EAP Openshift datasources
 	       | JDBC_SKIP_RECOVERY        | true                         |
 	       | EE_DEFAULT_DATASOURCE     | does-not-match-anything      |
 	    Then container log should contain ERROR The list of configured datasources does not contain a datasource matching the ee default-bindings datasource specified with EE_DEFAULT_DATASOURCE='does-not-match-anything'.
-  
+
   Scenario: check postgresql datasource, galleon s2i
     Given s2i build git://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-postgres with env and true
        | variable                  | value                            |

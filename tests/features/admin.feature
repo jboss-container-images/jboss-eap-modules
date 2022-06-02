@@ -1,4 +1,5 @@
-@jboss-eap-7 @jboss-eap-7-tech-preview
+@jboss-eap-7/eap74-openjdk11-openshift-rhel8 @jboss-eap-7/eap74-openjdk8-openshift-rhel7
+@jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8 @jboss-eap-7/eap-xp4-openjdk11-openshift-rhel8
 Feature: EAP Openshift admin
 
   Scenario: Standard configuration

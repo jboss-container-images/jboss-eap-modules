@@ -48,6 +48,8 @@ Feature: Openshift EAP s2i tests
   # CLOUD-579
   Scenario: Test that maven is executed in batch mode
     Given s2i build https://github.com/jboss-openshift/openshift-examples from helloworld
+    | variable          | value                                                                                  |
+    | MAVEN_ARGS_APPEND | -Dmaven.compiler.target=1.8 -Dmaven.compiler.source=1.8 -Dversion.war.plugin=3.3.2|
     Then s2i build log should contain --batch-mode
     And s2i build log should not contain \r
 
@@ -59,22 +61,13 @@ Feature: Openshift EAP s2i tests
     And container log should contain Engine class provider found.
     And container log should not contain JavaScript engine not found.
 
-  # CLOUD-807
-  # JDK 11 needs an extra dep for javax.annotations
-  @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
-  Scenario: Test if the container has the JavaScript engine available
-    Given s2i build https://github.com/luck3y/openshift-examples from eap-tests/jsengine using openjdk-11
-    Then container log should contain Engine found: jdk.nashorn.api.scripting.NashornScriptEngine
-    And container log should contain Engine class provider found.
-    And container log should not contain JavaScript engine not found.
-
   # Always force IPv4 (CLOUD-188)
   # Append user-supplied arguments (CLOUD-412)
   # Allow the user to clear down the maven repository after running s2i (CLOUD-413)
   Scenario: Test to ensure that maven is run with -Djava.net.preferIPv4Stack=true and user-supplied arguments, and clears the local repository after the build
     Given s2i build https://github.com/jboss-openshift/openshift-examples from helloworld
        | variable          | value                      |
-       | MAVEN_ARGS_APPEND | -Dfoo=bar                  |
+       | MAVEN_ARGS_APPEND | -Dfoo=bar  -Dmaven.compiler.target=1.8 -Dmaven.compiler.source=1.8 -Dversion.war.plugin=3.3.2 |
        | MAVEN_LOCAL_REPO  | /home/jboss/.m2/repository |
        | MAVEN_CLEAR_REPO  | true                       |
     Then s2i build log should contain -Djava.net.preferIPv4Stack=true

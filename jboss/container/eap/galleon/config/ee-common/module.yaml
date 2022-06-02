@@ -1,0 +1,7 @@
+schema_version: 1
+name: jboss.container.eap.galleon.config.ee.common
+version: '1.0'
+description: Install Galleon ee default configuration.
+
+execute:
+- script: configure.sh

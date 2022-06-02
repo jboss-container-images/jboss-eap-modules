@@ -120,13 +120,13 @@ Feature: Openshift EAP galleon s2i tests
     Given XML namespaces
        | prefix | url                          |
        | ns     | urn:jboss:domain:keycloak:1.1 |
-    Given s2i build https://github.com/redhat-developer/redhat-sso-quickstarts from . with env and true using 7.0.x-ose
+    Given s2i build https://github.com/jfdenise/redhat-sso-quickstarts from . with env and true using 7.0.x-ose
        | variable               | value                                            |
        | ARTIFACT_DIR           | app-jee-jsp/target,app-profile-jee-jsp/target |
        | SSO_REALM         | demo    |
        | SSO_PUBLIC_KEY    | MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiLezsNQtZSaJvNZXTmjhlpIJnnwgGL5R1vkPLdt7odMgDzLHQ1h4DlfJPuPI4aI8uo8VkSGYQXWaOGUh3YJXtdO1vcym1SuP8ep6YnDy9vbUibA/o8RW6Wnj3Y4tqShIfuWf3MEsiH+KizoIJm6Av7DTGZSGFQnZWxBEZ2WUyFt297aLWuVM0k9vHMWSraXQo78XuU3pxrYzkI+A4QpeShg8xE7mNrs8g3uTmc53KR45+wW1icclzdix/JcT6YaSgLEVrIR9WkkYfEGj3vSrOzYA46pQe6WQoenLKtIDFmFDPjhcPoi989px9f+1HCIYP0txBS/hnJZaPdn5/lEUKQIDAQAB  |
        | SSO_URL           | http://localhost:8080/auth    |
-       | MAVEN_ARGS_APPEND | -Dmaven.compiler.source=1.6 -Dmaven.compiler.target=1.6 |
+       | MAVEN_ARGS_APPEND |-Dversion.war.maven.plugin=3.3.2 |
        | GALLEON_PROVISION_LAYERS | cloud-server |
     Then container log should contain WFLYCTL0310: Extension module org.keycloak.keycloak-adapter-subsystem not found
 
@@ -342,7 +342,7 @@ Feature: Openshift EAP galleon s2i tests
 # CLOUD-3949
 @ignore 
   Scenario: Test cloud-server, exclude open-tracing and observability
-    Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from .
       | variable                             | value         |
       | GALLEON_PROVISION_LAYERS             | cloud-server,-open-tracing,-observability  |
 
@@ -377,7 +377,7 @@ Feature: Openshift EAP galleon s2i tests
   # microprofile layer didn't make it in CD19
   @ignore
   Scenario: Test jaxrs-server+microprofile, exclude all mp layers.
-    Given failing s2i build git://github.com/openshift/openshift-jee-sample from . using master
+    Given failing s2i build git://github.com/openshift/openshift-jee-sample from .
       | variable                             | value         |
       | GALLEON_PROVISION_LAYERS             | jaxrs-server,microprofile,-microprofile-config,-microprofile-fault-tolerance,-microprofile-jwt,-microprofile-metrics,-microprofile-openapi,-open-tracing  |
     Then container log should contain WFLYSRV0025

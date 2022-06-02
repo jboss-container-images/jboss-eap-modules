@@ -5,3 +5,7 @@ description: Install Galleon ee default configuration.
 
 execute:
 - script: configure.sh
+
+modules:
+  install:
+  - name: jboss.container.eap.galleon.config.ee.common
