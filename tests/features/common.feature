@@ -1,6 +1,13 @@
 @jboss-eap-7 @jboss-eap-6 @jboss-eap-7-tech-preview
 Feature: Openshift common test
 
+  Scenario: Check jolokia port is available
+    When container is ready
+    Then check that port 8778 is open
+    Then inspect container
+       | path                    | value       |
+       | /Config/ExposedPorts    | 8778/tcp    |
+
   Scenario: Enable Access Log
     When container is started with env
       | variable          | value            |

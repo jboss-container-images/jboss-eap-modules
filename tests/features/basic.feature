@@ -92,6 +92,10 @@ Feature: Common EAP tests
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 2 elements on XPath //*[local-name()="protocol"][@type="openshift.DNS_PING"]
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath //*[local-name()="protocol"][@type="openshift.KUBE_PING"]
 
+  Scenario: Check if jolokia is configured correctly
+    When container is ready
+￼   Then container log should contain -javaagent:/usr/share/java/jolokia-jvm-agent/jolokia-jvm.jar=config=/opt/jboss/container/jolokia/etc/jolokia.properties
+
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   # https://issues.jboss.org/browse/CLOUD-295
   # https://issues.jboss.org/browse/CLOUD-336

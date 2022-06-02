@@ -2,17 +2,6 @@
 @jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8 @jboss-eap-7/eap-xp4-openjdk11-openshift-rhel8
 Feature: Tests that can't run on jdk17
 
-  Scenario: Check if jolokia is configured correctly
-    When container is ready
-    Then container log should contain -javaagent:/usr/share/java/jolokia-jvm-agent/jolokia-jvm.jar=config=/opt/jboss/container/jolokia/etc/jolokia.properties
-
-  Scenario: Check jolokia port is available
-    When container is ready
-    Then check that port 8778 is open
-    Then inspect container
-       | path                    | value       |
-       | /Config/ExposedPorts    | 8778/tcp    |
-
   # JDK 11 images don't have xjc or wsimport
   # This one is to be ignored when running jboss-eap-7/eap74-openjdk17-openshift-rhel8
   @jboss-eap-7-tech-preview/eap72-openjdk11-openshift
