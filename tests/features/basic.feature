@@ -94,7 +94,7 @@ Feature: Common EAP tests
 
   Scenario: Check if jolokia is configured correctly
     When container is ready
-￼   Then container log should contain -javaagent:/usr/share/java/jolokia-jvm-agent/jolokia-jvm.jar=config=/opt/jboss/container/jolokia/etc/jolokia.properties
+    Then container log should contain -javaagent:/usr/share/java/jolokia-jvm-agent/jolokia-jvm.jar=config=/opt/jboss/container/jolokia/etc/jolokia.properties
 
   @redhat-sso-7-tech-preview/sso-cd-openshift @redhat-sso-7/sso73-openshift
   # https://issues.jboss.org/browse/CLOUD-295
