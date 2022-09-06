@@ -7,6 +7,5 @@ execute:
   user: '185'
 
 artifacts:
-- name: activemq-rar-5.11.0.redhat-630495.rar
-  target: activemq-rar-5.11.0.redhat-630495.rar
-  md5: 4bb3ccb1a3732a21435e36858c913699
+- url: http://download.devel.redhat.com/brewroot/packages/org.apache.activemq-activemq-parent/5.11.0.redhat_630495/1/maven/org/apache/activemq/activemq-rar/5.11.0.redhat-630495/activemq-rar-5.11.0.redhat-630495.rar
+  sha256: 4eef88e8e393e90a7b9695d57caaef54cdfdc3656cf285eeb592e7430fca7b9c
