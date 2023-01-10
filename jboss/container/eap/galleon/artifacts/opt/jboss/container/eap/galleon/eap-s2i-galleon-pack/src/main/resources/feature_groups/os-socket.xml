@@ -6,6 +6,6 @@
     </feature>
     <feature spec="interface">
         <param name="interface" value="bindall"/>
-        <param name="inet-address" value="0.0.0.0"/>
+        <param name="inet-address" value="${jboss.bind.address.bindall:0.0.0.0}"/>
     </feature>
 </feature-group-spec>

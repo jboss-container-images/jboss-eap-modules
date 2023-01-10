@@ -6,6 +6,7 @@
 # wildfly-cekit-modules will look for each of the listed files and run them if they exist.
 CONFIG_SCRIPT_CANDIDATES=(
   $JBOSS_HOME/bin/launch/backward-compatibility.sh
+  $JBOSS_HOME/bin/launch/ip.sh
   $JBOSS_HOME/bin/launch/configure_extensions.sh
   $JBOSS_HOME/bin/launch/passwd.sh
   $JBOSS_HOME/bin/launch/messaging.sh
