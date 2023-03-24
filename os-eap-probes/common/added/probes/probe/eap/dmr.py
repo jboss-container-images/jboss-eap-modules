@@ -236,7 +236,7 @@ class HealthCheckTest(Test):
         In no case do we return NOT_READY as MicroProfile Health Check is not a readiness check.
         """
 
-        if results.get("failure-description") and re.compile("JBAS014883|WFLYCTL0030").search(str(results.get("failure-description"))):
+        if results.get("failure-description") and (results.get("failure-description").find("JBAS014883") >= 0 or results.get("failure-description").find("WFLYCTL0030") >= 0):
             return (Status.READY, "Health Check not configured")
 
         if not results.get("result") or not results["result"].get("step-1"):
