@@ -1,0 +1,108 @@
+<?xml version="1.0" ?>
+
+<config xmlns="urn:jboss:galleon:config:1.0" name="standalone-microprofile-ha.xml" model="standalone">
+    <layers>
+        <!-- we already have all required in default config -->
+        <!-- Although logically correct, galleon doesn't actually support excluding from model -->
+        <!-- This is harmless, keeping the exclusion commented for reference until GAL-308 is fixed -->
+        <!--<exclude name="operator-required"/>-->
+        <include name="amq6-rar"/>
+    </layers>
+
+     <!-- No sso packages for JDK17 techpreview -->
+    <!-- <feature-group name="sso"/> -->
+
+    <!-- JDK 17 -->
+    <exclude feature-id="core-service.management.security-realm:security-realm=ApplicationRealm"/>
+    <exclude feature-id="core-service.management.security-realm:security-realm=ManagementRealm"/>
+<!--    <feature spec="subsystem.batch-jberet">-->
+<!--        <param name="security-domain" value="ApplicationDomain"/>-->
+<!--    </feature>-->
+    <!-- JDK 17, remoting secured with elytron -->
+<!--    <feature spec="subsystem.remoting.http-connector">-->
+<!--        <param name="http-connector" value="http-remoting-connector"/>-->
+<!--        <unset param="security-realm"/>-->
+<!--        <param name="sasl-authentication-factory" value="application-sasl-authentication"/>-->
+<!--    </feature>-->
+    
+    <!-- management -->
+    <!-- JDK 17, do not exclude identity -->
+    <!--<exclude spec="core-service.management.access.identity"/>-->
+    <feature spec="core-service.management.management-interface.http-interface">
+        <param name="socket-binding" value="management-http"/>
+        <unset param="http-authentication-factory"/>
+        <feature spec="core-service.management.management-interface.http-interface.http-upgrade">
+            <param name="sasl-authentication-factory" value="management-sasl-authentication"/>
+        </feature>
+    </feature>
+    <exclude spec="subsystem.core-management"/>
+    <feature-group name="os-management"/>
+
+    <!-- messaging -->
+    <feature spec="subsystem.messaging-activemq"/>
+    <feature-group name="os-messaging"/>
+
+    <!-- logging -->
+    <exclude feature-id="subsystem.logging.pattern-formatter:pattern-formatter=PATTERN"/>
+    <exclude feature-id="subsystem.logging.periodic-rotating-file-handler:periodic-rotating-file-handler=FILE"/>
+    <feature-group name="os-logging"/>
+
+    <!-- jberet We can't remove it... needs a default job repository -->
+    <!--<feature spec="subsystem.batch-jberet">
+        <unset param="default-job-repository"/>
+    </feature>-->
+
+    <!-- datasources -->
+    <!-- We are not keeping the ExampleDS in the config -->
+    <exclude feature-id="subsystem.datasources.data-source:data-source=ExampleDS"/>
+    <feature spec="subsystem.ee.service.default-bindings">
+        <unset param="datasource"/>
+    </feature>
+
+    <!-- ejb3 -->
+    <!-- ejb3 is not in XP -->
+<!--    <feature spec="subsystem.ejb3">-->
+<!--        <param name="default-sfsb-cache" value="distributable"/>-->
+<!--        <param name="default-sfsb-passivation-disabled-cache" value="simple"/>-->
+<!--        <param name="default-mdb-instance-pool" value="mdb-strict-max-pool"/>-->
+<!--        <param name="default-resource-adapter-name" value="${ejb.resource-adapter-name:activemq-ra.rar}"/>-->
+<!--        &lt;!&ndash; JDK 17, elytron security &ndash;&gt;-->
+<!--        <feature spec="subsystem.ejb3.application-security-domain">-->
+<!--            <param name="application-security-domain" value="other"/>-->
+<!--            <param name="security-domain" value="ApplicationDomain"/>-->
+<!--        </feature>-->
+<!--    </feature>-->
+<!--    <exclude spec="subsystem.ejb3.service.timer-service"/>-->
+
+    <!-- elytron -->
+    <feature-group name="os-elytron"/>
+
+    <!-- clustering -->
+    <exclude spec="subsystem.infinispan"/>
+<!--    <exclude spec="subsystem.distributable-web"/>-->
+    <feature-group name="os-clustering"/>
+
+    <!-- legacy security -->
+    <!-- JDK 17 excluded fully -->
+    <exclude feature-id="subsystem.security.security-domain:security-domain=jaspitest"/>
+    <exclude feature-id="subsystem.security.security-domain:security-domain=other"/>
+    <exclude feature-id="subsystem.security.security-domain:security-domain=jboss-web-policy"/>
+    <exclude feature-id="subsystem.security.security-domain:security-domain=jboss-ejb-policy"/>
+    <exclude spec="subsystem.security"/>
+    <!-- transactions -->
+    <feature-group name="tx-recovery"/>
+
+    <!-- undertow -->
+    <exclude feature-id="subsystem.undertow.server.https-listener:server=default-server,https-listener=https"/>
+
+    <!-- web-services -->
+    <feature spec="subsystem.webservices">
+        <param name="modify-wsdl-address" value="true"/>
+        <param name="wsdl-host" value="jbossws.undefined.host"/>
+    </feature>
+
+    <feature-group name="os-socket"/>
+
+    <feature-group name="os-undertow-elytron"/>
+
+</config>

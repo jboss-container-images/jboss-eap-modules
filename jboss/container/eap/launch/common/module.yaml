@@ -1,0 +1,33 @@
+schema_version: 1
+name: jboss.container.eap.launch.common
+version: '1.0'
+description: Module that enables CLI configuration for standalone-openshift.xml file
+execute:
+- script: configure.sh
+  user: '185'
+
+envs:
+    - name: LD_PRELOAD
+      value: libnss_wrapper.so
+    - name: NSS_WRAPPER_PASSWD
+      value: /home/jboss/passwd
+    - name: NSS_WRAPPER_GROUP
+      value: /etc/group
+    - name: "DEFAULT_ADMIN_USERNAME"
+      value: "eapadmin"
+    - name: "ENABLE_ACCESS_LOG"
+      example: "true"
+      description: Enable the Access Log.
+    - name: "CLI_GRACEFUL_SHUTDOWN"
+      example: "true"
+      description: "If set to any non zero length value then the image will prevent shutdown with the TERM signal and will require execution of the shutdown command through jboss-cli."
+
+modules:
+  install:
+  - name: jboss.container.user
+  - name: os-eap-migration
+
+packages:
+  install:
+    - nss_wrapper
+    - hostname

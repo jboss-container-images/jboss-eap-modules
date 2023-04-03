@@ -24,12 +24,9 @@ CONFIG_SCRIPT_CANDIDATES=(
   $JBOSS_HOME/bin/launch/configure_logger_category.sh
   $JBOSS_HOME/bin/launch/security-domains.sh
   $JBOSS_HOME/bin/launch/jboss_modules_system_pkgs.sh
-  $JBOSS_HOME/bin/launch/keycloak.sh
   $JBOSS_HOME/bin/launch/deploymentScanner.sh
   $JBOSS_HOME/bin/launch/ports.sh
   $JBOSS_HOME/bin/launch/access_log_valve.sh
-  $JBOSS_HOME/bin/launch/mp-config.sh
-  $JBOSS_HOME/bin/launch/tracing.sh
   $JBOSS_HOME/bin/launch/filters.sh
   $JBOSS_HOME/bin/launch/statefulset.sh
   /opt/run-java/proxy-options
