@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+
+<config xmlns="urn:jboss:galleon:config:1.0" name="standalone-microprofile-ha.xml" model="standalone">
+
+    
+    <!-- sso packages -->
+    <!--<feature-group name="sso"/>-->
+
+    <!-- JDK17. The default standalone-microprofile-ha.xml is secured with legacy security realm for the http-invoker. Use elytron. -->
+    <feature spec="subsystem.undertow">
+        <feature spec="subsystem.undertow.server">
+            <param name="server" value="default-server" />
+            <feature spec="subsystem.undertow.server.host">
+                <param name="host" value="default-host" />
+                <feature spec="subsystem.undertow.server.host.setting.http-invoker">
+                    <unset param="security-realm"/>
+                    <param name="http-authentication-factory" value="application-http-authentication"/>
+                </feature>
+            </feature>
+        </feature>
+    </feature>
+
+    <exclude feature-id="subsystem.logging.pattern-formatter:pattern-formatter=PATTERN"/>
+    <exclude feature-id="subsystem.logging.periodic-rotating-file-handler:periodic-rotating-file-handler=FILE"/>
+    
+
+    <exclude feature-id="subsystem.datasources.data-source:data-source=ExampleDS"/>
+    <feature spec="subsystem.ee.service.default-bindings">
+        <unset param="datasource"/>
+    </feature>
+    <exclude spec="subsystem.microprofile-opentracing-smallrye"/>
+    
+    <!-- jgroups -->
+    <exclude spec="subsystem.jgroups.channel"/>
+    <feature spec="subsystem.jgroups.channel">
+        <param name="channel" value="ee"/>
+        <param name="stack" value="tcp"/>
+        <unset param="cluster"/>
+    </feature>
+    <feature spec="subsystem.jgroups.stack.protocol.FD_SOCK">
+        <param name="stack" value="udp"/>
+        <unset param="socket-binding"/>
+    </feature>
+    <feature spec="subsystem.jgroups.stack.protocol.FD_SOCK">
+        <param name="stack" value="tcp"/>
+        <unset param="socket-binding"/>
+    </feature>
+    <exclude feature-id="subsystem.jgroups.stack.protocol:stack=udp,protocol=PING"/>
+    <exclude feature-id="subsystem.jgroups.stack.protocol.MPING:stack=tcp"/>
+    
+    <!-- we need to reconstruct to remove jgroups and ajp -->
+    <exclude spec="socket-binding-group.socket-binding"/>
+    <feature spec="socket-binding-group">
+        <param name="socket-binding-group" value="standard-sockets" />
+        <param name="port-offset" value="0"/>
+        <param name="default-interface" value="public"/>
+        <feature-group name="standalone-sockets">
+            <exclude feature-id="socket-binding-group.socket-binding:name=standard-sockets,socket-binding=ajp"/>
+            <!-- we don't want it in mp -->
+            <exclude feature-id="socket-binding-group.remote-destination-outbound-socket-binding:name=standard-sockets,remote-destination-outbound-socket-binding=mail-smtp"/>
+        </feature-group>
+        <feature-group name="jgroups-sockets">
+            <exclude feature-id="socket-binding-group.socket-binding:name=standard-sockets,socket-binding=jgroups-udp-fd"/>
+            <exclude feature-id="socket-binding-group.socket-binding:name=standard-sockets,socket-binding=jgroups-tcp-fd"/>
+        </feature-group>
+    </feature>
+    
+    <!-- inifinispan web hibernate cache-container changes -->
+    <feature-group name="os-infinispan-web-repl-cache"/>
+    <feature-group name="os-infinispan-hibernate"/>
+    
+    
+    <exclude feature-id="subsystem.undertow.server.https-listener:server=default-server,https-listener=https"/>
+
+</config>

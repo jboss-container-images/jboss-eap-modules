@@ -4,8 +4,9 @@ version: '1.0'
 description: Install Galleon descriptions and EAP s2i feature-pack. Configure galleon cekit modules to build fp and provision default server
 
 envs:
-- name: S2I_FP_VERSION
-  value: "23.0.0.Final"
+# This env has been moved to galleon/config/ee-common (EAP) and galleon/config/mp-common (XP) modules.
+#- name: S2I_FP_VERSION
+
 - name: GALLEON_DEFINITIONS
   value: /opt/jboss/container/eap/galleon/definitions
 - name: GALLEON_MAVEN_REPO_HOOK_SCRIPT

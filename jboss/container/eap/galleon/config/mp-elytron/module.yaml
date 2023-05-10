@@ -1,7 +1,7 @@
 schema_version: 1
 name: jboss.container.eap.galleon.config.mp
-version: '1.0'
-description: Install Galleon descriptions and EAP s2i feature-pack for mp config
+version: '1.0-elytron'
+description: Install Galleon mp default configuration.
 
 execute:
 - script: configure.sh
