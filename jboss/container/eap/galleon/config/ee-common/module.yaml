@@ -3,5 +3,9 @@ name: jboss.container.eap.galleon.config.ee.common
 version: '1.0'
 description: Install Galleon ee default configuration.
 
+envs:
+- name: S2I_FP_VERSION
+  value: "23.0.0.Final"
+
 execute:
 - script: configure.sh
