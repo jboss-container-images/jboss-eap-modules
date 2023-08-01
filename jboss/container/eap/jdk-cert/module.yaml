@@ -1,0 +1,7 @@
+schema_version: 1
+name: jboss.container.eap.jdk-cert
+version: '1.0'
+description:  "JBoss Enterprise Application Platform setup root certificates for JVM"
+
+execute:
+- script: configure.sh
