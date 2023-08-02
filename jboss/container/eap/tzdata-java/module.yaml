@@ -1,0 +1,8 @@
+schema_version: 1
+name: jboss.container.eap.tzdata-java
+version: '1.0'
+description:  "Install tzdata-java"
+
+packages:
+  install:
+  - tzdata-java
