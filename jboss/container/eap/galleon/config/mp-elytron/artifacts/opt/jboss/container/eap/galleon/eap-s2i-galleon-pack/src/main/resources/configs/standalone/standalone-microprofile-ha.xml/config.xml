@@ -4,7 +4,7 @@
 
     
     <!-- sso packages -->
-    <!--<feature-group name="sso"/>-->
+    <feature-group name="sso"/>
 
     <!-- JDK17. The default standalone-microprofile-ha.xml is secured with legacy security realm for the http-invoker. Use elytron. -->
     <feature spec="subsystem.undertow">
