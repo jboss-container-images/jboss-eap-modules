@@ -9,8 +9,7 @@
         <include name="amq6-rar"/>
     </layers>
 
-     <!-- No sso packages for JDK17 techpreview -->
-    <!-- <feature-group name="sso"/> -->
+    <feature-group name="sso"/>
 
     <!-- JDK 17 -->
     <exclude feature-id="core-service.management.security-realm:security-realm=ApplicationRealm"/>
