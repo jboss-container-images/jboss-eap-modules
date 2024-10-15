@@ -2,10 +2,13 @@ schema_version: 1
 name: os-eap-activemq-rar
 version: '1.1'
 description: Legacy os-eap-activemq-rar script package.
+
+artifacts:
+  - url: http://download.devel.redhat.com/brewroot/packages/org.apache.activemq-activemq-parent/5.11.0.redhat_630495/1/maven/org/apache/activemq/activemq-rar/5.11.0.redhat-630495/activemq-rar-5.11.0.redhat-630495.rar
+    sha256: 4eef88e8e393e90a7b9695d57caaef54cdfdc3656cf285eeb592e7430fca7b9c
+    source-url: https://download-01.beak-001.prod.iad2.dc.redhat.com/brewroot/packages/org.apache.activemq-activemq-parent/5.11.0.redhat_630495/1/maven/org/apache/activemq/activemq-parent/5.11.0.redhat-630495/activemq-parent-5.11.0.redhat-630495-project-sources.tar.gz
+    source-md5: b380f19563462a135484eb4e075f64f8
+    
 execute:
 - script: configure.sh
   user: '185'
-
-artifacts:
-- url: http://download.devel.redhat.com/brewroot/packages/org.apache.activemq-activemq-parent/5.11.0.redhat_630495/1/maven/org/apache/activemq/activemq-rar/5.11.0.redhat-630495/activemq-rar-5.11.0.redhat-630495.rar
-  sha256: 4eef88e8e393e90a7b9695d57caaef54cdfdc3656cf285eeb592e7430fca7b9c
