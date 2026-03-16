@@ -795,3 +795,33 @@ Feature: EAP Openshift datasources
     Then container log should contain WFLYSRV0025
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath //*[local-name()='datasource'] and wait 30 seconds
     Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 0 elements on XPath //*[local-name()='xa-datasource'] and wait 30 seconds
+
+  Scenario: Create a Data source and its driver at rutime by using environment variables
+    Given s2i build https://github.com/jboss-container-images/jboss-eap-modules from tests/examples/test-app-drivers-at-runtime with env and true
+       | variable                           | value                                                 |
+       | DRIVERS                            | DRVONE,DRVTWO,DRVTHREE                                |
+       | DRVONE_DRIVER_NAME                 | drv_one                                               |
+       | DRVONE_DRIVER_MODULE               | org.postgresql                                        |
+       | DRVONE_DRIVER_CLASS                | org.postgresql.Driver                                 |
+       | DRVONE_XA_DATASOURCE_CLASS         | org.postgresql.xa.PGXADataSource                      |
+       | DRVTWO_DRIVER_NAME                 | drv_two                                               |
+       | DRVTWO_DRIVER_MODULE               | org.postgresql                                        |
+       | DRVTWO_XA_DATASOURCE_CLASS         | org.postgresql.xa.PGXADataSource                      |
+       | DRVTHREE_DRIVER_NAME               | drv_three                                             |
+       | DRVTHREE_DRIVER_MODULE             | org.postgresql                                        |
+       | DRVTHREE_DRIVER_CLASS              | org.postgresql.Driver                                 |
+       | DB_SERVICE_PREFIX_MAPPING          | dbone-postgresql=DSONE                                |
+       | DBONE_POSTGRESQL_SERVICE_HOST      | 10.1.1.1                                              |
+       | DBONE_POSTGRESQL_SERVICE_PORT      | 5432                                                  |
+       | DSONE_JNDI                         | java:/jboss/datasources/PostgreSQLDS                  |
+       | DSONE_DATABASE                     | postgre                                               |
+       | DSONE_DRIVER                       | drv_one                                               |
+       | DSONE_URL                          | jdbc:postgresql://localhost:5432/postgresdb           |
+       | DSONE_NONXA                        | true                                                  |
+       | DSONE_USERNAME                     | postgre                                               |
+       | DSONE_PASSWORD                     | admin                                                 |
+    Then container log should contain WFLYSRV0025
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='driver'][@name='drv_one']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='driver'][@name='drv_two']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should have 1 elements on XPath //*[local-name()='driver'][@name='drv_three']
+    Then XML file /opt/eap/standalone/configuration/standalone-openshift.xml should contain value drv_one on XPath //*[local-name()='datasource']/*[local-name()='driver']
