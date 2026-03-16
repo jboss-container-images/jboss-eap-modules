@@ -24,7 +24,7 @@ fi
 
 function runServer() {
   local instanceDir=$1
-  launchServer "$JBOSS_HOME/bin/standalone.sh -c standalone-openshift.xml -bmanagement 0.0.0.0 -Djboss.server.data.dir=${instanceDir} -Dwildfly.statistics-enabled=true"
+  launchServer "$JBOSS_HOME/bin/standalone.sh -c standalone-openshift.xml -Djboss.server.data.dir=${instanceDir} -Dwildfly.statistics-enabled=true"
 }
 
 function init_data_dir() {
